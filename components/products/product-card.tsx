@@ -1,0 +1,72 @@
+import Image from "next/image"
+import Link from "next/link"
+import type { Product } from "@/lib/db/types"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ShoppingCart } from "lucide-react"
+
+interface ProductCardProps {
+  product: Product
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const hasStock = product.upp_existencia > 0
+
+  return (
+    <Card className="group overflow-hidden h-full flex flex-col">
+      <Link href={`/productos/${product.slug}`} className="block">
+        <div className="relative aspect-square overflow-hidden bg-muted">
+          <Image
+            src={product.imagen_principal_url || "/placeholder.svg?height=300&width=300"}
+            alt={product.nombre_comercial || product.pdt_descripcion}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 50vw, 25vw"
+          />
+
+          {/* Badges */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {product.is_new && (
+              <Badge variant="default" className="w-fit">
+                Nuevo
+              </Badge>
+            )}
+            {product.is_on_sale && (
+              <Badge variant="destructive" className="w-fit">
+                Oferta
+              </Badge>
+            )}
+            {!hasStock && (
+              <Badge variant="secondary" className="w-fit">
+                Agotado
+              </Badge>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <CardContent className="p-4 flex-1">
+        <Link href={`/productos/${product.slug}`}>
+          <h3 className="font-semibold text-sm mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+            {product.nombre_comercial || product.pdt_descripcion}
+          </h3>
+        </Link>
+        <p className="text-xs text-muted-foreground mb-2">Código: {product.pdt_codigo}</p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-lg font-bold">${product.precio?.toFixed(2)}</span>
+          {product.is_on_sale && (
+            <span className="text-sm text-muted-foreground line-through">${(product.precio! * 1.2).toFixed(2)}</span>
+          )}
+        </div>
+      </CardContent>
+
+      <CardFooter className="p-4 pt-0">
+        <Button className="w-full" size="sm" disabled={!hasStock}>
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          {hasStock ? "Agregar" : "Agotado"}
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}
