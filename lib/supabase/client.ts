@@ -1,9 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr"
-import type { Database } from "@/lib/db/types"
 
 // Use a more robust singleton pattern that works across module boundaries
 declare global {
-  var __supabase_client: ReturnType<typeof createBrowserClient<Database>> | undefined
+  var __supabase_client: ReturnType<typeof createBrowserClient> | undefined
 }
 
 export function createClient() {
@@ -13,7 +12,7 @@ export function createClient() {
   }
 
   // Create new instance only if it doesn't exist
-  const client = createBrowserClient<Database>(
+  const client = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

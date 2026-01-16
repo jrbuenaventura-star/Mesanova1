@@ -22,8 +22,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     const errorParam = searchParams.get("error")
-    if (errorParam === "authentication_failed") {
+    if (!errorParam) return
+
+    if (errorParam === "authentication_failed" || errorParam === "auth_failed") {
       setError("Error al autenticar. Por favor intenta de nuevo.")
+      return
+    }
+
+    if (errorParam === "no_code") {
+      setError("No se pudo completar el inicio de sesión con Google. Por favor intenta de nuevo.")
     }
   }, [searchParams])
 
