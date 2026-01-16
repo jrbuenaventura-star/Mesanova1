@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,20 @@ import { CheckCircle2, Package, Mail, Phone, MapPin, Loader2 } from "lucide-reac
 import Link from "next/link"
 
 export default function ConfirmacionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto py-16 px-4 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <ConfirmacionContent />
+    </Suspense>
+  )
+}
+
+function ConfirmacionContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get("order")
   const supabase = createClient()
