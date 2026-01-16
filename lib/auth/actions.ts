@@ -17,7 +17,7 @@ export async function signUp(formData: {
     email: formData.email,
     password: formData.password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || "http://localhost:3000"}/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
       data: {
         full_name: formData.full_name,
         role: formData.role || "end_user",
