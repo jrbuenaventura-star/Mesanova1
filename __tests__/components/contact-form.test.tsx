@@ -15,7 +15,7 @@ const mockContactForm = {
 describe('ContactForm Component', () => {
   it('should validate required fields', () => {
     const { fullName, email, phone } = mockContactForm
-    const isValid = fullName && email && phone
+    const isValid = !!(fullName && email && phone)
     expect(isValid).toBe(false)
   })
 
@@ -38,7 +38,7 @@ describe('ContactForm Component', () => {
       message: 'Mensaje de prueba',
     }
 
-    const isValid = validForm.fullName && validForm.email && validForm.phone
+    const isValid = !!(validForm.fullName && validForm.email && validForm.phone)
     expect(isValid).toBe(true)
   })
 })
