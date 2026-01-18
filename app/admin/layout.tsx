@@ -11,6 +11,7 @@ import {
   BarChart3,
   Building2,
   Truck,
+  Gift,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -74,6 +75,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Button variant="ghost" className="w-full justify-start">
               <Building2 className="mr-2 h-4 w-4" />
               Clientes
+            </Button>
+          </Link>
+          <Link href="/admin/gift-registries">
+            <Button variant="ghost" className="w-full justify-start">
+              <Gift className="mr-2 h-4 w-4" />
+              Listas de Regalo
             </Button>
           </Link>
           <Link href="/admin/blog">

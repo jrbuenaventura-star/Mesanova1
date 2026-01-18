@@ -5,46 +5,62 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
+import { FavoriteButton } from "@/components/products/favorite-button"
 
 interface ProductCardProps {
   product: Product
+  showFavoriteButton?: boolean
+  isFavorited?: boolean
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, showFavoriteButton = true, isFavorited = false }: ProductCardProps) {
   const hasStock = product.upp_existencia > 0
 
   return (
     <Card className="group overflow-hidden h-full flex flex-col">
-      <Link href={`/productos/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          <Image
-            src={product.imagen_principal_url || "/placeholder.svg?height=300&width=300"}
-            alt={product.nombre_comercial || product.pdt_descripcion}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
+      <div className="relative">
+        <Link href={`/productos/${product.slug}`} className="block">
+          <div className="relative aspect-square overflow-hidden bg-muted">
+            <Image
+              src={product.imagen_principal_url || "/placeholder.svg?height=300&width=300"}
+              alt={product.nombre_comercial || product.pdt_descripcion}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
 
-          {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {product.is_new && (
-              <Badge variant="default" className="w-fit">
-                Nuevo
-              </Badge>
-            )}
-            {product.is_on_sale && (
-              <Badge variant="destructive" className="w-fit">
-                Oferta
-              </Badge>
-            )}
-            {!hasStock && (
-              <Badge variant="secondary" className="w-fit">
-                Agotado
-              </Badge>
-            )}
+            {/* Badges */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+              {product.is_new && (
+                <Badge variant="default" className="w-fit">
+                  Nuevo
+                </Badge>
+              )}
+              {product.is_on_sale && (
+                <Badge variant="destructive" className="w-fit">
+                  Oferta
+                </Badge>
+              )}
+              {!hasStock && (
+                <Badge variant="secondary" className="w-fit">
+                  Agotado
+                </Badge>
+              )}
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+        
+        {/* Favorite Button */}
+        {showFavoriteButton && (
+          <div className="absolute top-2 right-2 z-10">
+            <FavoriteButton 
+              productId={product.id} 
+              initialIsFavorite={isFavorited}
+              className="bg-background/80 backdrop-blur-sm hover:bg-background"
+            />
+          </div>
+        )}
+      </div>
 
       <CardContent className="p-4 flex-1">
         <Link href={`/productos/${product.slug}`}>

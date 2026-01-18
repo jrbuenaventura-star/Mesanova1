@@ -12,7 +12,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, User, Settings } from "lucide-react"
+import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, User, Settings, Gift } from "lucide-react"
 import { SearchAutocomplete } from "@/components/search/search-autocomplete"
 import { SearchButton } from "@/components/search-button"
 import { CartIcon } from "@/components/cart/cart-icon"
@@ -153,6 +153,15 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
           </NavigationMenuItem>
 
           <NavigationMenuItem>
+            <Link href="/listas" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <Gift className="h-4 w-4 mr-1" />
+                Listas de Regalo
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
             <NavigationMenuTrigger>Contacto</NavigationMenuTrigger>
             <NavigationMenuContent className="bg-popover text-popover-foreground border shadow-md">
               <ul className="grid w-[300px] gap-3 p-4">
@@ -268,6 +277,13 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
               <SheetClose asChild>
                 <Link href="/blog" className="text-lg font-semibold hover:text-primary transition-colors">
                   Nuestra Mesa
+                </Link>
+              </SheetClose>
+
+              <SheetClose asChild>
+                <Link href="/listas" className="text-lg font-semibold hover:text-primary transition-colors flex items-center gap-2">
+                  <Gift className="h-5 w-5" />
+                  Listas de Regalo
                 </Link>
               </SheetClose>
 
