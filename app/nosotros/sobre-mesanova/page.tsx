@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Award, Heart, Leaf, Users, Shield, Building2, TrendingUp, Globe } from "lucide-react"
+import { MesanovaLogo } from "@/components/mesanova-logo"
+import Image from "next/image"
+import { Award, Heart, Leaf, Users, Shield, Building2, TrendingUp, Globe, ArrowRight } from "lucide-react"
 
 export const metadata = {
   title: "Sobre Mesanova - Nosotros",
@@ -35,7 +37,8 @@ const hitos = [
   {
     year: "1992",
     title: "Fundación",
-    description: "Inicio de operaciones como distribuidor especializado de artículos para el hogar en Colombia",
+    description:
+      "Nacemos como Alumar, fundada por María Eugenia Bernal, con el propósito de llevar artículos para el hogar de alta calidad al mercado colombiano.",
   },
   {
     year: "2000",
@@ -48,9 +51,10 @@ const hitos = [
     description: "Lanzamiento de nuestra primera plataforma de catálogo en línea",
   },
   {
-    year: "2025",
-    title: "Mesanova",
-    description: "Renovación completa con plataforma e-commerce moderna y experiencia omnicanal",
+    year: "2026",
+    title: "Renovación de Marca: Mesanova",
+    description:
+      "En 2026 nos renovamos con una nueva marca: pasamos de llamarnos Alumar a llamarnos Mesanova, con una plataforma e-commerce moderna y una experiencia omnicanal.",
   },
 ]
 
@@ -85,10 +89,31 @@ export default function SobreMesanovaPage() {
         <div className="container mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-6">Sobre Mesanova</h1>
           <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto leading-relaxed">
-            Fundada en 1992, Mesanova cuenta con profunda experiencia en el mercado colombiano de housewares. Somos
-            especialistas en la distribución de artículos para cocina, mesa y hogar, ofreciendo productos de calidad que
-            transforman espacios y momentos en experiencias memorables.
+            Fundada en 1992 como Alumar por María Eugenia Bernal, Mesanova cuenta con profunda experiencia en el mercado
+            colombiano de housewares. Somos especialistas en la distribución de artículos para cocina, mesa y hogar,
+            ofreciendo productos de calidad que transforman espacios y momentos en experiencias memorables.
           </p>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-background">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-4">El Equipo</h2>
+          <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+            Somos un equipo comprometido con el servicio, la calidad y las relaciones de largo plazo.
+          </p>
+          <div className="mx-auto max-w-6xl">
+            <div className="relative w-full overflow-hidden rounded-xl border bg-muted/20">
+              <Image
+                src="/images/equipo-alumar.jpg"
+                alt="Equipo Alumar"
+                width={2400}
+                height={900}
+                className="h-auto w-full object-cover"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -122,6 +147,35 @@ export default function SobreMesanovaPage() {
       <section className="py-16 px-4 bg-muted/50">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Nuestra Historia</h2>
+          <div className="max-w-5xl mx-auto mb-12">
+            <Card>
+              <CardHeader>
+                <CardTitle>Evolución de Marca</CardTitle>
+                <CardDescription>De Alumar a Mesanova</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-6">
+                  <div className="rounded-lg border bg-background p-6 flex items-center justify-center">
+                    <Image
+                      src="/images/alumar-logo.jpg"
+                      alt="Logo Alumar"
+                      width={520}
+                      height={200}
+                      className="h-auto w-full max-w-[420px] object-contain"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-center">
+                    <ArrowRight className="h-10 w-10 text-muted-foreground" />
+                  </div>
+
+                  <div className="rounded-lg border bg-background p-6 flex items-center justify-center">
+                    <MesanovaLogo className="justify-center" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <div className="max-w-4xl mx-auto">
             <div className="space-y-8">
               {hitos.map((hito, index) => (
