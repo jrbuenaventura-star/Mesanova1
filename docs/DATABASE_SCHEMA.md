@@ -212,3 +212,200 @@ Ver `/lib/db/queries.ts` para funciones útiles:
 4. El frontend consulta ambas tablas según necesidad:
    - Total general para listados
    - Detalle por almacén para páginas de producto
+
+---
+
+## Funcionalidades de Usuario (Migración 015)
+
+### 9. `favorites`
+Productos marcados como favoritos por el usuario.
+
+**Campos:**
+- `user_id`: UUID (Foreign Key → user_profiles)
+- `product_id`: UUID (Foreign Key → products)
+- `created_at`: TIMESTAMPTZ
+
+### 10. `wishlists` y `wishlist_items`
+Listas de deseos compartibles.
+
+**wishlists:**
+- `user_id`: UUID (Foreign Key → user_profiles)
+- `name`: VARCHAR(255)
+- `description`: TEXT
+- `is_public`: BOOLEAN
+- `share_token`: VARCHAR(64) UNIQUE
+
+**wishlist_items:**
+- `wishlist_id`: UUID (Foreign Key → wishlists)
+- `product_id`: UUID (Foreign Key → products)
+- `quantity`: INTEGER
+- `priority`: INTEGER (0=normal, 1=alta, 2=muy alta)
+
+### 11. `gift_registries`, `gift_registry_items`, `gift_registry_purchases`
+Sistema de listas de regalos para bodas, baby showers, etc.
+
+**gift_registries:**
+- `user_id`: UUID
+- `name`: VARCHAR(255) - Nombre buscable
+- `event_type`: ENUM ('wedding', 'baby_shower', 'birthday', 'housewarming', 'other')
+- `event_date`: DATE
+- `partner_name`: VARCHAR(255)
+- `is_searchable`: BOOLEAN - Permite búsqueda pública por nombre
+- `share_token`: VARCHAR(64) UNIQUE
+- `status`: ENUM ('active', 'completed', 'expired', 'cancelled')
+- `expires_at`: TIMESTAMPTZ - 2 meses después del evento
+- `notify_on_purchase`: BOOLEAN
+
+**gift_registry_items:**
+- `registry_id`: UUID
+- `product_id`: UUID
+- `quantity_desired`: INTEGER
+- `quantity_purchased`: INTEGER - Actualizado automáticamente por trigger
+
+**gift_registry_purchases:**
+- `registry_item_id`: UUID
+- `buyer_name`, `buyer_email`, `buyer_message`
+- `is_anonymous`: BOOLEAN
+- `quantity`: INTEGER
+- `order_id`: UUID (opcional)
+
+### 12. `shipping_addresses`
+Direcciones de envío guardadas del usuario.
+
+**Campos:**
+- `user_id`: UUID
+- `label`: VARCHAR(100) - "Casa", "Oficina"
+- `full_name`, `phone`
+- `address_line1`, `address_line2`
+- `city`, `state`, `postal_code`, `country`
+- `is_default`: BOOLEAN - Solo una por usuario (trigger automático)
+
+### 13. `carriers` y `order_tracking_history`
+Transportadoras y seguimiento de envíos.
+
+**carriers:**
+- `code`: VARCHAR(50) UNIQUE - 'deprisa', 'tcc'
+- `name`: VARCHAR(100)
+- `tracking_url_template`: TEXT - URL con {tracking_number}
+- `supports_api`: BOOLEAN - Para integración futura
+
+**order_tracking_history:**
+- `order_id`: UUID
+- `status`: VARCHAR(100)
+- `status_description`: TEXT
+- `location`: VARCHAR(255)
+- `occurred_at`: TIMESTAMPTZ
+
+**Columnas agregadas a `orders`:**
+- `carrier_id`: UUID (Foreign Key → carriers)
+- `tracking_number`: VARCHAR(255)
+- `estimated_delivery_date`: DATE
+- `last_tracking_update`: TIMESTAMPTZ
+
+### 14. `product_reviews` y `review_votes`
+Sistema de reseñas de productos.
+
+**product_reviews:**
+- `product_id`, `user_id`, `order_id`
+- `rating`: INTEGER (1-5)
+- `title`, `review_text`
+- `images`: JSONB
+- `is_verified_purchase`: BOOLEAN
+- `helpful_count`, `not_helpful_count` - Actualizados por trigger
+
+**review_votes:**
+- `review_id`, `user_id`
+- `is_helpful`: BOOLEAN
+
+### 15. `recently_viewed_products`
+Historial de productos vistos.
+
+**Campos:**
+- `user_id`, `product_id`
+- `viewed_at`: TIMESTAMPTZ
+- `view_count`: INTEGER
+
+**Función:** `upsert_recently_viewed(user_id, product_id)` - Mantiene máximo 50 por usuario.
+
+### 16. `price_alerts` y `stock_alerts`
+Alertas de precio y disponibilidad.
+
+**price_alerts:**
+- `user_id`, `product_id`
+- `target_price`, `original_price`
+- `is_active`, `triggered_at`, `notified_at`
+
+**stock_alerts:**
+- `user_id`, `product_id`
+- `is_active`, `triggered_at`, `notified_at`
+
+### 17. `loyalty_points`, `loyalty_transactions`, `loyalty_config`
+Sistema de puntos de lealtad.
+
+**loyalty_points:**
+- `user_id`: UUID UNIQUE
+- `total_points`, `available_points`, `pending_points`, `redeemed_points`
+- `tier`: VARCHAR(50) - 'bronze', 'silver', 'gold', 'platinum'
+
+**loyalty_transactions:**
+- `user_id`
+- `transaction_type`: ENUM ('purchase', 'review', 'referral', 'bonus', 'redemption', 'expiration', 'adjustment')
+- `points`: INTEGER (positivo o negativo)
+- `order_id`, `review_id` (opcionales)
+- `expires_at`: TIMESTAMPTZ
+
+**loyalty_config:** Configuración global del programa.
+
+### 18. `user_notifications` y `notification_preferences`
+Sistema de notificaciones.
+
+**user_notifications:**
+- `user_id`
+- `type`: ENUM ('order_status', 'price_drop', 'back_in_stock', 'gift_purchased', etc.)
+- `title`, `message`
+- `is_read`, `read_at`
+- `email_sent`, `email_sent_at`
+
+**notification_preferences:**
+- `user_id`: UUID UNIQUE
+- `email_order_updates`, `email_price_alerts`, `email_stock_alerts`
+- `email_gift_purchases`, `email_promotions`, `email_newsletter`
+
+### 19. `product_comparisons`
+Comparador de productos.
+
+**Campos:**
+- `user_id` o `session_id`
+- `product_id`
+- `added_at`
+
+---
+
+## Queries de Usuario
+
+Ver `/lib/db/user-features.ts` para funciones de usuario:
+
+**Favoritos:**
+- `getUserFavorites()`, `addToFavorites()`, `removeFromFavorites()`
+
+**Wishlists:**
+- `getUserWishlists()`, `createWishlist()`, `addToWishlist()`
+
+**Listas de Regalo:**
+- `getUserGiftRegistries()`, `searchGiftRegistries()`, `createGiftRegistry()`
+- `getGiftRegistryByToken()`, `purchaseGiftRegistryItem()`
+
+**Direcciones:**
+- `getUserAddresses()`, `getDefaultAddress()`, `createAddress()`
+
+**Tracking:**
+- `getOrderTracking()`, `getCarriers()`, `addTrackingEvent()`
+
+**Reseñas:**
+- `getProductReviews()`, `getProductRatingStats()`, `createReview()`
+
+**Lealtad:**
+- `getUserLoyaltyPoints()`, `getLoyaltyTransactions()`
+
+**Notificaciones:**
+- `getUserNotifications()`, `markNotificationAsRead()`
