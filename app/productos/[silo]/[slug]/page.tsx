@@ -1,14 +1,20 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getProductBySlug } from "@/lib/db/queries"
+import { createClient } from "@/lib/supabase/server"
+import { getProductReviews, getProductRatingStats, getUserWishlists, getUserGiftRegistries, isProductFavorited } from "@/lib/db/user-features"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, Share2, Package, Truck, CheckCircle, AlertCircle } from "lucide-react"
+import { Share2, Package, Truck, CheckCircle, AlertCircle } from "lucide-react"
 import { ProductImageGallery } from "@/components/products/product-image-gallery"
 import { ProductCard } from "@/components/products/product-card"
 import { AddToCartButton } from "@/components/products/add-to-cart-button"
+import { FavoriteButton } from "@/components/products/favorite-button"
+import { AddToListButton } from "@/components/products/add-to-list-button"
+import { ProductReviews } from "@/components/products/product-reviews"
+import { TrackProductView } from "@/components/products/track-product-view"
 
 interface ProductPageProps {
   params: {
@@ -24,6 +30,32 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) {
     notFound()
   }
+
+  // Obtener usuario y datos relacionados
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Datos del usuario (favoritos, listas, etc.)
+  let isFavorited = false
+  let wishlists: { id: string; name: string }[] = []
+  let giftRegistries: { id: string; name: string }[] = []
+
+  if (user) {
+    const [favResult, wishlistsData, registriesData] = await Promise.all([
+      isProductFavorited(user.id, product.id),
+      getUserWishlists(user.id),
+      getUserGiftRegistries(user.id),
+    ])
+    isFavorited = favResult
+    wishlists = (wishlistsData || []).map((w: any) => ({ id: w.id, name: w.name }))
+    giftRegistries = (registriesData || []).filter((r: any) => r.status === "active").map((r: any) => ({ id: r.id, name: r.name }))
+  }
+
+  // Obtener reseñas del producto
+  const [reviewsData, ratingStats] = await Promise.all([
+    getProductReviews(product.id, 10),
+    getProductRatingStats(product.id),
+  ])
 
   const images = [
     {
@@ -50,6 +82,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Track product view */}
+      <TrackProductView productId={product.id} userId={user?.id} />
+
       {/* Breadcrumb */}
       <nav className="mb-6 text-sm">
         <ol className="flex items-center gap-2 text-muted-foreground">
@@ -195,15 +230,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="space-y-3">
             <AddToCartButton product={product} disabled={!hasStock} />
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 bg-transparent">
-                <Heart className="h-4 w-4 mr-2" />
-                Favoritos
-              </Button>
+              <FavoriteButton 
+                productId={product.id} 
+                initialIsFavorite={isFavorited}
+                variant="button"
+                className="flex-1"
+              />
               <Button variant="outline" className="flex-1 bg-transparent">
                 <Share2 className="h-4 w-4 mr-2" />
                 Compartir
               </Button>
             </div>
+            <AddToListButton
+              productId={product.id}
+              wishlists={wishlists}
+              giftRegistries={giftRegistries}
+            />
           </div>
 
           {/* Información de envío */}
@@ -250,9 +292,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       {/* Tabs de información detallada */}
       <Tabs defaultValue="description" className="mb-12">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4 md:grid-cols-6">
           <TabsTrigger value="description">Descripción</TabsTrigger>
           <TabsTrigger value="specs">Especificaciones</TabsTrigger>
+          <TabsTrigger value="reviews">Reseñas ({ratingStats.total})</TabsTrigger>
           {(product.instrucciones_uso || product.instrucciones_cuidado || product.garantia) && (
             <TabsTrigger value="instructions">Instrucciones</TabsTrigger>
           )}
@@ -313,6 +356,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="reviews" className="mt-6">
+          <ProductReviews
+            productId={product.id}
+            reviews={(reviewsData.reviews || []).map((r: any) => ({
+              ...r,
+              user: Array.isArray(r.user) ? r.user[0] : r.user
+            }))}
+            stats={ratingStats}
+            currentUserId={user?.id}
+          />
         </TabsContent>
 
         {(product.instrucciones_uso || product.instrucciones_cuidado || product.garantia) && (
