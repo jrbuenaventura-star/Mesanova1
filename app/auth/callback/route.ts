@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import type { UserRole } from "@/lib/db/types"
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -21,6 +22,20 @@ export async function GET(request: Request) {
 
     if (data?.session) {
       console.log("[v0] Auth callback - session created for user:", data.user?.email)
+
+      const roleFromMeta = (data.user?.user_metadata as { role?: unknown } | null | undefined)?.role
+      const isValidRole = (v: unknown): v is UserRole => v === "superadmin" || v === "distributor" || v === "end_user"
+
+      if (data.user?.id && isValidRole(roleFromMeta)) {
+        const { error: roleUpdateError } = await supabase
+          .from("user_profiles")
+          .update({ role: roleFromMeta })
+          .eq("id", data.user.id)
+
+        if (roleUpdateError) {
+          console.error("[v0] Auth callback - failed to sync role:", roleUpdateError)
+        }
+      }
 
       await new Promise((resolve) => setTimeout(resolve, 200))
 

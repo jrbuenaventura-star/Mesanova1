@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { UserManagementTable } from "@/components/admin/user-management-table"
+import { InviteUserForm } from "@/components/admin/invite-user-form"
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -42,6 +43,7 @@ export default async function AdminUsersPage() {
           <CardDescription>Administra roles y permisos de los usuarios registrados</CardDescription>
         </CardHeader>
         <CardContent>
+          <InviteUserForm />
           <UserManagementTable users={users || []} />
         </CardContent>
       </Card>
