@@ -105,7 +105,7 @@ export default function SobreMesanovaPage() {
           <div className="mx-auto max-w-6xl">
             <div className="relative w-full overflow-hidden rounded-xl border bg-muted/20">
               <Image
-                src="/images/equipo-alumar.jpg"
+                src="/images/IMG_8280.jpeg"
                 alt="Equipo Alumar"
                 width={2400}
                 height={900}
@@ -157,7 +157,7 @@ export default function SobreMesanovaPage() {
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-6">
                   <div className="rounded-lg border bg-background p-6 flex items-center justify-center">
                     <Image
-                      src="/images/alumar-logo.jpg"
+                      src="/images/logo-alumar%20(1).jpg"
                       alt="Logo Alumar"
                       width={520}
                       height={200}
