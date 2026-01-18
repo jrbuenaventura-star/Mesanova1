@@ -27,7 +27,7 @@ export function MesanovaLogo({ className = "" }: MesanovaLogoProps) {
         <path d="M28 14v-3" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" />
         <path d="M24.5 31h9" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
-      <span className="text-2xl font-bold tracking-tight text-slate-800">MESANOVA</span>
+      <span className="hidden sm:inline text-2xl font-bold tracking-tight text-slate-800">MESANOVA</span>
     </div>
   )
 }

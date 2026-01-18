@@ -11,9 +11,10 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, User, Settings } from "lucide-react"
 import { SearchAutocomplete } from "@/components/search/search-autocomplete"
+import { SearchButton } from "@/components/search-button"
 import { CartIcon } from "@/components/cart/cart-icon"
 
 const silos = [
@@ -174,7 +175,12 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
       </NavigationMenu>
 
       <div className="ml-auto flex items-center gap-4">
-        <SearchAutocomplete />
+        <div className="hidden md:block">
+          <SearchAutocomplete />
+        </div>
+        <div className="md:hidden">
+          <SearchButton />
+        </div>
         <CartIcon />
 
         {user ? (
@@ -216,61 +222,64 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
               <span className="sr-only">Abrir menú</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col gap-4 mt-8">
-              <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors">
-                Home
-              </Link>
+          <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
+            <nav className="flex flex-col gap-4 mt-8 pb-10">
+              <SheetClose asChild>
+                <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors">
+                  Home
+                </Link>
+              </SheetClose>
 
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-muted-foreground">Productos</p>
                 <div className="pl-4 space-y-2">
                   {silos.map((silo) => (
-                    <Link
-                      key={silo.slug}
-                      href={`/productos/${silo.slug}`}
-                      className="block text-sm hover:text-primary transition-colors"
-                    >
-                      {silo.name}
-                    </Link>
+                    <SheetClose asChild key={silo.slug}>
+                      <Link href={`/productos/${silo.slug}`} className="block text-sm hover:text-primary transition-colors">
+                        {silo.name}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </div>
               </div>
 
-              <Link href="/ofertas" className="text-lg font-semibold hover:text-primary transition-colors">
-                Ofertas
-              </Link>
+              <SheetClose asChild>
+                <Link href="/ofertas" className="text-lg font-semibold hover:text-primary transition-colors">
+                  Ofertas
+                </Link>
+              </SheetClose>
 
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-muted-foreground">Nosotros</p>
                 <div className="pl-4 space-y-2">
-                  <Link href="/nosotros/sobre-mesanova" className="block text-sm hover:text-primary transition-colors">
-                    Sobre Mesanova
-                  </Link>
-                  <Link
-                    href="/nosotros/por-que-elegirnos"
-                    className="block text-sm hover:text-primary transition-colors"
-                  >
-                    ¿Por qué elegirnos?
-                  </Link>
+                  <SheetClose asChild>
+                    <Link href="/nosotros/sobre-mesanova" className="block text-sm hover:text-primary transition-colors">
+                      Sobre Mesanova
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/nosotros/por-que-elegirnos" className="block text-sm hover:text-primary transition-colors">
+                      ¿Por qué elegirnos?
+                    </Link>
+                  </SheetClose>
                 </div>
               </div>
 
-              <Link href="/blog" className="text-lg font-semibold hover:text-primary transition-colors">
-                Nuestra Mesa
-              </Link>
+              <SheetClose asChild>
+                <Link href="/blog" className="text-lg font-semibold hover:text-primary transition-colors">
+                  Nuestra Mesa
+                </Link>
+              </SheetClose>
 
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-muted-foreground">Contacto</p>
                 <div className="pl-4 space-y-2">
                   {contactLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="block text-sm hover:text-primary transition-colors"
-                    >
-                      {link.name}
-                    </Link>
+                    <SheetClose asChild key={link.href}>
+                      <Link href={link.href} className="block text-sm hover:text-primary transition-colors">
+                        {link.name}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </div>
               </div>
@@ -279,27 +288,35 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
                 <>
                   {userProfile?.role === "superadmin" && (
                     <Button asChild className="mt-4 bg-transparent" variant="outline">
-                      <Link href="/admin">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Panel de Control
-                      </Link>
+                      <SheetClose asChild>
+                        <Link href="/admin">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Panel de Control
+                        </Link>
+                      </SheetClose>
                     </Button>
                   )}
                   {userProfile?.role === "distributor" && (
                     <Button asChild className="mt-4 bg-transparent" variant="outline">
-                      <Link href="/distributor">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Panel Distribuidor
-                      </Link>
+                      <SheetClose asChild>
+                        <Link href="/distributor">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Panel Distribuidor
+                        </Link>
+                      </SheetClose>
                     </Button>
                   )}
                   <Button asChild className="mt-4 bg-transparent" variant="outline">
-                    <Link href="/perfil">Mi Perfil</Link>
+                    <SheetClose asChild>
+                      <Link href="/perfil">Mi Perfil</Link>
+                    </SheetClose>
                   </Button>
                 </>
               ) : (
                 <Button asChild className="mt-4">
-                  <Link href="/auth/login">Iniciar sesión</Link>
+                  <SheetClose asChild>
+                    <Link href="/auth/login">Iniciar sesión</Link>
+                  </SheetClose>
                 </Button>
               )}
             </nav>
