@@ -381,6 +381,181 @@ Comparador de productos.
 
 ---
 
+## Migración 016: Tipos de Usuario y Campos de Productos
+
+### Roles de Usuario Actualizados
+
+| Rol | Descripción |
+|-----|-------------|
+| `superadmin` | Administrador del sistema con acceso total |
+| `distributor` | Distribuidor con descuentos y términos comerciales |
+| `canal` | Corredor/agente comercial con comisiones |
+| `end_user` | Usuario final (B2C) |
+
+### 20. `product_types`
+Tipos de producto (3er nivel de categorización).
+
+**Campos:**
+- `subcategory_id`: UUID (FK → subcategories)
+- `slug`: TEXT
+- `name`: TEXT
+- `description`: TEXT
+- `order_index`: INTEGER
+- `is_active`: BOOLEAN
+
+### 21. `sales_agents`
+Agentes comerciales/corredores del canal de ventas.
+
+**Campos:**
+- `user_id`: UUID (FK → user_profiles)
+- `employee_code`: VARCHAR(50) UNIQUE
+- `hire_date`: DATE
+- `territory`: VARCHAR(255)
+- `default_commission_rate`: DECIMAL(5,2) - % de comisión por defecto
+- `commission_payment_days`: INTEGER - Días para pago (default 90)
+- `monthly_sales_target`: DECIMAL(12,2)
+- `quarterly_sales_target`: DECIMAL(12,2)
+- `annual_sales_target`: DECIMAL(12,2)
+- `is_active`: BOOLEAN
+
+### 22. `agent_distributor_assignments`
+Asignación 1:1 de corredores a distribuidores.
+
+**Campos:**
+- `agent_id`: UUID (FK → sales_agents)
+- `distributor_id`: UUID (FK → distributors) UNIQUE
+- `commission_rate`: DECIMAL(5,2) - Comisión específica (null = usa default)
+- `assigned_at`: TIMESTAMPTZ
+- `unassigned_at`: TIMESTAMPTZ
+- `is_active`: BOOLEAN
+
+### 23. `agent_commissions`
+Comisiones de agentes por órdenes de distribuidores.
+
+**Campos:**
+- `agent_id`: UUID (FK → sales_agents)
+- `order_id`: UUID (FK → orders)
+- `distributor_id`: UUID (FK → distributors)
+- `order_total`: DECIMAL(12,2)
+- `commission_rate`: DECIMAL(5,2)
+- `commission_amount`: DECIMAL(12,2)
+- `status`: VARCHAR(50) - 'pending', 'approved', 'paid', 'cancelled'
+- `order_date`: TIMESTAMPTZ
+- `invoice_paid_at`: TIMESTAMPTZ - Fecha de pago de factura
+- `commission_due_at`: TIMESTAMPTZ - Fecha límite (90 días)
+- `paid_at`: TIMESTAMPTZ
+
+### 24. `product_change_log`
+Historial de cambios en productos.
+
+**Campos:**
+- `product_id`: UUID (FK → products)
+- `change_type`: VARCHAR(50) - 'create', 'update', 'csv_import', 'erp_sync'
+- `change_source`: VARCHAR(50) - 'csv', 'erp', 'admin', 'api'
+- `fields_changed`: JSONB - {"campo": {"old": "valor", "new": "valor"}}
+- `changed_by`: UUID (FK → user_profiles)
+- `csv_filename`: TEXT
+- `csv_row_number`: INTEGER
+- `changed_at`: TIMESTAMPTZ
+
+### 25. `csv_imports`
+Historial de importaciones CSV.
+
+**Campos:**
+- `filename`: TEXT
+- `file_size`: INTEGER
+- `total_rows`: INTEGER
+- `rows_created`, `rows_updated`, `rows_skipped`, `rows_error`: INTEGER
+- `errors`: JSONB
+- `status`: VARCHAR(50) - 'pending', 'processing', 'completed', 'failed'
+- `import_mode`: VARCHAR(50) - 'update', 'add_only', 'replace_all'
+- `imported_by`: UUID (FK → user_profiles)
+
+### Nuevos Campos en `products`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `codigo_barras` | VARCHAR(100) | Código de barras EAN/UPC |
+| `descuento_porcentaje` | DECIMAL(5,2) | Reemplaza is_on_sale. Si > 0, aparece en ofertas |
+| `precio_antes` | DECIMAL(12,2) | Precio anterior (para mostrar tachado) |
+| `pedido_en_camino` | BOOLEAN | Hay pedido en tránsito |
+| `descontinuado` | BOOLEAN | Producto que no se volverá a pedir (informativo) |
+| `product_type_id` | UUID | FK a 3er nivel de categorización |
+| `momentos_uso` | TEXT | Texto para cliente final |
+| `descripcion_distribuidor` | TEXT | Solo visible para distribuidores/canal |
+| `argumentos_venta` | TEXT | Solo visible para distribuidores/canal |
+| `ubicacion_tienda` | TEXT | Sugerencia de ubicación en tienda |
+| `margen_sugerido` | DECIMAL(5,2) | % de margen recomendado |
+| `rotacion_esperada` | VARCHAR(20) | 'alta', 'media', 'baja' |
+| `tags` | TEXT[] | Etiquetas para búsqueda flexible |
+| `video_url` | TEXT | URL de video del producto |
+| `ficha_tecnica_url` | TEXT | URL de ficha técnica PDF |
+| `fecha_lanzamiento` | DATE | Fecha de lanzamiento |
+| `productos_afines_csv` | TEXT | Referencias separadas por coma |
+| `last_erp_sync` | TIMESTAMPTZ | Última sincronización con ERP |
+| `last_csv_update` | TIMESTAMPTZ | Última actualización por CSV |
+
+### Nuevos Campos en `user_profiles` (Segmentación)
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `customer_type` | VARCHAR(20) | 'b2b', 'b2c', 'both' |
+| `segment` | VARCHAR(50) | Segmento automático: vip, leal, regular, ocasional, en_riesgo, dormido, nuevo |
+| `first_purchase_at` | TIMESTAMPTZ | Primera compra |
+| `last_purchase_at` | TIMESTAMPTZ | Última compra (recencia) |
+| `total_purchases` | INTEGER | Total de compras |
+| `total_spent` | DECIMAL(12,2) | Valor total de compras |
+| `average_order_value` | DECIMAL(12,2) | Ticket promedio |
+| `purchase_frequency` | DECIMAL(5,2) | Compras por año (frecuencia) |
+| `acquisition_source` | VARCHAR(100) | Fuente de adquisición |
+| `crm_notes` | TEXT | Notas del CRM |
+
+### Nuevos Campos en `distributors`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `minimum_order` | DECIMAL(12,2) | Pedido mínimo requerido |
+| `credit_days` | INTEGER | Días de crédito |
+| `first_purchase_at` | TIMESTAMPTZ | Primera compra |
+| `last_purchase_at` | TIMESTAMPTZ | Última compra |
+| `total_purchases` | INTEGER | Total de compras |
+| `purchase_frequency` | DECIMAL(5,2) | Compras por año |
+| `segment` | VARCHAR(50) | Segmento automático |
+
+### Triggers Automáticos
+
+1. **`trigger_update_user_metrics`**: Actualiza métricas RFM después de cada orden
+2. **`trigger_create_agent_commission`**: Crea comisión automática para corredor en órdenes de distribuidores asignados
+3. **`calculate_user_segment()`**: Función que calcula segmento basado en RFM
+
+---
+
+## Sistema de Carga CSV
+
+### Endpoints API
+
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/api/products/csv/template` | GET | Descarga template CSV vacío |
+| `/api/products/csv/template?descriptions=true` | GET | Descarga template con instrucciones |
+| `/api/products/csv/export` | GET | Exporta todos los productos a CSV |
+| `/api/products/csv/validate` | POST | Valida archivo CSV sin importar |
+| `/api/products/csv/import` | POST | Importa archivo CSV validado |
+| `/api/products/csv/changelog` | GET | Consulta historial de cambios |
+
+### Campos del CSV
+
+Ver `/lib/csv/product-template.ts` para la definición completa de los 46 campos.
+
+**Campos obligatorios:** Ref, Producto, Precio_COP
+
+### Modo de Sincronización ERP
+
+- **Campos sincronizados bidireccionales:** precio, existencia (upp_existencia)
+- **Campo `descuento_porcentaje`** reemplaza `is_on_sale` - si > 0, producto aparece en ofertas
+
+---
+
 ## Queries de Usuario
 
 Ver `/lib/db/user-features.ts` para funciones de usuario:
