@@ -1,0 +1,34 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Isotipo (Óvalo con plato, copa y líneas) -->
+  <g transform="translate(0, 5)">
+    <!-- Borde exterior del óvalo - Gris Carbón -->
+    <ellipse cx="55" cy="55" rx="50" ry="55" fill="none" stroke="#4A4A46" stroke-width="3"/>
+    <!-- Borde interior beige -->
+    <ellipse cx="55" cy="55" rx="45" ry="50" fill="none" stroke="#C4B99A" stroke-width="2"/>
+    
+    <!-- Plato - Terracotta -->
+    <circle cx="42" cy="42" r="22" fill="none" stroke="#A84A35" stroke-width="6"/>
+    <circle cx="42" cy="42" r="10" fill="none" stroke="#A84A35" stroke-width="3" opacity="0.7"/>
+    
+    <!-- Copa - Terracotta -->
+    <path d="M62 28 C62 28, 58 45, 58 55 C58 62, 62 68, 68 68 C74 68, 78 62, 78 55 C78 45, 74 28, 74 28 L62 28Z" fill="#A84A35"/>
+    <line x1="68" y1="68" x2="68" y2="80" stroke="#A84A35" stroke-width="4"/>
+    <line x1="60" y1="80" x2="76" y2="80" stroke="#A84A35" stroke-width="3"/>
+    <!-- Reflejo de la copa -->
+    <path d="M66 32 C66 32, 64 42, 64 48" stroke="#F5E6D3" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    
+    <!-- Líneas horizontales - Oliva -->
+    <line x1="20" y1="72" x2="90" y2="72" stroke="#5C5C4A" stroke-width="2.5"/>
+    <line x1="22" y1="78" x2="88" y2="78" stroke="#5C5C4A" stroke-width="2"/>
+    <line x1="25" y1="84" x2="85" y2="84" stroke="#5C5C4A" stroke-width="1.5"/>
+    
+    <!-- Base del bowl - Beige -->
+    <path d="M25 88 Q55 105, 85 88" fill="#C4B99A" stroke="none"/>
+  </g>
+  
+  <!-- Texto "Mesanova" - Terracotta -->
+  <text x="125" y="55" font-family="Georgia, serif" font-size="42" font-weight="400" fill="#A84A35" letter-spacing="1">Mesanova</text>
+  
+  <!-- Eslogan - Gris Carbón -->
+  <text x="125" y="85" font-family="Georgia, serif" font-size="16" font-style="italic" fill="#4A4A46">Miles de opciones para tu mesa y cocina</text>
+</svg>

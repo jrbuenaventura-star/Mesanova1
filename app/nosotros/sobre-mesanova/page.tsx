@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MesanovaLogo } from "@/components/mesanova-logo"
+import { MesanovaLogo, MesanovaLogoFull } from "@/components/mesanova-logo"
 import Image from "next/image"
 import { Award, Heart, Leaf, Users, Shield, Building2, TrendingUp, Globe, ArrowRight } from "lucide-react"
 
@@ -169,8 +169,8 @@ export default function SobreMesanovaPage() {
                     <ArrowRight className="h-10 w-10 text-muted-foreground" />
                   </div>
 
-                  <div className="rounded-lg border bg-background p-6 flex items-center justify-center">
-                    <MesanovaLogo className="justify-center" />
+                  <div className="rounded-lg border bg-background p-8 flex items-center justify-center min-h-[160px]">
+                    <MesanovaLogoFull />
                   </div>
                 </div>
               </CardContent>
