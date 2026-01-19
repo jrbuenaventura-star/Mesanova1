@@ -56,6 +56,11 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
 
   // Agregar categoría al producto
   const handleAddCategory = async (subcategoryId: string) => {
+    if (product.id === "new") {
+      toast({ title: "Aviso", description: "Primero debes crear el producto antes de agregar categorías", variant: "destructive" })
+      return
+    }
+    
     try {
       const { error } = await supabase.from("product_categories").insert({
         product_id: product.id,
@@ -189,47 +194,67 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      const { error } = await supabase
-        .from("products")
-        .update({
-          nombre_comercial: product.nombre_comercial,
-          precio: product.precio,
-          descripcion_larga: product.descripcion_larga,
-          material: product.material,
-          color: product.color,
-          dimensiones: product.dimensiones,
-          peso: product.peso,
-          capacidad: product.capacidad,
-          fecha_reposicion: product.fecha_reposicion,
-          cantidad_reposicion: product.cantidad_reposicion,
-          pdt_empaque: product.pdt_empaque,
-          instrucciones_uso: product.instrucciones_uso,
-          instrucciones_cuidado: product.instrucciones_cuidado,
-          garantia: product.garantia,
-          pais_origen: product.pais_origen,
-          marca: product.marca,
-          linea_producto: product.linea_producto,
-          collection_id: product.collection_id,
-          is_active: product.is_active,
-          is_featured: product.is_featured,
-          is_new: product.is_new,
-          is_on_sale: product.is_on_sale,
-          imagen_principal_url: product.imagen_principal_url,
+      const isNewProduct = product.id === "new"
+      
+      const productData = {
+        pdt_codigo: product.pdt_codigo,
+        pdt_descripcion: product.pdt_descripcion,
+        nombre_comercial: product.nombre_comercial,
+        precio: product.precio,
+        descripcion_larga: product.descripcion_larga,
+        material: product.material,
+        color: product.color,
+        dimensiones: product.dimensiones,
+        peso: product.peso,
+        capacidad: product.capacidad,
+        fecha_reposicion: product.fecha_reposicion,
+        cantidad_reposicion: product.cantidad_reposicion,
+        pdt_empaque: product.pdt_empaque,
+        instrucciones_uso: product.instrucciones_uso,
+        instrucciones_cuidado: product.instrucciones_cuidado,
+        garantia: product.garantia,
+        pais_origen: product.pais_origen,
+        marca: product.marca,
+        linea_producto: product.linea_producto,
+        collection_id: product.collection_id,
+        is_active: product.is_active,
+        is_featured: product.is_featured,
+        is_new: product.is_new,
+        is_on_sale: product.is_on_sale,
+        imagen_principal_url: product.imagen_principal_url,
+        upp_existencia: product.upp_existencia || 0,
+      }
+
+      if (isNewProduct) {
+        // Crear nuevo producto
+        const { error } = await supabase.from("products").insert(productData)
+        if (error) throw error
+        
+        toast({
+          title: "Producto creado",
+          description: "El producto se ha creado exitosamente",
         })
-        .eq("id", product.id)
-
-      if (error) throw error
-
-      toast({
-        title: "Producto actualizado",
-        description: "Los cambios se han guardado exitosamente",
-      })
+      } else {
+        // Actualizar producto existente
+        const { error } = await supabase
+          .from("products")
+          .update(productData)
+          .eq("id", product.id)
+        
+        if (error) throw error
+        
+        toast({
+          title: "Producto actualizado",
+          description: "Los cambios se han guardado exitosamente",
+        })
+      }
 
       router.push("/admin/products")
+      router.refresh()
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "No se pudo actualizar el producto",
+        description: error.message || `No se pudo ${product.id === "new" ? "crear" : "actualizar"} el producto`,
         variant: "destructive",
       })
     } finally {
@@ -248,15 +273,15 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Editar Producto</h1>
+            <h1 className="text-3xl font-bold">{product.id === "new" ? "Crear Producto" : "Editar Producto"}</h1>
             <p className="text-muted-foreground">
-              {product.pdt_codigo} - {product.pdt_descripcion}
+              {product.id === "new" ? "Completa la información del nuevo producto" : `${product.pdt_codigo} - ${product.pdt_descripcion}`}
             </p>
           </div>
         </div>
         <Button onClick={handleSave} disabled={isLoading}>
           <Save className="mr-2 h-4 w-4" />
-          {isLoading ? "Guardando..." : "Guardar Cambios"}
+          {isLoading ? "Guardando..." : (product.id === "new" ? "Crear Producto" : "Guardar Cambios")}
         </Button>
       </div>
 

@@ -858,6 +858,14 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
     };
     // Agregar categoría al producto
     const handleAddCategory = async (subcategoryId)=>{
+        if (product.id === "new") {
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
+                title: "Aviso",
+                description: "Primero debes crear el producto antes de agregar categorías",
+                variant: "destructive"
+            });
+            return;
+        }
         try {
             const { error } = await supabase.from("product_categories").insert({
                 product_id: product.id,
@@ -1003,7 +1011,10 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
     const handleSave = async ()=>{
         setIsLoading(true);
         try {
-            const { error } = await supabase.from("products").update({
+            const isNewProduct = product.id === "new";
+            const productData = {
+                pdt_codigo: product.pdt_codigo,
+                pdt_descripcion: product.pdt_descripcion,
                 nombre_comercial: product.nombre_comercial,
                 precio: product.precio,
                 descripcion_larga: product.descripcion_larga,
@@ -1026,18 +1037,32 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                 is_featured: product.is_featured,
                 is_new: product.is_new,
                 is_on_sale: product.is_on_sale,
-                imagen_principal_url: product.imagen_principal_url
-            }).eq("id", product.id);
-            if (error) throw error;
-            (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
-                title: "Producto actualizado",
-                description: "Los cambios se han guardado exitosamente"
-            });
+                imagen_principal_url: product.imagen_principal_url,
+                upp_existencia: product.upp_existencia || 0
+            };
+            if (isNewProduct) {
+                // Crear nuevo producto
+                const { error } = await supabase.from("products").insert(productData);
+                if (error) throw error;
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
+                    title: "Producto creado",
+                    description: "El producto se ha creado exitosamente"
+                });
+            } else {
+                // Actualizar producto existente
+                const { error } = await supabase.from("products").update(productData).eq("id", product.id);
+                if (error) throw error;
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
+                    title: "Producto actualizado",
+                    description: "Los cambios se han guardado exitosamente"
+                });
+            }
             router.push("/admin/products");
+            router.refresh();
         } catch (error) {
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
                 title: "Error",
-                description: error.message || "No se pudo actualizar el producto",
+                description: error.message || `No se pudo ${product.id === "new" ? "crear" : "actualizar"} el producto`,
                 variant: "destructive"
             });
         } finally{
@@ -1063,51 +1088,47 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                        lineNumber: 247,
+                                        lineNumber: 272,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 246,
+                                    lineNumber: 271,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 245,
+                                lineNumber: 270,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                         className: "text-3xl font-bold",
-                                        children: "Editar Producto"
+                                        children: product.id === "new" ? "Crear Producto" : "Editar Producto"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                        lineNumber: 251,
+                                        lineNumber: 276,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-muted-foreground",
-                                        children: [
-                                            product.pdt_codigo,
-                                            " - ",
-                                            product.pdt_descripcion
-                                        ]
-                                    }, void 0, true, {
+                                        children: product.id === "new" ? "Completa la información del nuevo producto" : `${product.pdt_codigo} - ${product.pdt_descripcion}`
+                                    }, void 0, false, {
                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                        lineNumber: 252,
+                                        lineNumber: 277,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 250,
+                                lineNumber: 275,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 244,
+                        lineNumber: 269,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1118,20 +1139,20 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 258,
+                                lineNumber: 283,
                                 columnNumber: 11
                             }, this),
-                            isLoading ? "Guardando..." : "Guardar Cambios"
+                            isLoading ? "Guardando..." : product.id === "new" ? "Crear Producto" : "Guardar Cambios"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 257,
+                        lineNumber: 282,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                lineNumber: 243,
+                lineNumber: 268,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1146,7 +1167,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 children: "Información Básica"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 265,
+                                lineNumber: 290,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1154,7 +1175,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 children: "Categorías"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 266,
+                                lineNumber: 291,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1162,7 +1183,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 children: "Detalles"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 267,
+                                lineNumber: 292,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1170,7 +1191,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 children: "Imágenes y Videos"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 268,
+                                lineNumber: 293,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1178,13 +1199,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                 children: "Inventario"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                lineNumber: 269,
+                                lineNumber: 294,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 264,
+                        lineNumber: 289,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1198,20 +1219,20 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                             children: "Información Básica"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 276,
+                                            lineNumber: 301,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             children: "Datos principales del producto"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 277,
+                                            lineNumber: 302,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 275,
+                                    lineNumber: 300,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1228,7 +1249,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Código SKU (ERP)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 282,
+                                                            lineNumber: 307,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1238,13 +1259,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             className: "bg-muted"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 283,
+                                                            lineNumber: 308,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 281,
+                                                    lineNumber: 306,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1255,7 +1276,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Precio"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 286,
+                                                            lineNumber: 311,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1269,19 +1290,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 287,
+                                                            lineNumber: 312,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 285,
+                                                    lineNumber: 310,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 280,
+                                            lineNumber: 305,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1292,7 +1313,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Nombre Comercial"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 298,
+                                                    lineNumber: 323,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1305,13 +1326,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     placeholder: "Nombre para mostrar en el catálogo web"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 299,
+                                                    lineNumber: 324,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 297,
+                                            lineNumber: 322,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1322,7 +1343,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Descripción Completa"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 308,
+                                                    lineNumber: 333,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1336,13 +1357,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     placeholder: "Descripción detallada del producto para el catálogo web"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 309,
+                                                    lineNumber: 334,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 307,
+                                            lineNumber: 332,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1353,7 +1374,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Colección"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 319,
+                                                    lineNumber: 344,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1368,12 +1389,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 placeholder: "Sin colección"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                lineNumber: 327,
+                                                                lineNumber: 352,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 326,
+                                                            lineNumber: 351,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1383,7 +1404,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Sin colección"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 330,
+                                                                    lineNumber: 355,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 collections.map((col)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1391,25 +1412,25 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                         children: col.name
                                                                     }, col.id, false, {
                                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                        lineNumber: 332,
+                                                                        lineNumber: 357,
                                                                         columnNumber: 23
                                                                     }, this))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 329,
+                                                            lineNumber: 354,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 320,
+                                                    lineNumber: 345,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 318,
+                                            lineNumber: 343,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1420,7 +1441,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Imagen Principal URL"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 341,
+                                                    lineNumber: 366,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1436,7 +1457,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "https://..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 343,
+                                                            lineNumber: 368,
                                                             columnNumber: 19
                                                         }, this),
                                                         product.imagen_principal_url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1447,19 +1468,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             className: "rounded object-cover"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 350,
+                                                            lineNumber: 375,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 342,
+                                                    lineNumber: 367,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 340,
+                                            lineNumber: 365,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1477,7 +1498,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 363,
+                                                            lineNumber: 388,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -1485,13 +1506,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Activo"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 368,
+                                                            lineNumber: 393,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 362,
+                                                    lineNumber: 387,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1506,7 +1527,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 371,
+                                                            lineNumber: 396,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -1514,13 +1535,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Destacado"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 376,
+                                                            lineNumber: 401,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 370,
+                                                    lineNumber: 395,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1535,7 +1556,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 379,
+                                                            lineNumber: 404,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -1543,13 +1564,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Nuevo"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 384,
+                                                            lineNumber: 409,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 378,
+                                                    lineNumber: 403,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1564,7 +1585,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 387,
+                                                            lineNumber: 412,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -1572,36 +1593,36 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "En Oferta"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 392,
+                                                            lineNumber: 417,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 386,
+                                                    lineNumber: 411,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 361,
+                                            lineNumber: 386,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 279,
+                                    lineNumber: 304,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                            lineNumber: 274,
+                            lineNumber: 299,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 273,
+                        lineNumber: 298,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1615,20 +1636,20 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                             children: "Categorías y Tipos de Producto"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 403,
+                                            lineNumber: 428,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             children: "Asigna categorías, subcategorías y tipos"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 404,
+                                            lineNumber: 429,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 402,
+                                    lineNumber: 427,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1641,7 +1662,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Categorías Asignadas"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 409,
+                                                    lineNumber: 434,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1658,7 +1679,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "(Principal)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 415,
+                                                                    lineNumber: 440,
                                                                     columnNumber: 44
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1669,36 +1690,36 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                         className: "h-3 w-3"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                        lineNumber: 421,
+                                                                        lineNumber: 446,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 416,
+                                                                    lineNumber: 441,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, cat.id, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 413,
+                                                            lineNumber: 438,
                                                             columnNumber: 23
                                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-sm text-muted-foreground",
                                                         children: "No hay categorías asignadas"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                        lineNumber: 426,
+                                                        lineNumber: 451,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 410,
+                                                    lineNumber: 435,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 408,
+                                            lineNumber: 433,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1708,7 +1729,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Agregar Categoría"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 433,
+                                                    lineNumber: 458,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1722,7 +1743,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Silo"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 436,
+                                                                    lineNumber: 461,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1734,12 +1755,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                                 placeholder: "Selecciona un silo"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                                lineNumber: 439,
+                                                                                lineNumber: 464,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 438,
+                                                                            lineNumber: 463,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1748,24 +1769,24 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                                     children: silo.name
                                                                                 }, silo.id, false, {
                                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                                    lineNumber: 443,
+                                                                                    lineNumber: 468,
                                                                                     columnNumber: 27
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 441,
+                                                                            lineNumber: 466,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 437,
+                                                                    lineNumber: 462,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 435,
+                                                            lineNumber: 460,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1776,7 +1797,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Subcategoría"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 451,
+                                                                    lineNumber: 476,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1791,12 +1812,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                                 placeholder: "Selecciona subcategoría"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                                lineNumber: 460,
+                                                                                lineNumber: 485,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 459,
+                                                                            lineNumber: 484,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1805,36 +1826,36 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                                     children: sub.name
                                                                                 }, sub.id, false, {
                                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                                    lineNumber: 464,
+                                                                                    lineNumber: 489,
                                                                                     columnNumber: 27
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 462,
+                                                                            lineNumber: 487,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 452,
+                                                                    lineNumber: 477,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 450,
+                                                            lineNumber: 475,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 434,
+                                                    lineNumber: 459,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 432,
+                                            lineNumber: 457,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1844,7 +1865,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Tipos de Producto Asignados"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 476,
+                                                    lineNumber: 501,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1862,36 +1883,36 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                         className: "h-3 w-3"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                        lineNumber: 487,
+                                                                        lineNumber: 512,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 482,
+                                                                    lineNumber: 507,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, type.id, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 480,
+                                                            lineNumber: 505,
                                                             columnNumber: 23
                                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-sm text-muted-foreground",
                                                         children: "No hay tipos asignados"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                        lineNumber: 492,
+                                                        lineNumber: 517,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 477,
+                                                    lineNumber: 502,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 475,
+                                            lineNumber: 500,
                                             columnNumber: 15
                                         }, this),
                                         productTypes.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1901,7 +1922,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Agregar Tipo de Producto"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 500,
+                                                    lineNumber: 525,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1912,12 +1933,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 placeholder: "Selecciona un tipo"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                lineNumber: 503,
+                                                                lineNumber: 528,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 502,
+                                                            lineNumber: 527,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1926,41 +1947,41 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: type.name
                                                                 }, type.id, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 507,
+                                                                    lineNumber: 532,
                                                                     columnNumber: 25
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 505,
+                                                            lineNumber: 530,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 501,
+                                                    lineNumber: 526,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 499,
+                                            lineNumber: 524,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 406,
+                                    lineNumber: 431,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                            lineNumber: 401,
+                            lineNumber: 426,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 400,
+                        lineNumber: 425,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1976,12 +1997,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                 children: "Características Físicas"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                lineNumber: 524,
+                                                lineNumber: 549,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 523,
+                                            lineNumber: 548,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1998,7 +2019,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Material"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 529,
+                                                                    lineNumber: 554,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2011,13 +2032,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: Acero inoxidable"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 530,
+                                                                    lineNumber: 555,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 528,
+                                                            lineNumber: 553,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2028,7 +2049,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Color"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 538,
+                                                                    lineNumber: 563,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2041,19 +2062,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: Plateado"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 539,
+                                                                    lineNumber: 564,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 537,
+                                                            lineNumber: 562,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 527,
+                                                    lineNumber: 552,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2064,7 +2085,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Dimensiones"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 549,
+                                                            lineNumber: 574,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2077,13 +2098,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Ej: 30 x 20 x 10 cm"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 550,
+                                                            lineNumber: 575,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 548,
+                                                    lineNumber: 573,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2097,7 +2118,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Peso (kg)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 560,
+                                                                    lineNumber: 585,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2112,13 +2133,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: 1.5"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 561,
+                                                                    lineNumber: 586,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 559,
+                                                            lineNumber: 584,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2129,7 +2150,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Capacidad"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 571,
+                                                                    lineNumber: 596,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2142,19 +2163,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: 2 litros"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 572,
+                                                                    lineNumber: 597,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 570,
+                                                            lineNumber: 595,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 558,
+                                                    lineNumber: 583,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2168,7 +2189,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "Marca"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 583,
+                                                                    lineNumber: 608,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2181,13 +2202,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: KitchenAid"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 584,
+                                                                    lineNumber: 609,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 582,
+                                                            lineNumber: 607,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2198,7 +2219,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     children: "País de Origen"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 592,
+                                                                    lineNumber: 617,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2211,19 +2232,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     placeholder: "Ej: Colombia"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 593,
+                                                                    lineNumber: 618,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 591,
+                                                            lineNumber: 616,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 581,
+                                                    lineNumber: 606,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2234,7 +2255,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Línea de Producto"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 603,
+                                                            lineNumber: 628,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2247,25 +2268,25 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Ej: Professional Series"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 604,
+                                                            lineNumber: 629,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 602,
+                                                    lineNumber: 627,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 526,
+                                            lineNumber: 551,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 522,
+                                    lineNumber: 547,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2275,12 +2296,12 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                 children: "Instrucciones y Garantía"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                lineNumber: 616,
+                                                lineNumber: 641,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 615,
+                                            lineNumber: 640,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2294,7 +2315,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Instrucciones de Uso"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 620,
+                                                            lineNumber: 645,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -2308,13 +2329,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Cómo usar el producto..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 621,
+                                                            lineNumber: 646,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 619,
+                                                    lineNumber: 644,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2325,7 +2346,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Instrucciones de Cuidado"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 631,
+                                                            lineNumber: 656,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -2339,13 +2360,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Cómo cuidar y mantener el producto..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 632,
+                                                            lineNumber: 657,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 630,
+                                                    lineNumber: 655,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2356,7 +2377,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Garantía"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 642,
+                                                            lineNumber: 667,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -2370,36 +2391,36 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Información de garantía..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 643,
+                                                            lineNumber: 668,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 641,
+                                                    lineNumber: 666,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 618,
+                                            lineNumber: 643,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 614,
+                                    lineNumber: 639,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                            lineNumber: 521,
+                            lineNumber: 546,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 520,
+                        lineNumber: 545,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2413,20 +2434,20 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                             children: "Imágenes y Videos"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 660,
+                                            lineNumber: 685,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             children: "Galería multimedia del producto"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 661,
+                                            lineNumber: 686,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 659,
+                                    lineNumber: 684,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2439,7 +2460,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Imágenes"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 666,
+                                                    lineNumber: 691,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2455,7 +2476,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     className: "rounded object-cover w-full h-40"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 672,
+                                                                    lineNumber: 697,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2466,29 +2487,29 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                         className: "h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                        lineNumber: 684,
+                                                                        lineNumber: 709,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 679,
+                                                                    lineNumber: 704,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, media.id, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 671,
+                                                            lineNumber: 696,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 667,
+                                                    lineNumber: 692,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 665,
+                                            lineNumber: 690,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2499,7 +2520,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Agregar Imagen"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 693,
+                                                    lineNumber: 718,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2512,7 +2533,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "https://..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 695,
+                                                            lineNumber: 720,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2524,26 +2545,26 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     className: "mr-2 h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 702,
+                                                                    lineNumber: 727,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Agregar"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 701,
+                                                            lineNumber: 726,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 694,
+                                                    lineNumber: 719,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 692,
+                                            lineNumber: 717,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2553,7 +2574,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Videos"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 710,
+                                                    lineNumber: 735,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2568,7 +2589,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                             className: "h-4 w-4 text-muted-foreground"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 717,
+                                                                            lineNumber: 742,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2576,13 +2597,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                             children: media.url
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                            lineNumber: 718,
+                                                                            lineNumber: 743,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 716,
+                                                                    lineNumber: 741,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2594,29 +2615,29 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                         className: "h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                        lineNumber: 721,
+                                                                        lineNumber: 746,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 720,
+                                                                    lineNumber: 745,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, media.id, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 715,
+                                                            lineNumber: 740,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 711,
+                                                    lineNumber: 736,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 709,
+                                            lineNumber: 734,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2627,7 +2648,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Agregar Video (URL de YouTube/Vimeo)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 730,
+                                                    lineNumber: 755,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2640,7 +2661,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "https://youtube.com/watch?v=..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 732,
+                                                            lineNumber: 757,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2652,43 +2673,43 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                     className: "mr-2 h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                                    lineNumber: 739,
+                                                                    lineNumber: 764,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Agregar"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 738,
+                                                            lineNumber: 763,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 731,
+                                                    lineNumber: 756,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 729,
+                                            lineNumber: 754,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 663,
+                                    lineNumber: 688,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                            lineNumber: 658,
+                            lineNumber: 683,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 657,
+                        lineNumber: 682,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2702,20 +2723,20 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                             children: "Gestión de Inventario"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 752,
+                                            lineNumber: 777,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             children: "Información de reposición y empaque"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 753,
+                                            lineNumber: 778,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 751,
+                                    lineNumber: 776,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2732,7 +2753,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Inner Pack (unidades por caja)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 758,
+                                                            lineNumber: 783,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2745,13 +2766,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Ej: 12"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 759,
+                                                            lineNumber: 784,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 757,
+                                                    lineNumber: 782,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2762,7 +2783,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Outer Pack"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 767,
+                                                            lineNumber: 792,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2776,19 +2797,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Ej: 6"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 768,
+                                                            lineNumber: 793,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 766,
+                                                    lineNumber: 791,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 756,
+                                            lineNumber: 781,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2802,7 +2823,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Fecha Estimada de Reposición"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 785,
+                                                            lineNumber: 810,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2815,13 +2836,13 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                                 })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 786,
+                                                            lineNumber: 811,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 784,
+                                                    lineNumber: 809,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2832,7 +2853,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             children: "Cantidad de Reposición"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 794,
+                                                            lineNumber: 819,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2846,19 +2867,19 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                             placeholder: "Ej: 100"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                            lineNumber: 795,
+                                                            lineNumber: 820,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 793,
+                                                    lineNumber: 818,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 783,
+                                            lineNumber: 808,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2869,7 +2890,7 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     children: "Existencia Actual (Solo lectura - Desde ERP)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 811,
+                                                    lineNumber: 836,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2879,42 +2900,42 @@ function AdvancedProductEditor({ product: initialProduct, silos, collections }) 
                                                     className: "bg-muted"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                                    lineNumber: 812,
+                                                    lineNumber: 837,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                            lineNumber: 810,
+                                            lineNumber: 835,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                                    lineNumber: 755,
+                                    lineNumber: 780,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                            lineNumber: 750,
+                            lineNumber: 775,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                        lineNumber: 749,
+                        lineNumber: 774,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/advanced-product-editor.tsx",
-                lineNumber: 263,
+                lineNumber: 288,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/admin/advanced-product-editor.tsx",
-        lineNumber: 241,
+        lineNumber: 266,
         columnNumber: 5
     }, this);
 }
