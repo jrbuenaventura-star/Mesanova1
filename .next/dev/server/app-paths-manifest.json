@@ -1,1 +1,11 @@
-{}
+{
+  "/admin/page": "app/admin/page.js",
+  "/admin/productos/csv/page": "app/admin/productos/csv/page.js",
+  "/admin/products/[id]/editar/page": "app/admin/products/[id]/editar/page.js",
+  "/admin/products/nuevo/page": "app/admin/products/nuevo/page.js",
+  "/admin/products/page": "app/admin/products/page.js",
+  "/api/products/csv/validate/route": "app/api/products/csv/validate/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/page": "app/page.js",
+  "/productos/page": "app/productos/page.js"
+}
