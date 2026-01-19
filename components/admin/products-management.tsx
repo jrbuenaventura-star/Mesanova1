@@ -332,7 +332,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                           Editar Precio y Descuento
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}/editar`}>
+                          <Link href={`/admin/products/${product.id}/editar`} className="flex items-center">
                             <Pencil className="mr-2 h-4 w-4" />
                             Edición Avanzada
                           </Link>
