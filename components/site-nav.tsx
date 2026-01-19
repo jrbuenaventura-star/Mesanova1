@@ -155,8 +155,10 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
           <NavigationMenuItem>
             <Link href="/listas" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                <Gift className="h-4 w-4 mr-1" />
-                Listas de Regalo
+                <span className="inline-flex items-center gap-1">
+                  <Gift className="h-4 w-4" />
+                  Listas de Regalo
+                </span>
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

@@ -6,6 +6,7 @@ import {
   Users,
   Package,
   ShoppingCart,
+  FileSpreadsheet,
   FileText,
   Settings,
   BarChart3,
@@ -57,6 +58,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Button variant="ghost" className="w-full justify-start">
               <Package className="mr-2 h-4 w-4" />
               Productos
+            </Button>
+          </Link>
+          <Link href="/admin/productos/csv">
+            <Button variant="ghost" className="w-full justify-start">
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Productos CSV
             </Button>
           </Link>
           <Link href="/admin/orders">

@@ -11,3 +11,4 @@
 [{"name":"compile-path","duration":3921,"timestamp":309164167699,"id":14,"tags":{"trigger":"proxy"},"startTime":1768793046731,"traceId":"535294f44e40aee4"}]
 [{"name":"compile-path","duration":15719,"timestamp":309234075000,"id":15,"tags":{"trigger":"proxy"},"startTime":1768793116637,"traceId":"535294f44e40aee4"}]
 [{"name":"compile-path","duration":12834,"timestamp":309323661375,"id":16,"tags":{"trigger":"proxy"},"startTime":1768793206196,"traceId":"535294f44e40aee4"}]
+[{"name":"hot-reloader","duration":39,"timestamp":336498203965,"id":3,"tags":{"version":"16.0.10"},"startTime":1768820379231,"traceId":"f922a6c28d5b45e7"},{"name":"compile-path","duration":299596,"timestamp":336498396362,"id":4,"tags":{"trigger":"proxy"},"startTime":1768820379424,"traceId":"f922a6c28d5b45e7"}]
