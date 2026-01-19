@@ -1,4 +1,5 @@
 {
+  "/admin/clients/page": "app/admin/clients/page.js",
   "/admin/page": "app/admin/page.js",
   "/admin/productos/csv/page": "app/admin/productos/csv/page.js",
   "/admin/products/[id]/editar/page": "app/admin/products/[id]/editar/page.js",
@@ -7,6 +8,15 @@
   "/api/products/csv/changelog/route": "app/api/products/csv/changelog/route.js",
   "/api/products/csv/validate/route": "app/api/products/csv/validate/route.js",
   "/auth/login/page": "app/auth/login/page.js",
+  "/blog/page": "app/blog/page.js",
+  "/contacto/cliente-final/page": "app/contacto/cliente-final/page.js",
+  "/contacto/institucional/page": "app/contacto/institucional/page.js",
+  "/contacto/mayoristas/page": "app/contacto/mayoristas/page.js",
+  "/contacto/minoristas/page": "app/contacto/minoristas/page.js",
+  "/listas/page": "app/listas/page.js",
+  "/nosotros/por-que-elegirnos/page": "app/nosotros/por-que-elegirnos/page.js",
+  "/nosotros/sobre-mesanova/page": "app/nosotros/sobre-mesanova/page.js",
+  "/ofertas/page": "app/ofertas/page.js",
   "/page": "app/page.js",
   "/productos/page": "app/productos/page.js"
 }
