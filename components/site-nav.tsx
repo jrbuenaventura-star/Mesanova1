@@ -74,9 +74,9 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
       <NavigationMenu className="hidden md:flex" viewport={false}>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href="/" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild>
+              <Link href="/" className={navigationMenuTriggerStyle()}>Home</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
@@ -107,9 +107,9 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <Link href="/ofertas" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Ofertas</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild>
+              <Link href="/ofertas" className={navigationMenuTriggerStyle()}>Ofertas</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
@@ -147,20 +147,20 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <Link href="/blog" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Nuestra Mesa</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild>
+              <Link href="/blog" className={navigationMenuTriggerStyle()}>Nuestra Mesa</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <Link href="/listas" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink asChild>
+              <Link href="/listas" className={navigationMenuTriggerStyle()}>
                 <span className="inline-flex items-center gap-1">
                   <Gift className="h-4 w-4" />
                   Listas de Regalo
                 </span>
-              </NavigationMenuLink>
-            </Link>
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
