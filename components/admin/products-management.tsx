@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Search, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
+import { Search, MoreVertical, Pencil, Plus, Trash2, AlertTriangle, Package } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
 import type { Product, Silo, Subcategory, Collection } from "@/lib/db/types"
@@ -33,27 +34,49 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
   const router = useRouter()
   const [products, setProducts] = useState(initialProducts)
   const [searchTerm, setSearchTerm] = useState("")
+  const [filterMarca, setFilterMarca] = useState("all")
+  const [filterColeccion, setFilterColeccion] = useState("all")
+  const [filterCategoria, setFilterCategoria] = useState("all")
+  const [filterEstado, setFilterEstado] = useState("all")
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [priceDialogOpen, setPriceDialogOpen] = useState(false)
   const [editPrice, setEditPrice] = useState("")
   const [editDiscount, setEditDiscount] = useState("0")
   const [isLoading, setIsLoading] = useState(false)
 
-  // Filtrar productos por búsqueda
+  // Extraer marcas únicas
+  const marcas = Array.from(new Set(products.map(p => p.marca).filter((m): m is string => !!m))).sort()
+  
+  // Extraer colecciones únicas
+  const colecciones = Array.from(new Set(products.map(p => p.nombre_coleccion).filter((c): c is string => !!c))).sort()
+
+  // Filtrar productos por búsqueda y filtros
   const filteredProducts = products.filter((product) => {
     const term = searchTerm.toLowerCase()
-    return (
+    const matchesSearch = !term || 
       product.pdt_codigo?.toLowerCase().includes(term) ||
       product.pdt_descripcion?.toLowerCase().includes(term) ||
-      product.nombre_comercial?.toLowerCase().includes(term)
-    )
+      product.nombre_comercial?.toLowerCase().includes(term) ||
+      product.marca?.toLowerCase().includes(term)
+    
+    const matchesMarca = filterMarca === "all" || product.marca === filterMarca
+    const matchesColeccion = filterColeccion === "all" || product.nombre_coleccion === filterColeccion
+    const matchesCategoria = filterCategoria === "all" // TODO: implementar cuando tengamos categorías cargadas
+    
+    let matchesEstado = true
+    if (filterEstado === "descontinuado") matchesEstado = product.descontinuado === true
+    else if (filterEstado === "pedido_camino") matchesEstado = product.pedido_en_camino === true
+    else if (filterEstado === "activo") matchesEstado = product.is_active === true
+    else if (filterEstado === "inactivo") matchesEstado = product.is_active === false
+    
+    return matchesSearch && matchesMarca && matchesColeccion && matchesCategoria && matchesEstado
   })
 
   // Abrir dialog de edición de precio
   const handleOpenPriceDialog = (product: Product) => {
     setEditingProduct(product)
     setEditPrice(product.precio?.toString() || "0")
-    setEditDiscount("0")
+    setEditDiscount(product.descuento_porcentaje?.toString() || "0")
     setPriceDialogOpen(true)
   }
 
@@ -72,6 +95,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
       .from("products")
       .update({
         precio,
+        descuento_porcentaje: descuento,
         is_on_sale: isOnSale,
         updated_at: new Date().toISOString(),
       })
@@ -82,7 +106,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
       alert("Error al actualizar el precio")
     } else {
       // Actualizar el estado local
-      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? { ...p, precio, is_on_sale: isOnSale } : p)))
+      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? { ...p, precio, descuento_porcentaje: descuento, is_on_sale: isOnSale } : p)))
       setPriceDialogOpen(false)
       setEditingProduct(null)
     }
@@ -118,23 +142,83 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
 
   return (
     <div className="space-y-4">
-      {/* Barra de acciones */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por SKU, descripción o nombre..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      {/* Barra de búsqueda y acciones */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por SKU, descripción, nombre o marca..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button asChild>
+            <Link href="/admin/products/nuevo">
+              <Plus className="mr-2 h-4 w-4" />
+              Agregar Producto
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/admin/products/nuevo">
-            <Plus className="mr-2 h-4 w-4" />
-            Agregar Producto
-          </Link>
-        </Button>
+        
+        {/* Filtros */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Select value={filterMarca} onValueChange={setFilterMarca}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Marca" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las marcas</SelectItem>
+              {marcas.map(marca => (
+                <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={filterColeccion} onValueChange={setFilterColeccion}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Colección" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las colecciones</SelectItem>
+              {colecciones.map(col => (
+                <SelectItem key={col} value={col}>{col}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={filterEstado} onValueChange={setFilterEstado}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="activo">Activos</SelectItem>
+              <SelectItem value="inactivo">Inactivos</SelectItem>
+              <SelectItem value="descontinuado">Descontinuados</SelectItem>
+              <SelectItem value="pedido_camino">Pedido en camino</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {(filterMarca !== "all" || filterColeccion !== "all" || filterEstado !== "all") && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                setFilterMarca("all")
+                setFilterColeccion("all")
+                setFilterEstado("all")
+              }}
+            >
+              Limpiar filtros
+            </Button>
+          )}
+          
+          <div className="ml-auto text-sm text-muted-foreground">
+            {filteredProducts.length} de {products.length} productos
+          </div>
+        </div>
       </div>
 
       {/* Tabla de productos */}
@@ -145,7 +229,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
               <TableHead className="w-[80px]">Imagen</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead>Producto</TableHead>
+              <TableHead>Marca</TableHead>
+              <TableHead>Colección</TableHead>
               <TableHead>Precio</TableHead>
+              <TableHead>Descuento</TableHead>
               <TableHead>Stock</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="w-[80px]">Acciones</TableHead>
@@ -154,7 +241,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
           <TableBody>
             {filteredProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={10} className="h-24 text-center">
                   No se encontraron productos.
                 </TableCell>
               </TableRow>
@@ -184,18 +271,40 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                       {product.nombre_comercial && (
                         <div className="text-sm text-muted-foreground">{product.pdt_descripcion}</div>
                       )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {product.precio ? (
-                      <div className="space-y-1">
-                        <div className="font-medium">${product.precio.toLocaleString()}</div>
-                        {product.is_on_sale && (
+                      <div className="flex gap-1 mt-1">
+                        {product.descontinuado && (
+                          <Badge variant="destructive" className="text-xs">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Descontinuado
+                          </Badge>
+                        )}
+                        {product.pedido_en_camino && (
                           <Badge variant="secondary" className="text-xs">
-                            En oferta
+                            <Package className="h-3 w-3 mr-1" />
+                            En camino
                           </Badge>
                         )}
                       </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">{product.marca || "-"}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">{product.nombre_coleccion || "-"}</span>
+                  </TableCell>
+                  <TableCell>
+                    {product.precio ? (
+                      <div className="font-medium">${product.precio.toLocaleString()}</div>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {product.descuento_porcentaje && product.descuento_porcentaje > 0 ? (
+                      <Badge variant="secondary" className="text-xs">
+                        {product.descuento_porcentaje}% OFF
+                      </Badge>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}

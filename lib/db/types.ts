@@ -66,6 +66,26 @@ export interface Product {
   is_new: boolean
   is_on_sale: boolean
   imagen_principal_url?: string
+  // Campos CSV adicionales (schema 016)
+  codigo_barras?: string
+  descuento_porcentaje?: number
+  precio_antes?: number
+  pedido_en_camino?: boolean
+  descontinuado?: boolean
+  product_type_id?: string
+  momentos_uso?: string
+  descripcion_distribuidor?: string
+  argumentos_venta?: string
+  ubicacion_tienda?: string
+  margen_sugerido?: number
+  rotacion_esperada?: 'alta' | 'media' | 'baja'
+  tags?: string[]
+  video_url?: string
+  ficha_tecnica_url?: string
+  fecha_lanzamiento?: string
+  productos_afines_csv?: string
+  last_erp_sync?: string
+  last_csv_update?: string
   created_at: string
   updated_at: string
   created_by?: string
