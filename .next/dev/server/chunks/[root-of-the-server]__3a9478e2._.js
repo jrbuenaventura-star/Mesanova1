@@ -60,7 +60,7 @@ async function proxy(request) {
         request
     });
     const supabaseUrl = process.env.SUPABASE_URL || ("TURBOPACK compile-time value", "https://hbzgndpouxhxbhngotru.supabase.co");
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || ("TURBOPACK compile-time value", "tu_anon_key_aqui");
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiemduZHBvdXhoeGJobmdvdHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MDMzMTMsImV4cCI6MjA4MTQ3OTMxM30.2VDdLjXPFfPVON0E3FeCUYGCzkGC_s6_WAdijnzHYr8");
     if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
     ;
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$ssr$2f$dist$2f$module$2f$createServerClient$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__["createServerClient"])(supabaseUrl, supabaseAnonKey, {
