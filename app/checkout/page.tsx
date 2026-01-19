@@ -19,7 +19,6 @@ import Image from "next/image"
 export default function CheckoutPage() {
   const router = useRouter()
   const { cart, clearCart } = useCart()
-  const supabase = createClient()
   const [isProcessing, setIsProcessing] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
@@ -41,6 +40,7 @@ export default function CheckoutPage() {
   }, [])
 
   async function checkAuth() {
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       setUser(user)
@@ -76,6 +76,8 @@ export default function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    const supabase = createClient()
     
     if (cart.items.length === 0) {
       toast.error("Carrito vacío", {

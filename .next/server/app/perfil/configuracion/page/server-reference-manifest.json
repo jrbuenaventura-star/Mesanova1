@@ -1,0 +1,20 @@
+{
+  "node": {
+    "408301a33a9799dacbb6f2d1e18ac1e728a7c85339": {
+      "workers": {
+        "app/perfil/configuracion/page": {
+          "moduleId": 95047,
+          "async": false,
+          "exportedName": "updateNotificationPreferencesAction",
+          "filename": "lib/actions/notifications.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/configuracion/page": "action-browser"
+      },
+      "exportedName": "updateNotificationPreferencesAction",
+      "filename": "lib/actions/notifications.ts"
+    }
+  },
+  "edge": {}
+}

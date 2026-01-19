@@ -1,0 +1,169 @@
+{
+  "node": {
+    "4059f1a839f6c0c69c56f4e81d9d863d2b808f86ad": {
+      "workers": {
+        "app/buscar/page": {
+          "moduleId": 93152,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        },
+        "app/perfil/favoritos/page": {
+          "moduleId": 35649,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        },
+        "app/perfil/vistos/page": {
+          "moduleId": 21362,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        },
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        },
+        "app/productos/[silo]/page": {
+          "moduleId": 58915,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        }
+      },
+      "layer": {
+        "app/buscar/page": "action-browser",
+        "app/perfil/favoritos/page": "action-browser",
+        "app/perfil/vistos/page": "action-browser",
+        "app/productos/[silo]/[slug]/page": "action-browser",
+        "app/productos/[silo]/page": "action-browser"
+      },
+      "filename": "lib/actions/favorites.ts",
+      "exportedName": "toggleFavorite"
+    },
+    "004e8105c760f30277fc9f671df8eeffac062b23b2": {
+      "workers": {
+        "app/perfil/page": {
+          "moduleId": 18251,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "app/perfil/page.tsx"
+        }
+      },
+      "layer": {
+        "app/perfil/page": "rsc"
+      },
+      "filename": "app/perfil/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "408301a33a9799dacbb6f2d1e18ac1e728a7c85339": {
+      "workers": {
+        "app/perfil/configuracion/page": {
+          "moduleId": 95047,
+          "async": false,
+          "exportedName": "updateNotificationPreferencesAction",
+          "filename": "lib/actions/notifications.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/configuracion/page": "action-browser"
+      },
+      "filename": "lib/actions/notifications.ts",
+      "exportedName": "updateNotificationPreferencesAction"
+    },
+    "40a250a4f269483d9601da7614193915babc250077": {
+      "workers": {
+        "app/perfil/direcciones/page": {
+          "moduleId": 27761,
+          "async": false,
+          "exportedName": "createAddressAction",
+          "filename": "lib/actions/addresses.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/direcciones/page": "action-browser"
+      },
+      "filename": "lib/actions/addresses.ts",
+      "exportedName": "createAddressAction"
+    },
+    "404ca194ae12d8def00441ace8d3045873cccef6d7": {
+      "workers": {
+        "app/perfil/listas-regalo/nueva/page": {
+          "moduleId": 34361,
+          "async": false,
+          "exportedName": "createGiftRegistryAction",
+          "filename": "lib/actions/gift-registry.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/listas-regalo/nueva/page": "action-browser"
+      },
+      "filename": "lib/actions/gift-registry.ts",
+      "exportedName": "createGiftRegistryAction"
+    },
+    "0086d8a5e13aa998c0c39430588ffab35c7d961951": {
+      "workers": {
+        "app/perfil/notificaciones/page": {
+          "moduleId": 58765,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "app/perfil/notificaciones/page.tsx"
+        }
+      },
+      "layer": {
+        "app/perfil/notificaciones/page": "rsc"
+      },
+      "filename": "app/perfil/notificaciones/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "401a48c1a85b471754a37f99a10d5cf259cad15025": {
+      "workers": {
+        "app/perfil/wishlists/page": {
+          "moduleId": 49779,
+          "async": false,
+          "exportedName": "createWishlistAction",
+          "filename": "lib/actions/wishlists.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/wishlists/page": "action-browser"
+      },
+      "filename": "lib/actions/wishlists.ts",
+      "exportedName": "createWishlistAction"
+    },
+    "70837b105d5a321066405b8404536c25f4c5cd7c17": {
+      "workers": {
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "addToWishlistAction",
+          "filename": "lib/actions/wishlists.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/[slug]/page": "action-browser"
+      },
+      "filename": "lib/actions/wishlists.ts",
+      "exportedName": "addToWishlistAction"
+    },
+    "702ca37dd068ff6e0f6b53bfbd5c405eec9d37b08c": {
+      "workers": {
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "addProductToRegistryAction",
+          "filename": "lib/actions/gift-registry.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/[slug]/page": "action-browser"
+      },
+      "filename": "lib/actions/gift-registry.ts",
+      "exportedName": "addProductToRegistryAction"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "1qVrR0j/ZJl5oSbjsiw8+UU451RNtRu3QQA+e1W11Gk="
+}

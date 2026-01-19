@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40a250a4f269483d9601da7614193915babc250077": {
+      "workers": {
+        "app/perfil/direcciones/page": {
+          "moduleId": 27761,
+          "async": false,
+          "exportedName": "createAddressAction",
+          "filename": "lib/actions/addresses.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/direcciones/page": "action-browser"
+      },
+      "exportedName": "createAddressAction",
+      "filename": "lib/actions/addresses.ts"
+    }
+  },
+  "edge": {}
+}

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Star, ThumbsUp, ThumbsDown, CheckCircle, ChevronDown } from "lucide-react"
-import { voteReview } from "@/lib/db/user-features"
+import { voteReview } from "@/lib/db/user-features-client"
 import { useToast } from "@/hooks/use-toast"
 
 interface Review {

@@ -1,0 +1,50 @@
+{
+  "node": {
+    "4059f1a839f6c0c69c56f4e81d9d863d2b808f86ad": {
+      "workers": {
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/[slug]/page": "action-browser"
+      },
+      "exportedName": "toggleFavorite",
+      "filename": "lib/actions/favorites.ts"
+    },
+    "70837b105d5a321066405b8404536c25f4c5cd7c17": {
+      "workers": {
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "addToWishlistAction",
+          "filename": "lib/actions/wishlists.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/[slug]/page": "action-browser"
+      },
+      "exportedName": "addToWishlistAction",
+      "filename": "lib/actions/wishlists.ts"
+    },
+    "702ca37dd068ff6e0f6b53bfbd5c405eec9d37b08c": {
+      "workers": {
+        "app/productos/[silo]/[slug]/page": {
+          "moduleId": 80835,
+          "async": false,
+          "exportedName": "addProductToRegistryAction",
+          "filename": "lib/actions/gift-registry.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/[slug]/page": "action-browser"
+      },
+      "exportedName": "addProductToRegistryAction",
+      "filename": "lib/actions/gift-registry.ts"
+    }
+  },
+  "edge": {}
+}

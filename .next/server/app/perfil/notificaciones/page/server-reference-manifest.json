@@ -1,0 +1,20 @@
+{
+  "node": {
+    "0086d8a5e13aa998c0c39430588ffab35c7d961951": {
+      "workers": {
+        "app/perfil/notificaciones/page": {
+          "moduleId": 58765,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "app/perfil/notificaciones/page.tsx"
+        }
+      },
+      "layer": {
+        "app/perfil/notificaciones/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "app/perfil/notificaciones/page.tsx"
+    }
+  },
+  "edge": {}
+}

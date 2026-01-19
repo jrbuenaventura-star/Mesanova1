@@ -1,0 +1,20 @@
+{
+  "node": {
+    "4059f1a839f6c0c69c56f4e81d9d863d2b808f86ad": {
+      "workers": {
+        "app/productos/[silo]/page": {
+          "moduleId": 58915,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        }
+      },
+      "layer": {
+        "app/productos/[silo]/page": "action-browser"
+      },
+      "exportedName": "toggleFavorite",
+      "filename": "lib/actions/favorites.ts"
+    }
+  },
+  "edge": {}
+}

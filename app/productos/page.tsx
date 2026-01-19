@@ -10,7 +10,7 @@ const silos = [
     description: "Organización, preparación, corte y todo para cocinar",
     icon: ChefHat,
     href: "/productos/cocina",
-    color: "bg-orange-500",
+    color: "bg-primary text-primary-foreground",
   },
   {
     id: "mesa",
@@ -18,7 +18,7 @@ const silos = [
     description: "Vajilla, cubiertos, vasos y decoración para tu mesa",
     icon: UtensilsCrossed,
     href: "/productos/mesa",
-    color: "bg-blue-500",
+    color: "bg-accent text-accent-foreground",
   },
   {
     id: "cafe-te-bar",
@@ -26,7 +26,7 @@ const silos = [
     description: "Copas, vasos y todo para bebidas",
     icon: Coffee,
     href: "/productos/cafe-te-bar",
-    color: "bg-amber-700",
+    color: "bg-secondary text-secondary-foreground",
   },
   {
     id: "termos-neveras",
@@ -34,7 +34,7 @@ const silos = [
     description: "Termos, neveras portátiles y botellas",
     icon: Thermometer,
     href: "/productos/termos-neveras",
-    color: "bg-cyan-600",
+    color: "bg-primary/10 text-primary",
   },
   {
     id: "profesional",
@@ -42,7 +42,7 @@ const silos = [
     description: "Productos para el sector profesional",
     icon: Briefcase,
     href: "/productos/profesional",
-    color: "bg-slate-700",
+    color: "bg-foreground text-background",
   },
 ]
 
@@ -89,7 +89,7 @@ export default function ProductosPage() {
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                     <CardHeader>
                       <div className={`w-12 h-12 rounded-lg ${silo.color} flex items-center justify-center mb-4`}>
-                        <Icon className="h-6 w-6 text-white" />
+                        <Icon className="h-6 w-6" />
                       </div>
                       <CardTitle className="group-hover:text-primary transition-colors">{silo.name}</CardTitle>
                       <CardDescription>{silo.description}</CardDescription>
