@@ -1457,7 +1457,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 className: "font-medium",
                                                 children: [
                                                     "$",
-                                                    product.precio.toLocaleString()
+                                                    product.precio
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/products-management.tsx",

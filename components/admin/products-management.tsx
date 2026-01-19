@@ -295,7 +295,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                   </TableCell>
                   <TableCell>
                     {product.precio ? (
-                      <div className="font-medium">${product.precio.toLocaleString()}</div>
+                      <div className="font-medium">${product.precio}</div>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
