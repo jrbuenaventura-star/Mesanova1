@@ -59,12 +59,10 @@ async function proxy(request) {
     let response = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__["NextResponse"].next({
         request
     });
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseAnonKey) {
-        console.error("[v0] Supabase env vars missing in middleware");
-        return response;
-    }
+    const supabaseUrl = process.env.SUPABASE_URL || ("TURBOPACK compile-time value", "https://hbzgndpouxhxbhngotru.supabase.co");
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || ("TURBOPACK compile-time value", "tu_anon_key_aqui");
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$ssr$2f$dist$2f$module$2f$createServerClient$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__["createServerClient"])(supabaseUrl, supabaseAnonKey, {
         cookies: {
             getAll () {
