@@ -1223,10 +1223,15 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "relative h-12 w-12 overflow-hidden rounded-md border",
                                                 children: product.imagen_principal_url ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                                                    src: product.imagen_principal_url || "/placeholder.svg",
-                                                    alt: product.nombre_comercial || product.pdt_descripcion,
+                                                    src: product.imagen_principal_url,
+                                                    alt: product.nombre_comercial || product.pdt_descripcion || "Producto",
                                                     fill: true,
-                                                    className: "object-cover"
+                                                    className: "object-cover",
+                                                    unoptimized: true,
+                                                    onError: (e)=>{
+                                                        const target = e.target;
+                                                        target.style.display = 'none';
+                                                    }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/products-management.tsx",
                                                     lineNumber: 254,
@@ -1236,7 +1241,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                     children: "Sin imagen"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/products-management.tsx",
-                                                    lineNumber: 261,
+                                                    lineNumber: 266,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
@@ -1254,7 +1259,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: product.pdt_codigo
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 267,
+                                            lineNumber: 272,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1265,7 +1270,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                         children: product.nombre_comercial || product.pdt_descripcion
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                        lineNumber: 270,
+                                                        lineNumber: 275,
                                                         columnNumber: 23
                                                     }, this),
                                                     product.nombre_comercial && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1273,7 +1278,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                         children: product.pdt_descripcion
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                        lineNumber: 272,
+                                                        lineNumber: 277,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1287,14 +1292,14 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                         className: "h-3 w-3 mr-1"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                                        lineNumber: 277,
+                                                                        lineNumber: 282,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     "Descontinuado"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 276,
+                                                                lineNumber: 281,
                                                                 columnNumber: 27
                                                             }, this),
                                                             product.pedido_en_camino && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1305,31 +1310,31 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                         className: "h-3 w-3 mr-1"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                                        lineNumber: 283,
+                                                                        lineNumber: 288,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     "En camino"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 282,
+                                                                lineNumber: 287,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                        lineNumber: 274,
+                                                        lineNumber: 279,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 269,
+                                                lineNumber: 274,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 268,
+                                            lineNumber: 273,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1338,12 +1343,12 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 children: product.marca || "-"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 291,
+                                                lineNumber: 296,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 290,
+                                            lineNumber: 295,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1352,12 +1357,12 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 children: product.nombre_coleccion || "-"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 294,
+                                                lineNumber: 299,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 293,
+                                            lineNumber: 298,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1369,19 +1374,19 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 298,
+                                                lineNumber: 303,
                                                 columnNumber: 23
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "text-muted-foreground",
                                                 children: "-"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 300,
+                                                lineNumber: 305,
                                                 columnNumber: 23
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 296,
+                                            lineNumber: 301,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1394,19 +1399,19 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 305,
+                                                lineNumber: 310,
                                                 columnNumber: 23
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "text-muted-foreground",
                                                 children: "-"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 309,
+                                                lineNumber: 314,
                                                 columnNumber: 23
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 303,
+                                            lineNumber: 308,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1415,12 +1420,12 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 children: product.upp_existencia
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 313,
+                                                lineNumber: 318,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 312,
+                                            lineNumber: 317,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1429,12 +1434,12 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                 children: product.is_active ? "Activo" : "Inactivo"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 318,
+                                                lineNumber: 323,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 317,
+                                            lineNumber: 322,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1449,17 +1454,17 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 326,
+                                                                lineNumber: 331,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/products-management.tsx",
-                                                            lineNumber: 325,
+                                                            lineNumber: 330,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                        lineNumber: 324,
+                                                        lineNumber: 329,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1472,14 +1477,14 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                                        lineNumber: 331,
+                                                                        lineNumber: 336,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     "Editar Precio y Descuento"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 330,
+                                                                lineNumber: 335,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1492,19 +1497,19 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/products-management.tsx",
-                                                                            lineNumber: 336,
+                                                                            lineNumber: 341,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         "Edición Avanzada"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin/products-management.tsx",
-                                                                    lineNumber: 335,
+                                                                    lineNumber: 340,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 334,
+                                                                lineNumber: 339,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1515,31 +1520,31 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                                        lineNumber: 341,
+                                                                        lineNumber: 346,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     "Eliminar"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                                lineNumber: 340,
+                                                                lineNumber: 345,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin/products-management.tsx",
-                                                        lineNumber: 329,
+                                                        lineNumber: 334,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/products-management.tsx",
-                                                lineNumber: 323,
+                                                lineNumber: 328,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 322,
+                                            lineNumber: 327,
                                             columnNumber: 19
                                         }, this)
                                     ]
@@ -1575,20 +1580,20 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                     children: "Editar Precio y Descuento"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 358,
+                                    lineNumber: 363,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: editingProduct?.nombre_comercial || editingProduct?.pdt_descripcion
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 359,
+                                    lineNumber: 364,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/products-management.tsx",
-                            lineNumber: 357,
+                            lineNumber: 362,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1602,7 +1607,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: "Precio ($)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 363,
+                                            lineNumber: 368,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1614,13 +1619,13 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             placeholder: "0.00"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 364,
+                                            lineNumber: 369,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 362,
+                                    lineNumber: 367,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1631,7 +1636,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: "Descuento (%)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 374,
+                                            lineNumber: 379,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1645,7 +1650,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             placeholder: "0"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 375,
+                                            lineNumber: 380,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1653,13 +1658,13 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: "Si el descuento es mayor que 0, el producto aparecerá en Ofertas"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 385,
+                                            lineNumber: 390,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 373,
+                                    lineNumber: 378,
                                     columnNumber: 13
                                 }, this),
                                 Number.parseFloat(editDiscount) > 0 && Number.parseFloat(editPrice) > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1670,7 +1675,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             children: "Precio con descuento:"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 391,
+                                            lineNumber: 396,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1681,7 +1686,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 392,
+                                            lineNumber: 397,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1692,19 +1697,19 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/products-management.tsx",
-                                            lineNumber: 396,
+                                            lineNumber: 401,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 390,
+                                    lineNumber: 395,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/products-management.tsx",
-                            lineNumber: 361,
+                            lineNumber: 366,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1716,7 +1721,7 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                     children: "Cancelar"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 403,
+                                    lineNumber: 408,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1725,24 +1730,24 @@ function ProductsManagement({ initialProducts, silos, subcategories, collections
                                     children: isLoading ? "Guardando..." : "Guardar Cambios"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/products-management.tsx",
-                                    lineNumber: 406,
+                                    lineNumber: 411,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/products-management.tsx",
-                            lineNumber: 402,
+                            lineNumber: 407,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/admin/products-management.tsx",
-                    lineNumber: 356,
+                    lineNumber: 361,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/admin/products-management.tsx",
-                lineNumber: 355,
+                lineNumber: 360,
                 columnNumber: 7
             }, this)
         ]

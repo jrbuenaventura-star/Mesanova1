@@ -252,10 +252,15 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                     <div className="relative h-12 w-12 overflow-hidden rounded-md border">
                       {product.imagen_principal_url ? (
                         <Image
-                          src={product.imagen_principal_url || "/placeholder.svg"}
-                          alt={product.nombre_comercial || product.pdt_descripcion}
+                          src={product.imagen_principal_url}
+                          alt={product.nombre_comercial || product.pdt_descripcion || "Producto"}
                           fill
                           className="object-cover"
+                          unoptimized
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                          }}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
