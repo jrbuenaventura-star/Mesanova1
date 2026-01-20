@@ -12,10 +12,11 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, User, Settings, Gift } from "lucide-react"
+import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, Gift } from "lucide-react"
 import { SearchAutocomplete } from "@/components/search/search-autocomplete"
 import { SearchButton } from "@/components/search-button"
 import { CartIcon } from "@/components/cart/cart-icon"
+import { UserMenu } from "@/components/user-menu"
 
 const silos = [
   {
@@ -57,17 +58,7 @@ const contactLinks = [
   { name: "Cliente final", href: "/contacto/cliente-final" },
 ]
 
-type SiteUser = {
-  id: string
-  email?: string
-}
-
-type UserProfile = {
-  full_name: string | null
-  role: string
-}
-
-export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProfile: UserProfile | null }) {
+export function SiteNav() {
   return (
     <>
       {/* Desktop Navigation */}
@@ -193,37 +184,7 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
           <SearchButton />
         </div>
         <CartIcon />
-
-        {user ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm hidden md:inline">{userProfile?.full_name || user.email}</span>
-            {userProfile?.role === "superadmin" && (
-              <Button variant="outline" size="sm" asChild className="hidden md:inline-flex bg-transparent">
-                <Link href="/admin">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Admin
-                </Link>
-              </Button>
-            )}
-            {userProfile?.role === "distributor" && (
-              <Button variant="outline" size="sm" asChild className="hidden md:inline-flex bg-transparent">
-                <Link href="/distributor">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Panel
-                </Link>
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/perfil">
-                <User className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
-            <Link href="/auth/login">Iniciar sesión</Link>
-          </Button>
-        )}
+        <UserMenu />
 
         {/* Mobile Navigation */}
         <Sheet>
@@ -302,41 +263,6 @@ export function SiteNav({ user, userProfile }: { user: SiteUser | null; userProf
                 </div>
               </div>
 
-              {user ? (
-                <>
-                  {userProfile?.role === "superadmin" && (
-                    <Button asChild className="mt-4 bg-transparent" variant="outline">
-                      <SheetClose asChild>
-                        <Link href="/admin">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Panel de Control
-                        </Link>
-                      </SheetClose>
-                    </Button>
-                  )}
-                  {userProfile?.role === "distributor" && (
-                    <Button asChild className="mt-4 bg-transparent" variant="outline">
-                      <SheetClose asChild>
-                        <Link href="/distributor">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Panel Distribuidor
-                        </Link>
-                      </SheetClose>
-                    </Button>
-                  )}
-                  <Button asChild className="mt-4 bg-transparent" variant="outline">
-                    <SheetClose asChild>
-                      <Link href="/perfil">Mi Perfil</Link>
-                    </SheetClose>
-                  </Button>
-                </>
-              ) : (
-                <Button asChild className="mt-4">
-                  <SheetClose asChild>
-                    <Link href="/auth/login">Iniciar sesión</Link>
-                  </SheetClose>
-                </Button>
-              )}
             </nav>
           </SheetContent>
         </Sheet>

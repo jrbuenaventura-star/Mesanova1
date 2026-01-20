@@ -204,7 +204,7 @@ export interface WarehouseWithStock extends Warehouse {
   low_stock_products?: number
 }
 
-export type UserRole = "superadmin" | "distributor" | "end_user"
+export type UserRole = "superadmin" | "distributor" | "aliado" | "end_user"
 
 export interface UserProfile {
   id: string
@@ -493,4 +493,195 @@ export interface CompanyContactWithCompany extends CompanyContact {
 export interface OrderWithDetails extends OrderWithItems {
   company?: Company
   company_contact?: CompanyContact
+}
+
+// ===========================================
+// ALIADOS (ex corredores/canales)
+// ===========================================
+
+export interface Aliado {
+  id: string
+  user_id: string
+  company_name: string
+  contact_name?: string
+  phone?: string
+  email?: string
+  total_sales: number
+  commission_percentage: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface AliadoWithUser extends Aliado {
+  user?: UserProfile
+}
+
+export interface AliadoWithDistributors extends Aliado {
+  distributors?: Distributor[]
+}
+
+// ===========================================
+// DOCUMENTOS DE DISTRIBUIDOR
+// ===========================================
+
+export type DocumentType = 
+  | "estados_financieros" 
+  | "rut" 
+  | "camara_comercio" 
+  | "certificado_bancario"
+
+export type DocumentStatus = "pending" | "approved" | "rejected" | "expired"
+
+export interface DistributorDocument {
+  id: string
+  distributor_id: string
+  document_type: DocumentType
+  file_name: string
+  file_url?: string
+  google_drive_file_id?: string
+  file_size?: number
+  mime_type?: string
+  fiscal_year?: number
+  status: DocumentStatus
+  expires_at?: string
+  reviewed_at?: string
+  reviewed_by?: string
+  review_notes?: string
+  uploaded_at: string
+  updated_at: string
+}
+
+// ===========================================
+// CRM - LEADS
+// ===========================================
+
+export type LeadStage = 
+  | "prospecto"
+  | "contactado"
+  | "interesado"
+  | "docs_comerciales_enviados"
+  | "docs_analisis_solicitados"
+  | "docs_analisis_recibidos"
+  | "aprobado"
+  | "rechazado"
+
+export const LEAD_STAGES: { value: LeadStage; label: string }[] = [
+  { value: "prospecto", label: "Prospecto" },
+  { value: "contactado", label: "Contactado" },
+  { value: "interesado", label: "Interesado" },
+  { value: "docs_comerciales_enviados", label: "Docs. comerciales enviados" },
+  { value: "docs_analisis_solicitados", label: "Docs. para análisis solicitados" },
+  { value: "docs_analisis_recibidos", label: "Docs. para análisis recibidos" },
+  { value: "aprobado", label: "Aprobado" },
+  { value: "rechazado", label: "Rechazado" },
+]
+
+export interface Lead {
+  id: string
+  aliado_id?: string
+  company_name: string
+  business_type?: string
+  contact_name: string
+  contact_phone?: string
+  contact_email?: string
+  contact_position?: string
+  city?: string
+  state?: string
+  address?: string
+  stage: LeadStage
+  last_contact_date?: string
+  next_follow_up_date?: string
+  notes?: string
+  converted_to_distributor_id?: string
+  rejection_reason?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface LeadWithAliado extends Lead {
+  aliado?: Aliado
+}
+
+export type LeadActivityType = "call" | "email" | "meeting" | "note" | "stage_change" | "document"
+
+export interface LeadActivity {
+  id: string
+  lead_id: string
+  user_id?: string
+  activity_type: LeadActivityType
+  description: string
+  old_stage?: LeadStage
+  new_stage?: LeadStage
+  created_at: string
+}
+
+// ===========================================
+// FACTURAS
+// ===========================================
+
+export type PaymentStatus = "pending" | "partial" | "paid" | "overdue"
+
+export interface Invoice {
+  id: string
+  distributor_id: string
+  order_id?: string
+  invoice_number: string
+  subtotal: number
+  tax: number
+  total: number
+  issue_date: string
+  due_date: string
+  payment_status: PaymentStatus
+  amount_paid: number
+  last_payment_date?: string
+  payment_reference?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface InvoiceWithDistributor extends Invoice {
+  distributor?: Distributor
+  urgency?: "ok" | "due_soon" | "overdue"
+  amount_pending?: number
+}
+
+// ===========================================
+// EXTENDED DISTRIBUTOR
+// ===========================================
+
+export interface DistributorExtended extends Distributor {
+  aliado_id?: string
+  contact_name?: string
+  contact_phone?: string
+  contact_email?: string
+  contact_position?: string
+  address?: string
+  city?: string
+  state?: string
+  documents_complete: boolean
+  documents_expire_at?: string
+  last_purchase_date?: string
+  total_purchases: number
+}
+
+export interface DistributorWithAliado extends DistributorExtended {
+  aliado?: Aliado
+  documents?: DistributorDocument[]
+}
+
+export interface DistributorSummary {
+  id: string
+  company_name: string
+  business_type?: string
+  contact_name?: string
+  contact_email?: string
+  is_active: boolean
+  aliado_id?: string
+  last_purchase_date?: string
+  total_purchases: number
+  credit_limit: number
+  current_balance: number
+  avg_monthly_purchases: number
+  orders_last_year: number
 }
