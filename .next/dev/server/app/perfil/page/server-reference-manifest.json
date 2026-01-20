@@ -12,10 +12,9 @@
       "layer": {
         "app/perfil/page": "rsc"
       },
-      "filename": "app/perfil/page.tsx",
-      "exportedName": "$$RSC_SERVER_ACTION_0"
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "app/perfil/page.tsx"
     }
   },
-  "edge": {},
-  "encryptionKey": "1QxsdQeR2Te2lAYAPTWjZ0dRQ8Nrr72MEoomhD8zdaA="
+  "edge": {}
 }

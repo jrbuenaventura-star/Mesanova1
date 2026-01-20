@@ -336,11 +336,9 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                           <Pencil className="mr-2 h-4 w-4" />
                           Editar Precio y Descuento
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}/editar`} className="flex items-center">
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edición Avanzada
-                          </Link>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/products/${product.id}/editar`)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edición Avanzada
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)} className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
