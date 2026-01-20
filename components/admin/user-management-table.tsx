@@ -48,6 +48,23 @@ export function UserManagementTable({ users }: { users: User[] }) {
         }
       }
 
+      // Si se cambia a aliado, crear registro en tabla aliados
+      if (newRole === "aliado") {
+        const { data: existingAliado } = await supabase
+          .from("aliados")
+          .select("id")
+          .eq("user_id", userId)
+          .single()
+
+        if (!existingAliado) {
+          await supabase.from("aliados").insert({
+            user_id: userId,
+            company_name: "Por configurar",
+            is_active: true,
+          })
+        }
+      }
+
       router.refresh()
     } catch (error) {
       console.error("Error updating user role:", error)

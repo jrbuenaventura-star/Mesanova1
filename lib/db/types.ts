@@ -293,11 +293,16 @@ export interface Order {
   distributor_id?: string
   aliado_id?: string
   company_id?: string
+  customer_name?: string
+  customer_email?: string
+  customer_phone?: string
   emisor: string
   fecha_pedido: string
   fecha_entrega_estimada?: string
   status: OrderStatus
   payment_status: string
+  payment_method?: string
+  shipping_method?: string
   subtotal: number
   discount_amount: number
   discount_percentage?: number

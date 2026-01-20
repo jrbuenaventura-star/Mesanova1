@@ -191,7 +191,16 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       if (orderError) throw orderError
 
       // Enviar correo a atencion@alumaronline.com
-      // TODO: Implementar envío de correo con la orden de compra
+      try {
+        await fetch("/api/orders/send-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: order.id }),
+        })
+      } catch (emailError) {
+        console.error("Error sending email notification:", emailError)
+        // No fallar la creación de la orden si el email falla
+      }
 
       setSuccess(`Pedido ${orderNumber} creado exitosamente. Se ha enviado para aprobación.`)
       

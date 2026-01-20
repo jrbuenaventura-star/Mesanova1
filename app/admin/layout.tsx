@@ -74,6 +74,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Órdenes
             </Button>
           </Link>
+          {userRole === "superadmin" && (
+            <Link href="/admin/orders/approval">
+              <Button variant="ghost" className="w-full justify-start">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Aprobar Órdenes
+              </Button>
+            </Link>
+          )}
           <Link href="/admin/distributors">
             <Button variant="ghost" className="w-full justify-start">
               <Truck className="mr-2 h-4 w-4" />
