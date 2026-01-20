@@ -106,7 +106,7 @@ export function DistributorDashboard({ distributorId }: DistributorDashboardProp
         { category: 'Mesa', budget: 8000000, spent: 4000000, percentage: 50 },
         { category: 'Café-Té-Bar', budget: 5000000, spent: 5000000, percentage: 100 },
         { category: 'Termos-Neveras', budget: 3000000, spent: 1500000, percentage: 50 },
-        { category: 'Profesional', budget: 4000000, spent: 2000000, percentage: 50 },
+        { category: 'HoReCa', budget: 4000000, spent: 2000000, percentage: 50 },
       ]);
 
       setRecentOrders([

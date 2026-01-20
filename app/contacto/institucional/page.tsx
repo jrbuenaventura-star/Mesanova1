@@ -74,7 +74,7 @@ export default function InstitucionalPage() {
                   instalación
                 </p>
                 <p>
-                  <strong>Productos Profesionales:</strong> Línea completa de vajilla resistente, cristalería
+                  <strong>Productos HoReCa:</strong> Línea completa de vajilla resistente, cristalería
                   profesional y utensilios de alta durabilidad
                 </p>
                 <p>

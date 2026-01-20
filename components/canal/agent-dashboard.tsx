@@ -144,7 +144,7 @@ export function AgentDashboard({ agentId }: AgentDashboardProps) {
         { category: 'Mesa', sales: 108000000, percentage: 24 },
         { category: 'Café-Té-Bar', sales: 90000000, percentage: 20 },
         { category: 'Termos-Neveras', sales: 63000000, percentage: 14 },
-        { category: 'Profesional', sales: 44000000, percentage: 10 },
+        { category: 'HoReCa', sales: 44000000, percentage: 10 },
       ]);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

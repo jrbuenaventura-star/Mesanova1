@@ -28,7 +28,7 @@ const testimonios = [
     role: "Propietaria de restaurante",
     rating: 5,
     comment:
-      "La línea profesional tiene todo lo que necesito para mi cocina. Precios competitivos y productos que realmente duran. Recomendados 100%.",
+      "La línea HoReCa tiene todo lo que necesito para mi cocina. Precios competitivos y productos que realmente duran. Recomendados 100%.",
   },
   {
     name: "Jorge Díaz",
@@ -60,7 +60,7 @@ export default function PorQueElegirnosPage() {
                   <CardTitle>Amplio Catálogo</CardTitle>
                   <CardDescription className="leading-relaxed">
                     Más de 5,000 productos organizados en 5 silos temáticos: Cocina, Mesa, Café/Té/Bar, Termos y
-                    Neveras, y Profesional. Desde utensilios básicos hasta equipamiento profesional.
+                    Neveras, y HoReCa. Desde utensilios básicos hasta equipamiento profesional.
                   </CardDescription>
                 </CardHeader>
               </Card>

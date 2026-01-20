@@ -38,8 +38,8 @@ const silos = [
   },
   {
     id: "profesional",
-    name: "Profesional",
-    description: "Productos para el sector profesional",
+    name: "HoReCa",
+    description: "Productos para hoteles, restaurantes y cafeterías",
     icon: Briefcase,
     href: "/productos/profesional",
     color: "bg-foreground text-background",
@@ -49,7 +49,7 @@ const silos = [
 export const metadata = {
   title: "Productos - Mesanova",
   description:
-    "Explora nuestro catálogo completo de artículos para cocina, mesa, café, té, bar y productos profesionales",
+    "Explora nuestro catálogo completo de artículos para cocina, mesa, café, té, bar y HoReCa",
 }
 
 export default function ProductosPage() {

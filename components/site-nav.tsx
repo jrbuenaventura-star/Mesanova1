@@ -45,9 +45,9 @@ const silos = [
   },
   {
     slug: "profesional",
-    name: "Profesional",
+    name: "HoReCa",
     icon: Briefcase,
-    description: "Soluciones para gastronomía profesional",
+    description: "Soluciones para hoteles, restaurantes y cafeterías",
   },
 ]
 

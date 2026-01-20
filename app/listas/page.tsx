@@ -31,24 +31,20 @@ export default async function BuscarListasPage({
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <div className="bg-background border-b">
-        <div className="container max-w-4xl py-12 px-4 text-center">
-          <Gift className="h-12 w-12 mx-auto text-primary mb-4" />
-          <h1 className="text-4xl font-bold mb-2">Buscar Lista de Regalos</h1>
-          <p className="text-muted-foreground mb-8">
+    <main className="min-h-screen bg-background">
+      <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-background">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Gift className="h-8 w-8 text-primary" />
+            <h1 className="text-4xl md:text-5xl font-bold">Buscar Lista de Regalos</h1>
+          </div>
+          <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Encuentra la lista de bodas, baby shower o evento especial de tus amigos
           </p>
 
           <form action="/listas" method="GET" className="max-w-md mx-auto">
             <div className="flex gap-2">
-              <Input
-                name="q"
-                placeholder="Buscar por nombre..."
-                defaultValue={query}
-                className="flex-1"
-              />
+              <Input name="q" placeholder="Buscar por nombre..." defaultValue={query} className="flex-1" />
               <Button type="submit">
                 <Search className="h-4 w-4 mr-2" />
                 Buscar
@@ -56,10 +52,10 @@ export default async function BuscarListasPage({
             </div>
           </form>
         </div>
-      </div>
+      </section>
 
-      {/* Results */}
-      <div className="container max-w-4xl py-8 px-4">
+      <section className="py-8 px-4">
+        <div className="container mx-auto">
         {query && (
           <p className="text-muted-foreground mb-6 text-center">
             {registries.length} resultado{registries.length !== 1 ? "s" : ""} para "{query}"
@@ -117,7 +113,8 @@ export default async function BuscarListasPage({
             </p>
           </Card>
         )}
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   )
 }

@@ -75,7 +75,7 @@ export function SiteFooter() {
                   href="/productos/profesional"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Profesional
+                  HoReCa
                 </Link>
               </li>
             </ul>

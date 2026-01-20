@@ -134,7 +134,7 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Inner_pack: 'Empaque primario (unidades por empaque)',
   Outer_pack: 'Empaque secundario (empaques primarios por caja)',
   Coleccion: 'Nombre de la colección a la que pertenece',
-  Categoria: 'Categoría principal (Cocina, Mesa, Café-Té-Bar, Termos-Neveras, Profesional)',
+  Categoria: 'Categoría principal (Cocina, Mesa, Café-Té-Bar, Termos-Neveras, HoReCa)',
   Subcategoria: 'Subcategoría dentro de la categoría principal',
   Tipo_producto: 'Tipo específico de producto (3er nivel)',
   Material: 'Material principal del producto',
@@ -193,7 +193,7 @@ export const VALID_CATEGORIES = [
   'Mesa',
   'Café-Té-Bar',
   'Termos-Neveras',
-  'Profesional',
+  'HoReCa',
 ];
 
 export const VALID_ROTACION = ['alta', 'media', 'baja'];

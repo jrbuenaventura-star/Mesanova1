@@ -34,7 +34,7 @@ INSERT INTO silos (slug, name, description, order_index) VALUES
 ('mesa', 'Mesa', 'Productos para servir y decorar la mesa', 2),
 ('cafe-te-bar', 'Café, té y Bar', 'Productos para bebidas, bar y café', 3),
 ('termos-neveras', 'Termos y Neveras portátiles', 'Termos, neveras y botellas portátiles', 4),
-('profesional', 'Profesional', 'Productos para uso profesional en gastronomía', 5);
+('profesional', 'HoReCa', 'Productos para hoteles, restaurantes y cafeterías', 5);
 
 -- Insertar subcategorías para COCINA
 INSERT INTO subcategories (silo_id, slug, name, order_index)
