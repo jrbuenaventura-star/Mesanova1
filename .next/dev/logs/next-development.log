@@ -382,3 +382,5 @@ Learn more: https://nextjs.org/docs/app/building-your-application/upgrading/code
 [27:39:22.559] Server  LOG        Reload env: .env.local
 [27:39:24.943] Server  LOG        Reload env: .env.local
 [27:39:46.031] Server  LOG        Reload env: .env.local
+[29:06:03.368] Server  LOG      ✓ Compiled in 410ms
+[29:09:30.789] Server  LOG      ✓ Compiled in 358ms

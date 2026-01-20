@@ -61,13 +61,13 @@ export default async function BuscarListasPage({
       {/* Results */}
       <div className="container max-w-4xl py-8 px-4">
         {query && (
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-6 text-center">
             {registries.length} resultado{registries.length !== 1 ? "s" : ""} para "{query}"
           </p>
         )}
 
         {query && registries.length === 0 ? (
-          <Card className="p-12 text-center">
+          <Card className="p-12 text-center mx-auto w-full max-w-2xl">
             <Gift className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <h2 className="text-xl font-semibold mb-2">No encontramos listas</h2>
             <p className="text-muted-foreground">
@@ -75,7 +75,7 @@ export default async function BuscarListasPage({
             </p>
           </Card>
         ) : query ? (
-          <div className="space-y-4">
+          <div className="space-y-4 mx-auto w-full max-w-2xl">
             {registries.map((registry: any) => (
               <Card key={registry.id} className="hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
@@ -109,7 +109,7 @@ export default async function BuscarListasPage({
             ))}
           </div>
         ) : (
-          <Card className="p-12 text-center">
+          <Card className="p-12 text-center mx-auto w-full max-w-2xl">
             <Search className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <h2 className="text-xl font-semibold mb-2">Busca una lista</h2>
             <p className="text-muted-foreground">
