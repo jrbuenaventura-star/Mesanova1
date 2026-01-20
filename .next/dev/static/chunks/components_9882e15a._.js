@@ -927,6 +927,16 @@ function CSVProductManager() {
     const [isValidating, setIsValidating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isImporting, setIsImporting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const parseApiResponse = async (response)=>{
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            return response.json();
+        }
+        const text = await response.text();
+        const isVercelProtected = response.status === 401 && (text.includes('_vercel_sso_nonce') || text.toLowerCase().includes('vercel'));
+        const hint = isVercelProtected ? 'Vercel está bloqueando la ruta (Deployment Protection/SSO). Desactiva la protección del deployment o permite acceso público a /api/* y redeploy.' : 'La API devolvió una respuesta no-JSON.';
+        throw new Error(`${hint} (HTTP ${response.status})`);
+    };
     const onDrop = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "CSVProductManager.useCallback[onDrop]": async (acceptedFiles)=>{
             const csvFile = acceptedFiles[0];
@@ -941,7 +951,7 @@ function CSVProductManager() {
                     method: 'POST',
                     body: formData
                 });
-                const result = await response.json();
+                const result = await parseApiResponse(response);
                 if (!response.ok) {
                     throw new Error(result.error || 'Error al validar archivo');
                 }
@@ -979,7 +989,7 @@ function CSVProductManager() {
                 method: 'POST',
                 body: formData
             });
-            const result = await response.json();
+            const result = await parseApiResponse(response);
             if (!response.ok) {
                 throw new Error(result.error || 'Error al importar archivo');
             }
@@ -1019,7 +1029,7 @@ function CSVProductManager() {
                                 children: "Gestión de Productos CSV"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 209,
+                                lineNumber: 228,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1027,13 +1037,13 @@ function CSVProductManager() {
                                 children: "Importa, exporta y sincroniza productos masivamente"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 210,
+                                lineNumber: 229,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 208,
+                        lineNumber: 227,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1047,14 +1057,14 @@ function CSVProductManager() {
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 216,
+                                        lineNumber: 235,
                                         columnNumber: 13
                                     }, this),
                                     "Template vacío"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 215,
+                                lineNumber: 234,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1065,14 +1075,14 @@ function CSVProductManager() {
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 220,
+                                        lineNumber: 239,
                                         columnNumber: 13
                                     }, this),
                                     "Template con instrucciones"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 219,
+                                lineNumber: 238,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1083,26 +1093,26 @@ function CSVProductManager() {
                                         className: "w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 224,
+                                        lineNumber: 243,
                                         columnNumber: 13
                                     }, this),
                                     "Exportar productos"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 223,
+                                lineNumber: 242,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 214,
+                        lineNumber: 233,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 207,
+                lineNumber: 226,
                 columnNumber: 7
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
@@ -1112,27 +1122,27 @@ function CSVProductManager() {
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 233,
+                        lineNumber: 252,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                         children: "Error"
                     }, void 0, false, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 234,
+                        lineNumber: 253,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
                         children: error
                     }, void 0, false, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 235,
+                        lineNumber: 254,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 232,
+                lineNumber: 251,
                 columnNumber: 9
             }, this),
             step === 'upload' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1143,20 +1153,20 @@ function CSVProductManager() {
                                 children: "Subir archivo CSV"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 243,
+                                lineNumber: 262,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Arrastra un archivo CSV o haz clic para seleccionarlo"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 244,
+                                lineNumber: 263,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 242,
+                        lineNumber: 261,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1174,7 +1184,7 @@ function CSVProductManager() {
                                         ...getInputProps()
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 258,
+                                        lineNumber: 277,
                                         columnNumber: 15
                                     }, this),
                                     isValidating ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1184,7 +1194,7 @@ function CSVProductManager() {
                                                 className: "w-12 h-12 animate-spin text-primary"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 261,
+                                                lineNumber: 280,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1192,13 +1202,13 @@ function CSVProductManager() {
                                                 children: "Validando archivo..."
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 262,
+                                                lineNumber: 281,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 260,
+                                        lineNumber: 279,
                                         columnNumber: 17
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex flex-col items-center gap-4",
@@ -1207,7 +1217,7 @@ function CSVProductManager() {
                                                 className: "w-12 h-12 text-muted-foreground"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 266,
+                                                lineNumber: 285,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1217,7 +1227,7 @@ function CSVProductManager() {
                                                         children: isDragActive ? 'Suelta el archivo aquí' : 'Arrastra un archivo CSV aquí'
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                        lineNumber: 268,
+                                                        lineNumber: 287,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1225,25 +1235,25 @@ function CSVProductManager() {
                                                         children: "o haz clic para seleccionar"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                        lineNumber: 273,
+                                                        lineNumber: 292,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 267,
+                                                lineNumber: 286,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 265,
+                                        lineNumber: 284,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 249,
+                                lineNumber: 268,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1255,7 +1265,7 @@ function CSVProductManager() {
                                             className: "w-5 h-5 text-blue-500 mt-0.5"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 283,
+                                            lineNumber: 302,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1266,7 +1276,7 @@ function CSVProductManager() {
                                                     children: "Información importante:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 285,
+                                                    lineNumber: 304,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1276,63 +1286,63 @@ function CSVProductManager() {
                                                             children: "El archivo debe estar en formato CSV con codificación UTF-8"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 287,
+                                                            lineNumber: 306,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                             children: "Los campos obligatorios son: Ref, Producto, Precio_COP"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 288,
+                                                            lineNumber: 307,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                             children: "Las imágenes deben ser URLs válidas"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 289,
+                                                            lineNumber: 308,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                             children: "Los productos existentes se identifican por la columna Ref"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 290,
+                                                            lineNumber: 309,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 286,
+                                                    lineNumber: 305,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 284,
+                                            lineNumber: 303,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 282,
+                                    lineNumber: 301,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 281,
+                                lineNumber: 300,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 248,
+                        lineNumber: 267,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 241,
+                lineNumber: 260,
                 columnNumber: 9
             }, this),
             step === 'preview' && validationResult && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1350,7 +1360,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.total
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 306,
+                                            lineNumber: 325,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1358,18 +1368,18 @@ function CSVProductManager() {
                                             children: "Total filas"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 307,
+                                            lineNumber: 326,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 305,
+                                    lineNumber: 324,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 304,
+                                lineNumber: 323,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1381,7 +1391,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.valid
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 312,
+                                            lineNumber: 331,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1389,18 +1399,18 @@ function CSVProductManager() {
                                             children: "Válidas"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 315,
+                                            lineNumber: 334,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 311,
+                                    lineNumber: 330,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 310,
+                                lineNumber: 329,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1412,7 +1422,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.invalid
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 320,
+                                            lineNumber: 339,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1420,18 +1430,18 @@ function CSVProductManager() {
                                             children: "Con errores"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 323,
+                                            lineNumber: 342,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 319,
+                                    lineNumber: 338,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 318,
+                                lineNumber: 337,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1443,7 +1453,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.toCreate
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 328,
+                                            lineNumber: 347,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1451,18 +1461,18 @@ function CSVProductManager() {
                                             children: "Nuevos"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 331,
+                                            lineNumber: 350,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 327,
+                                    lineNumber: 346,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 326,
+                                lineNumber: 345,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1474,7 +1484,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.toUpdate
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 336,
+                                            lineNumber: 355,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1482,18 +1492,18 @@ function CSVProductManager() {
                                             children: "A actualizar"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 339,
+                                            lineNumber: 358,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 335,
+                                    lineNumber: 354,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 334,
+                                lineNumber: 353,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1505,7 +1515,7 @@ function CSVProductManager() {
                                             children: validationResult.stats.unchanged
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 344,
+                                            lineNumber: 363,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1513,24 +1523,24 @@ function CSVProductManager() {
                                             children: "Sin cambios"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 347,
+                                            lineNumber: 366,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 343,
+                                    lineNumber: 362,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 342,
+                                lineNumber: 361,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 303,
+                        lineNumber: 322,
                         columnNumber: 11
                     }, this),
                     validationResult.globalErrors.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
@@ -1540,14 +1550,14 @@ function CSVProductManager() {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 355,
+                                lineNumber: 374,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                                 children: "Problemas con el archivo"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 356,
+                                lineNumber: 375,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
@@ -1557,23 +1567,23 @@ function CSVProductManager() {
                                             children: err
                                         }, i, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 360,
+                                            lineNumber: 379,
                                             columnNumber: 21
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 358,
+                                    lineNumber: 377,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 357,
+                                lineNumber: 376,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 354,
+                        lineNumber: 373,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1590,7 +1600,7 @@ function CSVProductManager() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 370,
+                                        lineNumber: 389,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1602,7 +1612,7 @@ function CSVProductManager() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 373,
+                                        lineNumber: 392,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1610,13 +1620,13 @@ function CSVProductManager() {
                                         children: "Todos los productos"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 376,
+                                        lineNumber: 395,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 369,
+                                lineNumber: 388,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1636,32 +1646,32 @@ function CSVProductManager() {
                                                                     children: "Ref"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 386,
+                                                                    lineNumber: 405,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Acción"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 387,
+                                                                    lineNumber: 406,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Campos modificados"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 388,
+                                                                    lineNumber: 407,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 385,
+                                                            lineNumber: 404,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                        lineNumber: 384,
+                                                        lineNumber: 403,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1672,7 +1682,7 @@ function CSVProductManager() {
                                                                         children: diff.ref
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 396,
+                                                                        lineNumber: 415,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1681,12 +1691,12 @@ function CSVProductManager() {
                                                                             children: diff.changeType === 'create' ? 'Nuevo' : 'Actualizar'
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 398,
+                                                                            lineNumber: 417,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 397,
+                                                                        lineNumber: 416,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1695,7 +1705,7 @@ function CSVProductManager() {
                                                                             children: "Producto nuevo"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 408,
+                                                                            lineNumber: 427,
                                                                             columnNumber: 35
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "flex flex-wrap gap-1",
@@ -1705,7 +1715,7 @@ function CSVProductManager() {
                                                                                         children: change.field
                                                                                     }, change.field, false, {
                                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                        lineNumber: 414,
+                                                                                        lineNumber: 433,
                                                                                         columnNumber: 39
                                                                                     }, this)),
                                                                                 diff.changes.length > 5 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1717,55 +1727,55 @@ function CSVProductManager() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                    lineNumber: 419,
+                                                                                    lineNumber: 438,
                                                                                     columnNumber: 39
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 412,
+                                                                            lineNumber: 431,
                                                                             columnNumber: 35
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 406,
+                                                                        lineNumber: 425,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, diff.ref, true, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 395,
+                                                                lineNumber: 414,
                                                                 columnNumber: 29
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                        lineNumber: 391,
+                                                        lineNumber: 410,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 383,
+                                                lineNumber: 402,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 382,
+                                            lineNumber: 401,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 381,
+                                        lineNumber: 400,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 380,
+                                    lineNumber: 399,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 379,
+                                lineNumber: 398,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1781,20 +1791,20 @@ function CSVProductManager() {
                                                     className: "w-12 h-12 mx-auto mb-4 text-green-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 440,
+                                                    lineNumber: 459,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: "No hay errores de validación"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 441,
+                                                    lineNumber: 460,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 439,
+                                            lineNumber: 458,
                                             columnNumber: 21
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$accordion$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Accordion"], {
                                             type: "single",
@@ -1811,7 +1821,7 @@ function CSVProductManager() {
                                                                         className: "w-4 h-4 text-red-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 451,
+                                                                        lineNumber: 470,
                                                                         columnNumber: 33
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1821,7 +1831,7 @@ function CSVProductManager() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 452,
+                                                                        lineNumber: 471,
                                                                         columnNumber: 33
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1829,7 +1839,7 @@ function CSVProductManager() {
                                                                         children: product.data.Ref || '(sin referencia)'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 453,
+                                                                        lineNumber: 472,
                                                                         columnNumber: 33
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1840,18 +1850,18 @@ function CSVProductManager() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 456,
+                                                                        lineNumber: 475,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 450,
+                                                                lineNumber: 469,
                                                                 columnNumber: 31
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 449,
+                                                            lineNumber: 468,
                                                             columnNumber: 29
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$accordion$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AccordionContent"], {
@@ -1868,7 +1878,7 @@ function CSVProductManager() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                lineNumber: 465,
+                                                                                lineNumber: 484,
                                                                                 columnNumber: 37
                                                                             }, this),
                                                                             ' ',
@@ -1883,49 +1893,49 @@ function CSVProductManager() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                lineNumber: 468,
+                                                                                lineNumber: 487,
                                                                                 columnNumber: 39
                                                                             }, this)
                                                                         ]
                                                                     }, i, true, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 464,
+                                                                        lineNumber: 483,
                                                                         columnNumber: 35
                                                                     }, this))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 462,
+                                                                lineNumber: 481,
                                                                 columnNumber: 31
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 461,
+                                                            lineNumber: 480,
                                                             columnNumber: 29
                                                         }, this)
                                                     ]
                                                 }, product.row, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 448,
+                                                    lineNumber: 467,
                                                     columnNumber: 27
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 444,
+                                            lineNumber: 463,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 437,
+                                        lineNumber: 456,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 436,
+                                    lineNumber: 455,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 435,
+                                lineNumber: 454,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1946,46 +1956,46 @@ function CSVProductManager() {
                                                                         children: "Fila"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 492,
+                                                                        lineNumber: 511,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                         children: "Ref"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 493,
+                                                                        lineNumber: 512,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                         children: "Producto"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 494,
+                                                                        lineNumber: 513,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                         children: "Precio"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 495,
+                                                                        lineNumber: 514,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                         children: "Estado"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                        lineNumber: 496,
+                                                                        lineNumber: 515,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 491,
+                                                                lineNumber: 510,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 490,
+                                                            lineNumber: 509,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1995,7 +2005,7 @@ function CSVProductManager() {
                                                                             children: product.row
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 502,
+                                                                            lineNumber: 521,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2003,7 +2013,7 @@ function CSVProductManager() {
                                                                             children: product.data.Ref
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 503,
+                                                                            lineNumber: 522,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2011,7 +2021,7 @@ function CSVProductManager() {
                                                                             children: product.data.Producto
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 506,
+                                                                            lineNumber: 525,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2021,7 +2031,7 @@ function CSVProductManager() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 509,
+                                                                            lineNumber: 528,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2033,14 +2043,14 @@ function CSVProductManager() {
                                                                                         className: "w-3 h-3 mr-1"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                        lineNumber: 515,
+                                                                                        lineNumber: 534,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     "Válido"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                lineNumber: 514,
+                                                                                lineNumber: 533,
                                                                                 columnNumber: 33
                                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                                                 variant: "destructive",
@@ -2049,7 +2059,7 @@ function CSVProductManager() {
                                                                                         className: "w-3 h-3 mr-1"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                        lineNumber: 520,
+                                                                                        lineNumber: 539,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     product.errors.length,
@@ -2057,34 +2067,34 @@ function CSVProductManager() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                                lineNumber: 519,
+                                                                                lineNumber: 538,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                            lineNumber: 512,
+                                                                            lineNumber: 531,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, product.row, true, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 501,
+                                                                    lineNumber: 520,
                                                                     columnNumber: 27
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 499,
+                                                            lineNumber: 518,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 489,
+                                                    lineNumber: 508,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 488,
+                                                lineNumber: 507,
                                                 columnNumber: 19
                                             }, this),
                                             validationResult.hasMore && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2092,29 +2102,29 @@ function CSVProductManager() {
                                                 children: "Mostrando los primeros 100 productos..."
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 531,
+                                                lineNumber: 550,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 487,
+                                        lineNumber: 506,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 486,
+                                    lineNumber: 505,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 485,
+                                lineNumber: 504,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 368,
+                        lineNumber: 387,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2124,12 +2134,12 @@ function CSVProductManager() {
                                     children: "Opciones de importación"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 543,
+                                    lineNumber: 562,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 542,
+                                lineNumber: 561,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2144,7 +2154,7 @@ function CSVProductManager() {
                                                     children: "Modo de importación"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 548,
+                                                    lineNumber: 567,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -2155,12 +2165,12 @@ function CSVProductManager() {
                                                             className: "w-full md:w-64",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 556,
+                                                                lineNumber: 575,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 555,
+                                                            lineNumber: 574,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2170,7 +2180,7 @@ function CSVProductManager() {
                                                                     children: "Actualizar existentes y crear nuevos"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 559,
+                                                                    lineNumber: 578,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2178,7 +2188,7 @@ function CSVProductManager() {
                                                                     children: "Solo agregar nuevos"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 562,
+                                                                    lineNumber: 581,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2186,19 +2196,19 @@ function CSVProductManager() {
                                                                     children: "Reemplazar toda la base (peligroso)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                    lineNumber: 563,
+                                                                    lineNumber: 582,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 558,
+                                                            lineNumber: 577,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 551,
+                                                    lineNumber: 570,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2210,13 +2220,13 @@ function CSVProductManager() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 568,
+                                                    lineNumber: 587,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 547,
+                                            lineNumber: 566,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2228,7 +2238,7 @@ function CSVProductManager() {
                                                     children: "Cancelar"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 578,
+                                                    lineNumber: 597,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2240,7 +2250,7 @@ function CSVProductManager() {
                                                                 className: "w-4 h-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 589,
+                                                                lineNumber: 608,
                                                                 columnNumber: 25
                                                             }, this),
                                                             "Importar ",
@@ -2250,36 +2260,36 @@ function CSVProductManager() {
                                                     }, void 0, true)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 581,
+                                                    lineNumber: 600,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 577,
+                                            lineNumber: 596,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 546,
+                                    lineNumber: 565,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 545,
+                                lineNumber: 564,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 541,
+                        lineNumber: 560,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 301,
+                lineNumber: 320,
                 columnNumber: 9
             }, this),
             step === 'importing' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2292,7 +2302,7 @@ function CSVProductManager() {
                                 className: "w-16 h-16 animate-spin text-primary"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 606,
+                                lineNumber: 625,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2303,7 +2313,7 @@ function CSVProductManager() {
                                         children: "Importando productos..."
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 608,
+                                        lineNumber: 627,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2311,13 +2321,13 @@ function CSVProductManager() {
                                         children: "Por favor espera mientras se procesan los productos"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 609,
+                                        lineNumber: 628,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 607,
+                                lineNumber: 626,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$progress$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Progress"], {
@@ -2325,23 +2335,23 @@ function CSVProductManager() {
                                 className: "w-64"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 613,
+                                lineNumber: 632,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 605,
+                        lineNumber: 624,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                    lineNumber: 604,
+                    lineNumber: 623,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 603,
+                lineNumber: 622,
                 columnNumber: 9
             }, this),
             step === 'complete' && importResult && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2354,20 +2364,20 @@ function CSVProductManager() {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 624,
+                                lineNumber: 643,
                                 columnNumber: 15
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 626,
+                                lineNumber: 645,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                                 children: importResult.success ? 'Importación completada' : 'Importación completada con errores'
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 628,
+                                lineNumber: 647,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
@@ -2379,13 +2389,13 @@ function CSVProductManager() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 633,
+                                lineNumber: 652,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 622,
+                        lineNumber: 641,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2400,7 +2410,7 @@ function CSVProductManager() {
                                             children: importResult.created
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 642,
+                                            lineNumber: 661,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2408,18 +2418,18 @@ function CSVProductManager() {
                                             children: "Creados"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 645,
+                                            lineNumber: 664,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 641,
+                                    lineNumber: 660,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 640,
+                                lineNumber: 659,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2431,7 +2441,7 @@ function CSVProductManager() {
                                             children: importResult.updated
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 650,
+                                            lineNumber: 669,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2439,18 +2449,18 @@ function CSVProductManager() {
                                             children: "Actualizados"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 653,
+                                            lineNumber: 672,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 649,
+                                    lineNumber: 668,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 648,
+                                lineNumber: 667,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2462,7 +2472,7 @@ function CSVProductManager() {
                                             children: importResult.skipped
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 658,
+                                            lineNumber: 677,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2470,18 +2480,18 @@ function CSVProductManager() {
                                             children: "Omitidos"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 661,
+                                            lineNumber: 680,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 657,
+                                    lineNumber: 676,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 656,
+                                lineNumber: 675,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2493,7 +2503,7 @@ function CSVProductManager() {
                                             children: importResult.errors.length
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 666,
+                                            lineNumber: 685,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2501,24 +2511,24 @@ function CSVProductManager() {
                                             children: "Errores"
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                            lineNumber: 669,
+                                            lineNumber: 688,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 665,
+                                    lineNumber: 684,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 664,
+                                lineNumber: 683,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 639,
+                        lineNumber: 658,
                         columnNumber: 11
                     }, this),
                     importResult.errors.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2529,12 +2539,12 @@ function CSVProductManager() {
                                     children: "Errores durante la importación"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 677,
+                                    lineNumber: 696,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 676,
+                                lineNumber: 695,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2548,32 +2558,32 @@ function CSVProductManager() {
                                                             children: "Fila"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 685,
+                                                            lineNumber: 704,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Ref"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 686,
+                                                            lineNumber: 705,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Error"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                            lineNumber: 687,
+                                                            lineNumber: 706,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                    lineNumber: 684,
+                                                    lineNumber: 703,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 683,
+                                                lineNumber: 702,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2583,7 +2593,7 @@ function CSVProductManager() {
                                                                 children: err.row
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 693,
+                                                                lineNumber: 712,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2591,31 +2601,31 @@ function CSVProductManager() {
                                                                 children: err.ref
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 694,
+                                                                lineNumber: 713,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                 children: err.error
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                                lineNumber: 695,
+                                                                lineNumber: 714,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, i, true, {
                                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                        lineNumber: 692,
+                                                        lineNumber: 711,
                                                         columnNumber: 23
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                                lineNumber: 690,
+                                                lineNumber: 709,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 682,
+                                        lineNumber: 701,
                                         columnNumber: 17
                                     }, this),
                                     importResult.hasMoreErrors && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2623,19 +2633,19 @@ function CSVProductManager() {
                                         children: "Mostrando los primeros 20 errores..."
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                        lineNumber: 701,
+                                        lineNumber: 720,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                lineNumber: 681,
+                                lineNumber: 700,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 675,
+                        lineNumber: 694,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2647,31 +2657,31 @@ function CSVProductManager() {
                                     className: "w-4 h-4 mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin/csv-product-manager.tsx",
-                                    lineNumber: 711,
+                                    lineNumber: 730,
                                     columnNumber: 15
                                 }, this),
                                 "Nueva importación"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin/csv-product-manager.tsx",
-                            lineNumber: 710,
+                            lineNumber: 729,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin/csv-product-manager.tsx",
-                        lineNumber: 709,
+                        lineNumber: 728,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin/csv-product-manager.tsx",
-                lineNumber: 621,
+                lineNumber: 640,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/admin/csv-product-manager.tsx",
-        lineNumber: 205,
+        lineNumber: 224,
         columnNumber: 5
     }, this);
 }

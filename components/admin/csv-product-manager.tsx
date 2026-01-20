@@ -108,6 +108,25 @@ export function CSVProductManager() {
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const parseApiResponse = async (response: Response) => {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      return response.json();
+    }
+
+    const text = await response.text();
+    const isVercelProtected =
+      response.status === 401 && (text.includes('_vercel_sso_nonce') || text.toLowerCase().includes('vercel'));
+
+    const hint = isVercelProtected
+      ?
+        'Vercel está bloqueando la ruta (Deployment Protection/SSO). Desactiva la protección del deployment o permite acceso público a /api/* y redeploy.'
+      :
+        'La API devolvió una respuesta no-JSON.';
+
+    throw new Error(`${hint} (HTTP ${response.status})`);
+  };
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const csvFile = acceptedFiles[0];
     if (!csvFile) return;
@@ -125,7 +144,7 @@ export function CSVProductManager() {
         body: formData,
       });
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok) {
         throw new Error(result.error || 'Error al validar archivo');
@@ -166,7 +185,7 @@ export function CSVProductManager() {
         body: formData,
       });
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok) {
         throw new Error(result.error || 'Error al importar archivo');

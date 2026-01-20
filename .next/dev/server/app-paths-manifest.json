@@ -6,6 +6,7 @@
   "/admin/products/nuevo/page": "app/admin/products/nuevo/page.js",
   "/admin/products/page": "app/admin/products/page.js",
   "/api/products/csv/changelog/route": "app/api/products/csv/changelog/route.js",
+  "/api/products/csv/template/route": "app/api/products/csv/template/route.js",
   "/api/products/csv/validate/route": "app/api/products/csv/validate/route.js",
   "/auth/login/page": "app/auth/login/page.js",
   "/blog/page": "app/blog/page.js",
