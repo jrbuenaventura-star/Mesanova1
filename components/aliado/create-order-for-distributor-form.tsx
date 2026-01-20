@@ -17,6 +17,8 @@ type Distributor = {
   id: string
   company_name: string
   discount_percentage: number
+  contact_email?: string
+  contact_phone?: string
   is_active: boolean
   user_id: string
 }
@@ -160,25 +162,18 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          order_number: orderNumber,
           user_id: distributor.user_id,
           distributor_id: selectedDistributorId,
           aliado_id: aliadoId,
-          emisor: "aliado",
-          fecha_pedido: new Date().toISOString(),
           status: "por_aprobar",
-          payment_status: "pending",
           subtotal: total,
-          discount_amount: 0,
           discount_percentage: distributor.discount_percentage,
-          tax_amount: 0,
-          iva_porcentaje: 0,
           shipping_cost: 0,
           total: total,
           notes: notes,
           customer_name: distributor.company_name,
-          customer_email: "pedido@aliado.com",
-          customer_phone: "0000000000",
+          customer_email: distributor.contact_email || "",
+          customer_phone: distributor.contact_phone || "",
           shipping_address: "Por definir",
           shipping_city: "Por definir",
           payment_method: "Por definir",

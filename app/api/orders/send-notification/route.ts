@@ -30,8 +30,7 @@ export async function POST(request: Request) {
       .select(`
         *,
         distributor:distributors(company_name, contact_name, contact_email),
-        aliado:aliados(company_name, contact_name, email),
-        items:order_items(*)
+        aliado:aliados(company_name, contact_name, email)
       `)
       .eq("id", orderId)
       .single()
@@ -44,9 +43,10 @@ export async function POST(request: Request) {
     }
 
     // Preparar datos del email
+    const orderRef = (order as any).order_number || String(order.id).slice(0, 8)
     const emailData = {
       to: "atencion@alumaronline.com",
-      subject: `Nueva Orden de Compra - ${order.order_number}`,
+      subject: `Nueva Orden de Compra - ${orderRef}`,
       html: generateOrderEmailHTML(order),
     }
 
@@ -101,8 +101,8 @@ function generateOrderEmailHTML(order: any): string {
         
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h2 style="margin-top: 0;">Información de la Orden</h2>
-          <p><strong>Número de Orden:</strong> ${order.order_number || order.id.slice(0, 8)}</p>
-          <p><strong>Fecha:</strong> ${new Date(order.fecha_pedido).toLocaleDateString()}</p>
+          <p><strong>Referencia:</strong> ${order.order_number || order.id.slice(0, 8)}</p>
+          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}</p>
           <p><strong>Estado:</strong> ${order.status}</p>
         </div>
 

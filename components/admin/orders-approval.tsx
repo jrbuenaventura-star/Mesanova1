@@ -131,7 +131,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                   <TableRow key={order.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{order.order_number || order.id.slice(0, 8)}</p>
+                        <p className="font-medium">{order.id.slice(0, 8)}</p>
                         <Badge variant="outline" className="mt-1">
                           Por Aprobar
                         </Badge>
@@ -156,7 +156,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
-                        {new Date(order.fecha_pedido).toLocaleDateString()}
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -235,7 +235,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-muted-foreground">Orden</p>
-                  <p className="font-medium">{selectedOrder.order_number || selectedOrder.id.slice(0, 8)}</p>
+                  <p className="font-medium">{selectedOrder.id.slice(0, 8)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Total</p>
@@ -309,7 +309,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
             <DialogHeader>
               <DialogTitle>Detalles de la Orden</DialogTitle>
               <DialogDescription>
-                Orden #{selectedOrder.order_number || selectedOrder.id.slice(0, 8)}
+                Orden #{selectedOrder.id.slice(0, 8)}
               </DialogDescription>
             </DialogHeader>
 
@@ -333,7 +333,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                     <div>
                       <p className="text-muted-foreground">Fecha</p>
                       <p className="font-medium">
-                        {new Date(selectedOrder.fecha_pedido).toLocaleDateString()}
+                        {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleDateString() : "N/A"}
                       </p>
                     </div>
                   </CardContent>

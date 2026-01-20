@@ -292,7 +292,7 @@ export default async function AliadoDistributorDetailPage({
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
-                        {new Date(order.fecha_pedido).toLocaleDateString()}
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
                       </div>
                     </TableCell>
                     <TableCell>
