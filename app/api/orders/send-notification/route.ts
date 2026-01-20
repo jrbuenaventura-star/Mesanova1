@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { Resend } from "resend"
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +14,15 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient()
+
+    const resendApiKey = process.env.RESEND_API_KEY
+    const resendFrom = process.env.RESEND_FROM
+    if (!resendApiKey) {
+      return NextResponse.json({ error: "RESEND_API_KEY is not configured" }, { status: 500 })
+    }
+    if (!resendFrom) {
+      return NextResponse.json({ error: "RESEND_FROM is not configured" }, { status: 500 })
+    }
 
     // Obtener la orden con todas las relaciones
     const { data: order, error: orderError } = await supabase
@@ -40,18 +50,18 @@ export async function POST(request: Request) {
       html: generateOrderEmailHTML(order),
     }
 
-    // TODO: Integrar con servicio de email (SendGrid, Resend, etc.)
-    // Por ahora, solo registramos en consola
-    console.log("Email notification:", emailData)
+    const resend = new Resend(resendApiKey)
+    const { error: emailError } = await resend.emails.send({
+      from: resendFrom,
+      to: emailData.to,
+      subject: emailData.subject,
+      html: emailData.html,
+    })
 
-    // Aquí iría la integración con el servicio de email
-    // Ejemplo con Resend:
-    // const { data, error } = await resend.emails.send({
-    //   from: 'ordenes@mesanova.com',
-    //   to: emailData.to,
-    //   subject: emailData.subject,
-    //   html: emailData.html,
-    // })
+    if (emailError) {
+      console.error("Resend error:", emailError)
+      return NextResponse.json({ error: "Failed to send email" }, { status: 502 })
+    }
 
     return NextResponse.json({
       success: true,
