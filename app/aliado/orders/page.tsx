@@ -1,0 +1,86 @@
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+import { CreateOrderForDistributorForm } from "@/components/aliado/create-order-for-distributor-form"
+
+export default async function AliadoOrdersPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Obtener aliado
+  const { data: aliado } = await supabase
+    .from("aliados")
+    .select("*")
+    .eq("user_id", user.id)
+    .single()
+
+  if (!aliado) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No tienes un perfil de aliado configurado. Contacta al administrador.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  // Obtener distribuidores asignados al aliado
+  const { data: distributors } = await supabase
+    .from("distributors")
+    .select(`
+      id,
+      company_name,
+      discount_percentage,
+      is_active,
+      user_id
+    `)
+    .eq("aliado_id", aliado.id)
+    .eq("is_active", true)
+    .order("company_name")
+
+  return (
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Crear Pedido para Distribuidor</h1>
+        <p className="text-muted-foreground">
+          Crea pedidos a nombre de tus distribuidores asignados
+        </p>
+      </div>
+
+      {!distributors || distributors.length === 0 ? (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No tienes distribuidores activos asignados. Contacta al administrador para que te asigne distribuidores.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Nuevo Pedido</CardTitle>
+            <CardDescription>
+              Selecciona el distribuidor y agrega los productos al pedido
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateOrderForDistributorForm 
+              distributors={distributors}
+              aliadoId={aliado.id}
+            />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}

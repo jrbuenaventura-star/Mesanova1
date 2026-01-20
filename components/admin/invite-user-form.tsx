@@ -59,6 +59,7 @@ export function InviteUserForm() {
           <SelectContent>
             <SelectItem value="end_user">Cliente</SelectItem>
             <SelectItem value="distributor">Distribuidor</SelectItem>
+            <SelectItem value="aliado">Aliado</SelectItem>
             <SelectItem value="superadmin">Superadmin</SelectItem>
           </SelectContent>
         </Select>

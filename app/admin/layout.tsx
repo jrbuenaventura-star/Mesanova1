@@ -34,6 +34,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/")
   }
 
+  const userRole = profile?.role
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
@@ -78,12 +80,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Distribuidores
             </Button>
           </Link>
-          <Link href="/admin/aliados">
-            <Button variant="ghost" className="w-full justify-start">
-              <Users className="mr-2 h-4 w-4" />
-              Aliados
-            </Button>
-          </Link>
+          {userRole === "superadmin" && (
+            <Link href="/admin/aliados">
+              <Button variant="ghost" className="w-full justify-start">
+                <Users className="mr-2 h-4 w-4" />
+                Aliados
+              </Button>
+            </Link>
+          )}
           <Link href="/admin/clients">
             <Button variant="ghost" className="w-full justify-start">
               <Building2 className="mr-2 h-4 w-4" />

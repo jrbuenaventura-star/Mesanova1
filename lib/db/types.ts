@@ -276,27 +276,31 @@ export interface TopSellingProduct {
   updated_at: string
 }
 
+export type OrderStatus = 
+  | "borrador"
+  | "por_aprobar"
+  | "aprobada"
+  | "en_preparacion"
+  | "enviada"
+  | "entregada"
+  | "cancelada"
+  | "devuelta_rechazada"
+
 export interface Order {
   id: string
   order_number: string
   user_id: string
   distributor_id?: string
+  aliado_id?: string
   company_id?: string
   emisor: string
   fecha_pedido: string
   fecha_entrega_estimada?: string
-  status:
-    | "draft"
-    | "pending_approval"
-    | "approved"
-    | "in_preparation"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
-    | "returned"
+  status: OrderStatus
   payment_status: string
   subtotal: number
   discount_amount: number
+  discount_percentage?: number
   tax_amount: number
   iva_porcentaje: number
   shipping_cost: number
@@ -374,6 +378,7 @@ export interface OrderWithItems extends Order {
   })[]
   user?: UserProfile
   distributor?: Distributor
+  aliado?: Aliado
 }
 
 export interface TopSellingProductWithDetails extends TopSellingProduct {

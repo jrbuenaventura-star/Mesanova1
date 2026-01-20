@@ -12,7 +12,7 @@ import { Check, X } from "lucide-react"
 type User = {
   id: string
   full_name: string | null
-  role: "superadmin" | "distributor" | "end_user"
+  role: "superadmin" | "distributor" | "end_user" | "aliado"
   is_active: boolean
   created_at: string
   last_login_at: string | null
@@ -77,12 +77,14 @@ export function UserManagementTable({ users }: { users: User[] }) {
       superadmin: "destructive",
       distributor: "default",
       end_user: "secondary",
+      aliado: "default",
     }
 
     const labels: Record<string, string> = {
       superadmin: "Superadmin",
       distributor: "Distribuidor",
       end_user: "Cliente",
+      aliado: "Aliado",
     }
 
     return <Badge variant={variants[role] || "secondary"}>{labels[role] || role}</Badge>
@@ -121,6 +123,7 @@ export function UserManagementTable({ users }: { users: User[] }) {
                   <SelectContent>
                     <SelectItem value="end_user">Cliente</SelectItem>
                     <SelectItem value="distributor">Distribuidor</SelectItem>
+                    <SelectItem value="aliado">Aliado</SelectItem>
                     <SelectItem value="superadmin">Superadmin</SelectItem>
                   </SelectContent>
                 </Select>
