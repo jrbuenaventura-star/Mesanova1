@@ -88,6 +88,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Distribuidores
             </Button>
           </Link>
+          <Link href="/admin/distributors/csv">
+            <Button variant="ghost" className="w-full justify-start">
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Distribuidores CSV
+            </Button>
+          </Link>
           {userRole === "superadmin" && (
             <Link href="/admin/aliados">
               <Button variant="ghost" className="w-full justify-start">

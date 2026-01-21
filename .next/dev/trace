@@ -158,3 +158,7 @@
 [{"name":"compile-path","duration":20256,"timestamp":468753009109,"id":12127,"tags":{"trigger":"proxy"},"startTime":1768952628390,"traceId":"1e22c797978bb0b1"}]
 [{"name":"compile-path","duration":11884,"timestamp":468777633021,"id":12128,"tags":{"trigger":"proxy"},"startTime":1768952653013,"traceId":"1e22c797978bb0b1"}]
 [{"name":"compile-path","duration":932,"timestamp":468779340243,"id":12129,"tags":{"trigger":"proxy"},"startTime":1768952654720,"traceId":"1e22c797978bb0b1"}]
+[{"name":"compile-path","duration":52736,"timestamp":522933486216,"id":12130,"tags":{"trigger":"proxy"},"startTime":1769006806083,"traceId":"1e22c797978bb0b1"}]
+[{"name":"compile-path","duration":2908,"timestamp":522941900860,"id":12131,"tags":{"trigger":"proxy"},"startTime":1769006814497,"traceId":"1e22c797978bb0b1"}]
+[{"name":"compile-path","duration":389729,"timestamp":522944978599,"id":12132,"tags":{"trigger":"proxy"},"startTime":1769006817575,"traceId":"1e22c797978bb0b1"}]
+[{"name":"compile-path","duration":375126,"timestamp":523028089279,"id":12133,"tags":{"trigger":"proxy"},"startTime":1769006900682,"traceId":"1e22c797978bb0b1"}]

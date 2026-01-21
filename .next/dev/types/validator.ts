@@ -128,6 +128,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/admin/distributors/csv/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/admin/distributors/csv">> = Specific
+  const handler = {} as typeof import("../../../app/admin/distributors/csv/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/admin/distributors/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/admin/distributors">> = Specific
@@ -717,6 +726,33 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/contact">> = Specific
   const handler = {} as typeof import("../../../app/api/contact/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/distributors/csv/import/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/distributors/csv/import">> = Specific
+  const handler = {} as typeof import("../../../app/api/distributors/csv/import/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/distributors/csv/template/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/distributors/csv/template">> = Specific
+  const handler = {} as typeof import("../../../app/api/distributors/csv/template/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/distributors/csv/validate/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/distributors/csv/validate">> = Specific
+  const handler = {} as typeof import("../../../app/api/distributors/csv/validate/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
