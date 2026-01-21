@@ -108,6 +108,21 @@ export default async function DistributorProfilePage() {
       return doc && doc.status === "approved"
     })
 
+  // Alerta si no hay perfil de distribuidor
+  if (!distributor) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Perfil no configurado:</strong> No tienes un perfil de distribuidor configurado. 
+            Por favor contacta al administrador.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
       {/* Header */}

@@ -82,7 +82,7 @@ export function DistributorsManagement() {
 
     if (!error && distData) {
       const distributorsWithCounts = await Promise.all(
-        distData.map(async (dist) => {
+        distData.map(async (dist: any) => {
           const { count } = await supabase
             .from("companies")
             .select("*", { count: "exact", head: true })
@@ -184,38 +184,104 @@ export function DistributorsManagement() {
         if (profileError) throw profileError
       } else {
         // Create new distributor
-        // First create auth user
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: formData.email,
-          email_confirm: true,
-          user_metadata: {
+        // First, try to find existing user by email
+        const { data: usersData } = await supabase.auth.admin.listUsers()
+        const existingUser = usersData?.users?.find((u: any) => u.email === formData.email)
+
+        let userId: string
+
+        if (existingUser) {
+          // User exists, check if they have a profile
+          userId = existingUser.id
+          
+          const { data: existingProfile } = await supabase
+            .from("user_profiles")
+            .select("id, role")
+            .eq("id", userId)
+            .single()
+
+          if (existingProfile) {
+            // Update profile to distributor role if needed
+            if (existingProfile.role !== "distributor") {
+              const { error: roleError } = await supabase
+                .from("user_profiles")
+                .update({ role: "distributor" })
+                .eq("id", userId)
+              
+              if (roleError) throw roleError
+            }
+
+            // Update profile data
+            const { error: profileError } = await supabase
+              .from("user_profiles")
+              .update({
+                full_name: formData.full_name,
+                phone: formData.phone,
+                document_type: formData.document_type,
+                document_number: formData.document_number,
+                shipping_address: formData.shipping_address,
+                shipping_city: formData.shipping_city,
+                shipping_state: formData.shipping_state,
+                shipping_postal_code: formData.shipping_postal_code,
+                shipping_country: formData.shipping_country,
+              })
+              .eq("id", userId)
+
+            if (profileError) throw profileError
+          } else {
+            // User exists but no profile, create it
+            const { error: profileError } = await supabase.from("user_profiles").insert({
+              id: userId,
+              role: "distributor",
+              full_name: formData.full_name,
+              phone: formData.phone,
+              document_type: formData.document_type,
+              document_number: formData.document_number,
+              shipping_address: formData.shipping_address,
+              shipping_city: formData.shipping_city,
+              shipping_state: formData.shipping_state,
+              shipping_postal_code: formData.shipping_postal_code,
+              shipping_country: formData.shipping_country,
+            })
+
+            if (profileError) throw profileError
+          }
+        } else {
+          // User doesn't exist, create new auth user
+          const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+            email: formData.email,
+            email_confirm: true,
+            user_metadata: {
+              full_name: formData.full_name,
+            },
+          })
+
+          if (authError) throw authError
+          if (!authData.user) throw new Error("Failed to create user")
+
+          userId = authData.user.id
+
+          // Create profile
+          const { error: profileError } = await supabase.from("user_profiles").insert({
+            id: userId,
+            role: "distributor",
             full_name: formData.full_name,
-          },
-        })
+            phone: formData.phone,
+            document_type: formData.document_type,
+            document_number: formData.document_number,
+            shipping_address: formData.shipping_address,
+            shipping_city: formData.shipping_city,
+            shipping_state: formData.shipping_state,
+            shipping_postal_code: formData.shipping_postal_code,
+            shipping_country: formData.shipping_country,
+          })
 
-        if (authError) throw authError
-        if (!authData.user) throw new Error("Failed to create user")
-
-        // Create profile
-        const { error: profileError } = await supabase.from("user_profiles").insert({
-          id: authData.user.id,
-          role: "distributor",
-          full_name: formData.full_name,
-          phone: formData.phone,
-          document_type: formData.document_type,
-          document_number: formData.document_number,
-          shipping_address: formData.shipping_address,
-          shipping_city: formData.shipping_city,
-          shipping_state: formData.shipping_state,
-          shipping_postal_code: formData.shipping_postal_code,
-          shipping_country: formData.shipping_country,
-        })
-
-        if (profileError) throw profileError
+          if (profileError) throw profileError
+        }
 
         // Create distributor record
         const { error: distError } = await supabase.from("distributors").insert({
-          user_id: authData.user.id,
+          user_id: userId,
           company_name: formData.company_name,
           company_rif: formData.company_rif,
           business_type: formData.business_type,
