@@ -6,6 +6,9 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartProvider } from "@/contexts/cart-context"
 import { Toaster } from "@/components/ui/sonner"
+import { GoogleAnalytics } from "@/components/analytics/google-analytics"
+import { MetaPixel } from "@/components/analytics/meta-pixel"
+import { CrossDomainLinker } from "@/components/analytics/cross-domain-linker"
 import "./globals.css"
 
 import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
@@ -36,9 +39,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA4_ID
+  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
+
   return (
     <html lang="es">
       <body className={`font-sans antialiased`}>
+        {gaId && <GoogleAnalytics gaId={gaId} />}
+        {pixelId && <MetaPixel pixelId={pixelId} />}
+        <CrossDomainLinker />
         <CartProvider>
           <SiteHeader />
           {children}

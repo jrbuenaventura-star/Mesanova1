@@ -394,3 +394,12 @@ Learn more: https://nextjs.org/docs/app/building-your-application/upgrading/code
 [29:53:27.104] Server  LOG      ✓ Compiled in 157ms
 [29:58:45.584] Server  LOG      ✓ Compiled in 90ms
 [30:10:50.062] Server  LOG        Reload env: .env.local
+[34:47:21.545] Server  LOG      ✓ Compiled in 482ms
+[34:47:25.936] Server  LOG      ✓ Compiled in 1635ms
+[34:48:07.506] Server  LOG        Reload env: .env.local
+[34:48:09.213] Server  LOG      ✓ Compiled in 1663ms
+[34:48:18.858] Server  LOG      ✓ Compiled in 730ms
+[35:08:38.322] Server  LOG        Reload env: .env.local
+[35:08:38.718] Server  LOG      ✓ Compiled in 348ms
+[35:08:59.020] Server  LOG      ✓ Compiled in 334ms
+[35:09:03.376] Server  LOG      ✓ Compiled in 1055ms
