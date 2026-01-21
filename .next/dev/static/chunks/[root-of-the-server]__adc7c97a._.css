@@ -120,7 +120,9 @@
     --color-yellow-500: #edb200;
     --color-yellow-600: #cd8900;
     --color-yellow-800: #874b00;
+    --color-green-50: #f0fdf4;
     --color-green-100: #dcfce7;
+    --color-green-200: #b9f8cf;
     --color-green-400: #05df72;
     --color-green-500: #00c758;
     --color-green-600: #00a544;
@@ -232,7 +234,9 @@
       --color-yellow-500: lab(76.3898% 14.5258 98.4589);
       --color-yellow-600: lab(62.7799% 22.4197 86.1544);
       --color-yellow-800: lab(38.7484% 23.5833 51.4916);
+      --color-green-50: lab(98.1563% -5.60117 2.75915);
       --color-green-100: lab(96.1861% -13.8464 6.52365);
+      --color-green-200: lab(92.4222% -26.4702 12.9427);
       --color-green-400: lab(78.503% -64.9265 39.7492);
       --color-green-500: lab(70.5521% -66.5147 45.8073);
       --color-green-600: lab(59.0978% -58.6621 41.2579);
@@ -1661,6 +1665,10 @@
     width: 200px;
   }
 
+  .w-\[250px\] {
+    width: 250px;
+  }
+
   .w-\[300px\] {
     width: 300px;
   }
@@ -1795,6 +1803,10 @@
 
   .min-w-\[12rem\] {
     min-width: 12rem;
+  }
+
+  .min-w-\[100px\] {
+    min-width: 100px;
   }
 
   .min-w-\[var\(--radix-select-trigger-width\)\] {
@@ -2339,6 +2351,10 @@
     border-color: var(--color-amber-200);
   }
 
+  .border-amber-500 {
+    border-color: var(--color-amber-500);
+  }
+
   .border-background {
     border-color: var(--background);
   }
@@ -2363,6 +2379,14 @@
 
   .border-destructive {
     border-color: var(--destructive);
+  }
+
+  .border-green-200 {
+    border-color: var(--color-green-200);
+  }
+
+  .border-green-500 {
+    border-color: var(--color-green-500);
   }
 
   .border-input {
@@ -2483,6 +2507,10 @@
     background-color: var(--color-blue-500);
   }
 
+  .bg-blue-600 {
+    background-color: var(--color-blue-600);
+  }
+
   .bg-border {
     background-color: var(--border);
   }
@@ -2513,6 +2541,10 @@
 
   .bg-gray-500 {
     background-color: var(--color-gray-500);
+  }
+
+  .bg-green-50 {
+    background-color: var(--color-green-50);
   }
 
   .bg-green-100 {
@@ -3227,6 +3259,10 @@
 
   .text-gray-400 {
     color: var(--color-gray-400);
+  }
+
+  .text-gray-500 {
+    color: var(--color-gray-500);
   }
 
   .text-gray-600 {
