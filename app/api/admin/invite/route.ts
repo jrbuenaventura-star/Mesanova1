@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email requerido" }, { status: 400 })
     }
 
-    if (!role || !["superadmin", "distributor", "end_user"].includes(role)) {
+    if (!role || !["superadmin", "distributor", "aliado", "end_user"].includes(role)) {
       return NextResponse.json({ error: "Rol inválido" }, { status: 400 })
     }
 
