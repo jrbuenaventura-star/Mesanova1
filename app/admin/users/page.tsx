@@ -40,7 +40,10 @@ export default async function AdminUsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Gestión de Usuarios</CardTitle>
-          <CardDescription>Administra roles y permisos de los usuarios registrados</CardDescription>
+          <CardDescription>
+            Gestiona clientes y superadmins. Los distribuidores se crean desde "Distribuidores" o "Distribuidores CSV", 
+            y los aliados desde "Aliados".
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <InviteUserForm />
