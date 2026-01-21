@@ -87,16 +87,17 @@ export function UserManagementTable({ users }: { users: User[] }) {
     setIsUpdating(selectedUser.id)
 
     try {
-      // Eliminar perfil (esto eliminará el usuario Auth en cascade si está configurado)
-      const { error } = await supabase
-        .from("user_profiles")
-        .delete()
-        .eq("id", selectedUser.id)
+      const res = await fetch(`/api/admin/users/${selectedUser.id}`,
+        {
+          method: "DELETE",
+        }
+      )
 
-      if (error) throw error
+      const data = (await res.json()) as { success?: boolean; error?: string }
 
-      // Eliminar usuario de Auth
-      await supabase.auth.admin.deleteUser(selectedUser.id)
+      if (!res.ok) {
+        throw new Error(data.error || "Error al eliminar usuario")
+      }
 
       setShowDeleteDialog(false)
       router.refresh()
