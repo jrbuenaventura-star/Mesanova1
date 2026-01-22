@@ -33,14 +33,28 @@ export async function GET() {
 
     const { data: distData, error: distError } = await admin
       .from('distributors')
-      .select(`
-        *,
-        profile:user_profiles(*)
-      `)
+      .select('*')
       .order('company_name', { ascending: true });
 
     if (distError) {
       return NextResponse.json({ error: distError.message }, { status: 500 });
+    }
+
+    const userIds = (distData || [])
+      .map((d: any) => d?.user_id)
+      .filter((v: any): v is string => typeof v === 'string' && v.length > 0);
+
+    const { data: profilesData, error: profilesError } = userIds.length
+      ? await admin.from('user_profiles').select('*').in('id', userIds)
+      : { data: [], error: null };
+
+    if (profilesError) {
+      return NextResponse.json({ error: profilesError.message }, { status: 500 });
+    }
+
+    const profileById = new Map<string, any>();
+    for (const p of profilesData || []) {
+      if (p?.id) profileById.set(p.id, p);
     }
 
     const withCounts = await Promise.all(
@@ -52,6 +66,7 @@ export async function GET() {
 
         return {
           ...dist,
+          profile: profileById.get(dist.user_id) || null,
           clients_count: count || 0,
         };
       })
