@@ -25,13 +25,27 @@ export async function POST(request: Request) {
     }
     
     const body = await request.json();
-    const { formData } = body;
+    const { formData } = body as { formData?: Record<string, unknown> };
+
+    if (!formData || typeof formData !== 'object') {
+      return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
+    }
+
+    const emailRaw = (formData as any).email;
+    const email = typeof emailRaw === 'string' ? emailRaw.trim().toLowerCase() : '';
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
+    }
     
     const admin = createAdminClient();
     
     // Buscar usuario existente por email
-    const { data: usersData } = await admin.auth.admin.listUsers();
-    const existingUser = usersData?.users?.find((u: any) => u.email === formData.email);
+    const { data: usersData, error: listUsersError } = await admin.auth.admin.listUsers();
+    if (listUsersError) {
+      return NextResponse.json({ error: listUsersError.message }, { status: 400 });
+    }
+    const existingUser = usersData?.users?.find((u: any) => (u.email || '').toLowerCase() === email);
     
     let userId: string;
     
@@ -92,46 +106,75 @@ export async function POST(request: Request) {
         if (profileError) throw profileError;
       }
     } else {
-      // Usuario no existe, crear nuevo
-      const { data: authData, error: authError } = await admin.auth.admin.createUser({
-        email: formData.email,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.full_name,
+      // Usuario no existe: invitar por email (flujo sin password)
+      const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
+        data: {
+          role: 'distributor',
+          full_name: (formData as any).full_name || null,
         },
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
       });
-      
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Failed to create user');
-      
-      userId = authData.user.id;
-      
-      // Crear perfil
-      const { error: profileError } = await admin.from('user_profiles').insert({
+
+      if (inviteError) {
+        return NextResponse.json({ error: inviteError.message }, { status: 400 });
+      }
+
+      if (!inviteData?.user?.id) {
+        return NextResponse.json({ error: 'No se pudo invitar el usuario' }, { status: 500 });
+      }
+
+      userId = inviteData.user.id;
+
+      // Crear/actualizar perfil (upsert para evitar duplicados)
+      const { error: profileError } = await admin.from('user_profiles').upsert({
         id: userId,
         role: 'distributor',
-        full_name: formData.full_name,
-        phone: formData.phone,
-        document_type: formData.document_type,
-        document_number: formData.document_number,
-        shipping_address: formData.shipping_address,
-        shipping_city: formData.shipping_city,
-        shipping_state: formData.shipping_state,
-        shipping_postal_code: formData.shipping_postal_code,
-        shipping_country: formData.shipping_country,
+        full_name: (formData as any).full_name || null,
+        phone: (formData as any).phone || null,
+        document_type: (formData as any).document_type || null,
+        document_number: (formData as any).document_number || null,
+        shipping_address: (formData as any).shipping_address || null,
+        shipping_city: (formData as any).shipping_city || null,
+        shipping_state: (formData as any).shipping_state || null,
+        shipping_postal_code: (formData as any).shipping_postal_code || null,
+        shipping_country: (formData as any).shipping_country || null,
       });
-      
-      if (profileError) throw profileError;
+
+      if (profileError) {
+        return NextResponse.json({ error: profileError.message }, { status: 400 });
+      }
     }
     
     // Crear registro de distribuidor
+    const { data: existingDistributor } = await admin
+      .from('distributors')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (existingDistributor?.id) {
+      return NextResponse.json(
+        {
+          error: 'Este usuario ya tiene un distribuidor asociado',
+          debug: {
+            userId,
+            distributorId: existingDistributor.id,
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    const discount = Number.parseFloat(String((formData as any).discount_percentage ?? '0'));
+    const credit = Number.parseFloat(String((formData as any).credit_limit ?? '0'));
+
     const { error: distError } = await admin.from('distributors').insert({
       user_id: userId,
-      company_name: formData.company_name,
-      company_rif: formData.company_rif,
-      business_type: formData.business_type,
-      discount_percentage: parseFloat(formData.discount_percentage),
-      credit_limit: parseFloat(formData.credit_limit),
+      company_name: (formData as any).company_name,
+      company_rif: (formData as any).company_rif,
+      business_type: (formData as any).business_type,
+      discount_percentage: Number.isFinite(discount) ? discount : 0,
+      credit_limit: Number.isFinite(credit) ? credit : 0,
     });
     
     if (distError) throw distError;

@@ -1,6 +1,13 @@
-[00:00:01.185] Server  LOG      ✓ Ready in 941ms
-[00:01:07.416] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:07.611] Browser WARN    Image with src "http://localhost:3000/mesanova-isotipo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:01:08.133] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:08.133] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/auth/login","route":"/auth/login"}
-[00:01:08.133] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/auth/login color: rgb(120, 120, 120) color: inherit {"dp":"/auth/login","o":"http://localhost:3000/auth/login","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1769040879698}
+[00:00:00.959] Server  LOG      ✓ Ready in 732ms
+[00:00:04.791] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:05.296] Browser WARN    Image with src "http://localhost:3000/mesanova-isotipo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:05.296] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:05.296] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
+[00:00:05.296] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1769042263902}
+[00:00:40.226] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/distributors color: rgb(120, 120, 120) color: inherit {"dp":"/admin/distributors","o":"http://localhost:3000/admin/distributors","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1769042298829}
+[00:01:42.100] Browser ERROR   Error saving distributor: {}
+[00:06:43.557] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:06:43.999] Browser WARN    Image with src "http://localhost:3000/mesanova-isotipo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:06:44.098] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:06:44.098] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/productos","route":"/productos"}
+[00:06:44.098] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/productos color: rgb(120, 120, 120) color: inherit {"dp":"/productos","o":"http://localhost:3000/productos","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1769042662683}

@@ -24,7 +24,8 @@ export async function GET(request: Request) {
       console.log("[v0] Auth callback - session created for user:", data.user?.email)
 
       const roleFromMeta = (data.user?.user_metadata as { role?: unknown } | null | undefined)?.role
-      const isValidRole = (v: unknown): v is UserRole => v === "superadmin" || v === "distributor" || v === "end_user"
+      const isValidRole = (v: unknown): v is UserRole =>
+        v === "superadmin" || v === "distributor" || v === "end_user" || v === "aliado"
 
       if (data.user?.id && isValidRole(roleFromMeta)) {
         const { error: roleUpdateError } = await supabase
