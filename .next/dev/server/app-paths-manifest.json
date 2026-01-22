@@ -1,7 +1,9 @@
 {
   "/admin/distributors/page": "app/admin/distributors/page.js",
+  "/admin/page": "app/admin/page.js",
   "/admin/users/page": "app/admin/users/page.js",
   "/api/admin/distributors/route": "app/api/admin/distributors/route.js",
   "/page": "app/page.js",
+  "/productos/[silo]/page": "app/productos/[silo]/page.js",
   "/productos/page": "app/productos/page.js"
 }

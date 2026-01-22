@@ -70,34 +70,22 @@ export function DistributorsManagement() {
   }, [])
 
   async function loadDistributors() {
-    const supabase = createClient()
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/admin/distributors')
+      const data = await response.json()
 
-    const { data: distData, error } = await supabase
-      .from("distributors")
-      .select(`
-        *,
-        profile:user_profiles(*)
-      `)
-      .order("company_name", { ascending: true })
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cargar distribuidores')
+      }
 
-    if (!error && distData) {
-      const distributorsWithCounts = await Promise.all(
-        distData.map(async (dist: any) => {
-          const { count } = await supabase
-            .from("companies")
-            .select("*", { count: "exact", head: true })
-            .eq("distribuidor_asignado_id", dist.id)
-
-          return {
-            ...dist,
-            clients_count: count || 0,
-          }
-        }),
-      )
-
-      setDistributors(distributorsWithCounts as DistributorWithProfile[])
+      setDistributors(data.distributors || [])
+    } catch (error) {
+      console.error('Error loading distributors:', error)
+      setDistributors([])
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   function openCreateDialog() {

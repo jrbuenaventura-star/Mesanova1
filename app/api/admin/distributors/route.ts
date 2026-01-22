@@ -2,6 +2,71 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export async function GET() {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
+    }
+
+    if (profile?.role !== 'superadmin') {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
+    const admin = createAdminClient();
+
+    const { data: distData, error: distError } = await admin
+      .from('distributors')
+      .select(`
+        *,
+        profile:user_profiles(*)
+      `)
+      .order('company_name', { ascending: true });
+
+    if (distError) {
+      return NextResponse.json({ error: distError.message }, { status: 500 });
+    }
+
+    const withCounts = await Promise.all(
+      (distData || []).map(async (dist: any) => {
+        const { count } = await admin
+          .from('companies')
+          .select('*', { count: 'exact', head: true })
+          .eq('distribuidor_asignado_id', dist.id);
+
+        return {
+          ...dist,
+          clients_count: count || 0,
+        };
+      })
+    );
+
+    return NextResponse.json({ distributors: withCounts });
+  } catch (error) {
+    console.error('Error listing distributors:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Error al listar distribuidores' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
