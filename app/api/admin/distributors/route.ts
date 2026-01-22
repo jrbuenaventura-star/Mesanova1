@@ -139,8 +139,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error creating distributor:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error al crear distribuidor';
+    console.error('Error details:', errorMessage);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error al crear distribuidor' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
