@@ -1653,10 +1653,6 @@
     width: 100px;
   }
 
-  .w-\[160px\] {
-    width: 160px;
-  }
-
   .w-\[180px\] {
     width: 180px;
   }
@@ -5793,18 +5789,6 @@
   @media (min-width: 48rem) {
     .md\:hidden {
       display: none;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:inline {
-      display: inline;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:inline-flex {
-      display: inline-flex;
     }
   }
 

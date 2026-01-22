@@ -1,21 +1,5 @@
 {
-  "node": {
-    "0090680e62231bd97d63c770bfe1957f43a631837a": {
-      "workers": {
-        "app/perfil/page": {
-          "moduleId": "[project]/.next-internal/server/app/perfil/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/perfil/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "$$RSC_SERVER_ACTION_0",
-          "filename": "app/perfil/page.tsx"
-        }
-      },
-      "layer": {
-        "app/perfil/page": "rsc"
-      },
-      "filename": "app/perfil/page.tsx",
-      "exportedName": "$$RSC_SERVER_ACTION_0"
-    }
-  },
+  "node": {},
   "edge": {},
   "encryptionKey": "1QxsdQeR2Te2lAYAPTWjZ0dRQ8Nrr72MEoomhD8zdaA="
 }
