@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/contacto/layout,_N_T_/contacto/mayoristas/layout,_N_T_/contacto/mayoristas/page,_N_T_/contacto/mayoristas"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/contacto/mayoristas/__PAGE__",
+    "/contacto/mayoristas",
+    "/contacto",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,21 +1,5 @@
 {
-  "node": {
-    "40b0d94b961262fed3495d601fa5fa314000eed789": {
-      "workers": {
-        "app/productos/[silo]/page": {
-          "moduleId": "[project]/.next-internal/server/app/productos/[silo]/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions/favorites.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "toggleFavorite",
-          "filename": "lib/actions/favorites.ts"
-        }
-      },
-      "layer": {
-        "app/productos/[silo]/page": "action-browser"
-      },
-      "filename": "lib/actions/favorites.ts",
-      "exportedName": "toggleFavorite"
-    }
-  },
+  "node": {},
   "edge": {},
   "encryptionKey": "1QxsdQeR2Te2lAYAPTWjZ0dRQ8Nrr72MEoomhD8zdaA="
 }

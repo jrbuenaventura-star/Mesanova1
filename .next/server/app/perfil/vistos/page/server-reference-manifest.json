@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40975f35952dd328c0fe7494c7a7c928710c16ba44": {
+      "workers": {
+        "app/perfil/vistos/page": {
+          "moduleId": 321362,
+          "async": false,
+          "exportedName": "toggleFavorite",
+          "filename": "lib/actions/favorites.ts"
+        }
+      },
+      "layer": {
+        "app/perfil/vistos/page": "action-browser"
+      },
+      "exportedName": "toggleFavorite",
+      "filename": "lib/actions/favorites.ts"
+    }
+  },
+  "edge": {}
+}

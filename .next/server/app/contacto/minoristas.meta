@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/contacto/layout,_N_T_/contacto/minoristas/layout,_N_T_/contacto/minoristas/page,_N_T_/contacto/minoristas"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/contacto/minoristas/__PAGE__",
+    "/contacto/minoristas",
+    "/contacto",
+    "/_index",
+    "/_head"
+  ]
+}
