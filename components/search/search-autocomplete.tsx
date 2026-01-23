@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Search, Loader2 } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import Image from "next/image"
+import { trackSearch } from "@/components/clientify/clientify-tracking"
 
 export function SearchAutocomplete() {
   const router = useRouter()
@@ -85,6 +86,8 @@ export function SearchAutocomplete() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
+      // Rastrear búsqueda en Clientify
+      trackSearch(query.trim(), results.length)
       router.push(`/buscar?q=${encodeURIComponent(query)}`)
       setIsOpen(false)
     }

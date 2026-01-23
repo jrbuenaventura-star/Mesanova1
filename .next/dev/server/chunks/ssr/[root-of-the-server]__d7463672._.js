@@ -865,6 +865,129 @@ function CommandShortcut({ className, ...props }) {
 }
 ;
 }),
+"[project]/components/clientify/clientify-tracking.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ClientifyTracking",
+    ()=>ClientifyTracking,
+    "identifyUser",
+    ()=>identifyUser,
+    "trackAddToCart",
+    ()=>trackAddToCart,
+    "trackBeginCheckout",
+    ()=>trackBeginCheckout,
+    "trackClientifyEvent",
+    ()=>trackClientifyEvent,
+    "trackFormSubmission",
+    ()=>trackFormSubmission,
+    "trackPageView",
+    ()=>trackPageView,
+    "trackProductViewed",
+    ()=>trackProductViewed,
+    "trackPurchase",
+    ()=>trackPurchase,
+    "trackRemoveFromCart",
+    ()=>trackRemoveFromCart,
+    "trackSearch",
+    ()=>trackSearch
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/script.js [app-ssr] (ecmascript)");
+"use client";
+;
+;
+function ClientifyTracking() {
+    const accountId = ("TURBOPACK compile-time value", "335191");
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+        id: "clientify-tracking",
+        strategy: "afterInteractive",
+        dangerouslySetInnerHTML: {
+            __html: `
+          (function(c,l,i,e,n,t,f,y){
+            c['ClientifyObject']=n;c[n]=c[n]||function(){
+            (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
+            f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
+            f.parentNode.insertBefore(t,f);
+          })(window,document,'script','//tracking.clientify.net/${accountId}.js','cf');
+        `
+        }
+    }, void 0, false, {
+        fileName: "[project]/components/clientify/clientify-tracking.tsx",
+        lineNumber: 11,
+        columnNumber: 5
+    }, this);
+}
+const identifyUser = (userData)=>{
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+};
+const trackClientifyEvent = (eventName, eventData)=>{
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+};
+const trackProductViewed = (product)=>{
+    trackClientifyEvent("product_viewed", {
+        product_id: product.id,
+        product_name: product.name,
+        price: product.price,
+        category: product.category,
+        sku: product.sku
+    });
+};
+const trackAddToCart = (product)=>{
+    trackClientifyEvent("add_to_cart", {
+        product_id: product.id,
+        product_name: product.name,
+        price: product.price,
+        quantity: product.quantity,
+        value: product.price * product.quantity,
+        category: product.category
+    });
+};
+const trackRemoveFromCart = (product)=>{
+    trackClientifyEvent("remove_from_cart", {
+        product_id: product.id,
+        product_name: product.name,
+        quantity: product.quantity
+    });
+};
+const trackBeginCheckout = (data)=>{
+    trackClientifyEvent("begin_checkout", {
+        value: data.value,
+        items_count: data.items_count,
+        currency: data.currency || "COP"
+    });
+};
+const trackPurchase = (order)=>{
+    trackClientifyEvent("purchase", {
+        order_id: order.order_id,
+        value: order.value,
+        currency: order.currency || "COP",
+        items: order.items
+    });
+};
+const trackSearch = (query, results_count)=>{
+    trackClientifyEvent("search", {
+        search_query: query,
+        results_count
+    });
+};
+const trackPageView = (page, title)=>{
+    trackClientifyEvent("page_view", {
+        page,
+        title: title || document.title
+    });
+};
+const trackFormSubmission = (formName, formData)=>{
+    trackClientifyEvent("form_submitted", {
+        form_name: formName,
+        ...formData
+    });
+};
+}),
 "[project]/components/search/search-autocomplete.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -881,7 +1004,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-ssr] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/command.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/clientify/clientify-tracking.tsx [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -954,6 +1079,8 @@ function SearchAutocomplete() {
     const handleSearch = (e)=>{
         e.preventDefault();
         if (query.trim()) {
+            // Rastrear búsqueda en Clientify
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["trackSearch"])(query.trim(), results.length);
             router.push(`/buscar?q=${encodeURIComponent(query)}`);
             setIsOpen(false);
         }
@@ -970,7 +1097,7 @@ function SearchAutocomplete() {
                         className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 97,
+                        lineNumber: 99,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -982,20 +1109,20 @@ function SearchAutocomplete() {
                         className: "pl-9 pr-10"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 98,
+                        lineNumber: 100,
                         columnNumber: 9
                     }, this),
                     isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
                         className: "absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 107,
+                        lineNumber: 109,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 96,
+                lineNumber: 98,
                 columnNumber: 7
             }, this),
             isOpen && results.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1019,18 +1146,18 @@ function SearchAutocomplete() {
                                                     className: "object-cover"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 127,
                                                     columnNumber: 27
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "h-full w-full bg-muted"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                    lineNumber: 132,
+                                                    lineNumber: 134,
                                                     columnNumber: 27
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                lineNumber: 123,
+                                                lineNumber: 125,
                                                 columnNumber: 23
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1041,7 +1168,7 @@ function SearchAutocomplete() {
                                                         children: product.nombre_comercial || product.pdt_descripcion
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                        lineNumber: 136,
+                                                        lineNumber: 138,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1053,44 +1180,44 @@ function SearchAutocomplete() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                        lineNumber: 139,
+                                                        lineNumber: 141,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                lineNumber: 135,
+                                                lineNumber: 137,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                        lineNumber: 122,
+                                        lineNumber: 124,
                                         columnNumber: 21
                                     }, this)
                                 }, product.id, false, {
                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                    lineNumber: 117,
+                                    lineNumber: 119,
                                     columnNumber: 19
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/search/search-autocomplete.tsx",
-                            lineNumber: 115,
+                            lineNumber: 117,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 114,
+                        lineNumber: 116,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                    lineNumber: 113,
+                    lineNumber: 115,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 112,
+                lineNumber: 114,
                 columnNumber: 9
             }, this),
             isOpen && query.length >= 2 && results.length === 0 && !isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1098,13 +1225,13 @@ function SearchAutocomplete() {
                 children: "No se encontraron productos"
             }, void 0, false, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 153,
+                lineNumber: 155,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/search/search-autocomplete.tsx",
-        lineNumber: 95,
+        lineNumber: 97,
         columnNumber: 5
     }, this);
 }
@@ -3166,129 +3293,6 @@ function CrossDomainLinker() {
     return null;
 }
 }),
-"[project]/components/clientify/clientify-tracking.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s([
-    "ClientifyTracking",
-    ()=>ClientifyTracking,
-    "identifyUser",
-    ()=>identifyUser,
-    "trackAddToCart",
-    ()=>trackAddToCart,
-    "trackBeginCheckout",
-    ()=>trackBeginCheckout,
-    "trackClientifyEvent",
-    ()=>trackClientifyEvent,
-    "trackFormSubmission",
-    ()=>trackFormSubmission,
-    "trackPageView",
-    ()=>trackPageView,
-    "trackProductViewed",
-    ()=>trackProductViewed,
-    "trackPurchase",
-    ()=>trackPurchase,
-    "trackRemoveFromCart",
-    ()=>trackRemoveFromCart,
-    "trackSearch",
-    ()=>trackSearch
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/script.js [app-ssr] (ecmascript)");
-"use client";
-;
-;
-function ClientifyTracking() {
-    const accountId = ("TURBOPACK compile-time value", "335191");
-    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-    ;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-        id: "clientify-tracking",
-        strategy: "afterInteractive",
-        dangerouslySetInnerHTML: {
-            __html: `
-          (function(c,l,i,e,n,t,f,y){
-            c['ClientifyObject']=n;c[n]=c[n]||function(){
-            (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
-            f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
-            f.parentNode.insertBefore(t,f);
-          })(window,document,'script','//tracking.clientify.net/${accountId}.js','cf');
-        `
-        }
-    }, void 0, false, {
-        fileName: "[project]/components/clientify/clientify-tracking.tsx",
-        lineNumber: 11,
-        columnNumber: 5
-    }, this);
-}
-const identifyUser = (userData)=>{
-    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-    ;
-};
-const trackClientifyEvent = (eventName, eventData)=>{
-    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-    ;
-};
-const trackProductViewed = (product)=>{
-    trackClientifyEvent("product_viewed", {
-        product_id: product.id,
-        product_name: product.name,
-        price: product.price,
-        category: product.category,
-        sku: product.sku
-    });
-};
-const trackAddToCart = (product)=>{
-    trackClientifyEvent("add_to_cart", {
-        product_id: product.id,
-        product_name: product.name,
-        price: product.price,
-        quantity: product.quantity,
-        value: product.price * product.quantity,
-        category: product.category
-    });
-};
-const trackRemoveFromCart = (product)=>{
-    trackClientifyEvent("remove_from_cart", {
-        product_id: product.id,
-        product_name: product.name,
-        quantity: product.quantity
-    });
-};
-const trackBeginCheckout = (data)=>{
-    trackClientifyEvent("begin_checkout", {
-        value: data.value,
-        items_count: data.items_count,
-        currency: data.currency || "COP"
-    });
-};
-const trackPurchase = (order)=>{
-    trackClientifyEvent("purchase", {
-        order_id: order.order_id,
-        value: order.value,
-        currency: order.currency || "COP",
-        items: order.items
-    });
-};
-const trackSearch = (query, results_count)=>{
-    trackClientifyEvent("search", {
-        search_query: query,
-        results_count
-    });
-};
-const trackPageView = (page, title)=>{
-    trackClientifyEvent("page_view", {
-        page,
-        title: title || document.title
-    });
-};
-const trackFormSubmission = (formName, formData)=>{
-    trackClientifyEvent("form_submitted", {
-        form_name: formName,
-        ...formData
-    });
-};
-}),
 "[project]/components/ui/label.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -3800,4 +3804,4 @@ function WhatsAppWidget({ phoneNumber = ("TURBOPACK compile-time value", "+57XXX
 }),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__8b511373._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__d7463672._.js.map

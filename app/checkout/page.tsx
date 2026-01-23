@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ShoppingBag, CreditCard, Truck, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
+import { identifyUser, trackBeginCheckout, trackPurchase } from "@/components/clientify/clientify-tracking"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -37,6 +38,14 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     checkAuth()
+    // Rastrear inicio de checkout en Clientify
+    if (cart.items.length > 0) {
+      trackBeginCheckout({
+        value: cart.total,
+        items_count: cart.itemCount,
+        currency: "COP",
+      })
+    }
   }, [])
 
   async function checkAuth() {
@@ -128,6 +137,50 @@ export default function CheckoutPage() {
         .single()
 
       if (error) throw error
+
+      // Identificar usuario y rastrear compra en Clientify
+      identifyUser({
+        email: formData.email,
+        phone: formData.phone,
+        first_name: formData.fullName.split(" ")[0],
+        last_name: formData.fullName.split(" ").slice(1).join(" "),
+      })
+
+      trackPurchase({
+        order_id: order.id,
+        value: totalWithShipping,
+        currency: "COP",
+        items: cart.items.map(item => ({
+          id: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      })
+
+      // Enviar contacto a Clientify con tag de compra
+      try {
+        await fetch("/api/clientify/create-contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            first_name: formData.fullName.split(" ")[0],
+            last_name: formData.fullName.split(" ").slice(1).join(" "),
+            phone: formData.phone,
+            city: formData.city,
+            tags: ["cliente", "compra-web"],
+            custom_fields: {
+              ultima_compra: new Date().toISOString(),
+              total_ultima_compra: totalWithShipping,
+              metodo_pago: formData.paymentMethod,
+            },
+            source: "checkout_web",
+          }),
+        })
+      } catch (e) {
+        console.error("Error sending to Clientify:", e)
+      }
 
       clearCart()
       

@@ -12,6 +12,7 @@ import { MetaPixel } from "@/components/analytics/meta-pixel"
 import { CrossDomainLinker } from "@/components/analytics/cross-domain-linker"
 import { ClientifyTracking } from "@/components/clientify/clientify-tracking"
 import { WhatsAppWidget } from "@/components/clientify/whatsapp-widget"
+import { LeadCapturePopup } from "@/components/clientify/lead-capture-popup"
 import "./globals.css"
 
 import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
@@ -84,6 +85,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <Toaster />
           <Analytics />
           <WhatsAppWidget />
+          <LeadCapturePopup 
+            delaySeconds={30} 
+            scrollPercentage={50}
+            showOnExitIntent={true}
+            offer="10% de descuento en tu primera compra"
+          />
         </CartProvider>
       </body>
     </html>

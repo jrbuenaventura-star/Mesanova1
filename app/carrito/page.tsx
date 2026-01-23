@@ -8,6 +8,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { toast } from "sonner"
+import { trackRemoveFromCart } from "@/components/clientify/clientify-tracking"
 
 export default function CartPage() {
   const { cart, updateQuantity, removeItem, clearCart } = useCart()
@@ -22,7 +23,13 @@ export default function CartPage() {
     updateQuantity(productId, newQuantity)
   }
 
-  const handleRemoveItem = (productId: string, productName: string) => {
+  const handleRemoveItem = (productId: string, productName: string, quantity: number) => {
+    // Rastrear en Clientify
+    trackRemoveFromCart({
+      id: productId,
+      name: productName,
+      quantity,
+    })
     removeItem(productId)
     toast.success("Producto eliminado", {
       description: `${productName} fue eliminado del carrito`
@@ -109,7 +116,7 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveItem(item.productId, item.name)}
+                        onClick={() => handleRemoveItem(item.productId, item.name, item.quantity)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

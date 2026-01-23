@@ -950,6 +950,138 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
+"[project]/components/clientify/clientify-tracking.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ClientifyTracking",
+    ()=>ClientifyTracking,
+    "identifyUser",
+    ()=>identifyUser,
+    "trackAddToCart",
+    ()=>trackAddToCart,
+    "trackBeginCheckout",
+    ()=>trackBeginCheckout,
+    "trackClientifyEvent",
+    ()=>trackClientifyEvent,
+    "trackFormSubmission",
+    ()=>trackFormSubmission,
+    "trackPageView",
+    ()=>trackPageView,
+    "trackProductViewed",
+    ()=>trackProductViewed,
+    "trackPurchase",
+    ()=>trackPurchase,
+    "trackRemoveFromCart",
+    ()=>trackRemoveFromCart,
+    "trackSearch",
+    ()=>trackSearch
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/script.js [app-client] (ecmascript)");
+"use client";
+;
+;
+function ClientifyTracking() {
+    const accountId = ("TURBOPACK compile-time value", "335191");
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+        id: "clientify-tracking",
+        strategy: "afterInteractive",
+        dangerouslySetInnerHTML: {
+            __html: `
+          (function(c,l,i,e,n,t,f,y){
+            c['ClientifyObject']=n;c[n]=c[n]||function(){
+            (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
+            f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
+            f.parentNode.insertBefore(t,f);
+          })(window,document,'script','//tracking.clientify.net/${accountId}.js','cf');
+        `
+        }
+    }, void 0, false, {
+        fileName: "[project]/components/clientify/clientify-tracking.tsx",
+        lineNumber: 11,
+        columnNumber: 5
+    }, this);
+}
+_c = ClientifyTracking;
+const identifyUser = (userData)=>{
+    if (("TURBOPACK compile-time value", "object") !== "undefined" && window.cf) {
+        window.cf("identify", userData);
+    }
+};
+const trackClientifyEvent = (eventName, eventData)=>{
+    if (("TURBOPACK compile-time value", "object") !== "undefined" && window.cf) {
+        window.cf("track", eventName, eventData);
+    }
+};
+const trackProductViewed = (product)=>{
+    trackClientifyEvent("product_viewed", {
+        product_id: product.id,
+        product_name: product.name,
+        price: product.price,
+        category: product.category,
+        sku: product.sku
+    });
+};
+const trackAddToCart = (product)=>{
+    trackClientifyEvent("add_to_cart", {
+        product_id: product.id,
+        product_name: product.name,
+        price: product.price,
+        quantity: product.quantity,
+        value: product.price * product.quantity,
+        category: product.category
+    });
+};
+const trackRemoveFromCart = (product)=>{
+    trackClientifyEvent("remove_from_cart", {
+        product_id: product.id,
+        product_name: product.name,
+        quantity: product.quantity
+    });
+};
+const trackBeginCheckout = (data)=>{
+    trackClientifyEvent("begin_checkout", {
+        value: data.value,
+        items_count: data.items_count,
+        currency: data.currency || "COP"
+    });
+};
+const trackPurchase = (order)=>{
+    trackClientifyEvent("purchase", {
+        order_id: order.order_id,
+        value: order.value,
+        currency: order.currency || "COP",
+        items: order.items
+    });
+};
+const trackSearch = (query, results_count)=>{
+    trackClientifyEvent("search", {
+        search_query: query,
+        results_count
+    });
+};
+const trackPageView = (page, title)=>{
+    trackClientifyEvent("page_view", {
+        page,
+        title: title || document.title
+    });
+};
+const trackFormSubmission = (formName, formData)=>{
+    trackClientifyEvent("form_submitted", {
+        form_name: formName,
+        ...formData
+    });
+};
+var _c;
+__turbopack_context__.k.register(_c, "ClientifyTracking");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
 "[project]/components/search/search-autocomplete.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -966,9 +1098,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/command.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/clientify/clientify-tracking.tsx [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
+;
 ;
 ;
 ;
@@ -1053,6 +1187,8 @@ function SearchAutocomplete() {
     const handleSearch = (e)=>{
         e.preventDefault();
         if (query.trim()) {
+            // Rastrear búsqueda en Clientify
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["trackSearch"])(query.trim(), results.length);
             router.push(`/buscar?q=${encodeURIComponent(query)}`);
             setIsOpen(false);
         }
@@ -1069,7 +1205,7 @@ function SearchAutocomplete() {
                         className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 97,
+                        lineNumber: 99,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1081,20 +1217,20 @@ function SearchAutocomplete() {
                         className: "pl-9 pr-10"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 98,
+                        lineNumber: 100,
                         columnNumber: 9
                     }, this),
                     isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
                         className: "absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground"
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 107,
+                        lineNumber: 109,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 96,
+                lineNumber: 98,
                 columnNumber: 7
             }, this),
             isOpen && results.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1118,18 +1254,18 @@ function SearchAutocomplete() {
                                                     className: "object-cover"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 127,
                                                     columnNumber: 27
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "h-full w-full bg-muted"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                    lineNumber: 132,
+                                                    lineNumber: 134,
                                                     columnNumber: 27
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                lineNumber: 123,
+                                                lineNumber: 125,
                                                 columnNumber: 23
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1140,7 +1276,7 @@ function SearchAutocomplete() {
                                                         children: product.nombre_comercial || product.pdt_descripcion
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                        lineNumber: 136,
+                                                        lineNumber: 138,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1152,44 +1288,44 @@ function SearchAutocomplete() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                        lineNumber: 139,
+                                                        lineNumber: 141,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                                                lineNumber: 135,
+                                                lineNumber: 137,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                                        lineNumber: 122,
+                                        lineNumber: 124,
                                         columnNumber: 21
                                     }, this)
                                 }, product.id, false, {
                                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                                    lineNumber: 117,
+                                    lineNumber: 119,
                                     columnNumber: 19
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/search/search-autocomplete.tsx",
-                            lineNumber: 115,
+                            lineNumber: 117,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/search/search-autocomplete.tsx",
-                        lineNumber: 114,
+                        lineNumber: 116,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/search/search-autocomplete.tsx",
-                    lineNumber: 113,
+                    lineNumber: 115,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 112,
+                lineNumber: 114,
                 columnNumber: 9
             }, this),
             isOpen && query.length >= 2 && results.length === 0 && !isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1197,13 +1333,13 @@ function SearchAutocomplete() {
                 children: "No se encontraron productos"
             }, void 0, false, {
                 fileName: "[project]/components/search/search-autocomplete.tsx",
-                lineNumber: 153,
+                lineNumber: 155,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/search/search-autocomplete.tsx",
-        lineNumber: 95,
+        lineNumber: 97,
         columnNumber: 5
     }, this);
 }
@@ -3460,138 +3596,6 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
-"[project]/components/clientify/clientify-tracking.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s([
-    "ClientifyTracking",
-    ()=>ClientifyTracking,
-    "identifyUser",
-    ()=>identifyUser,
-    "trackAddToCart",
-    ()=>trackAddToCart,
-    "trackBeginCheckout",
-    ()=>trackBeginCheckout,
-    "trackClientifyEvent",
-    ()=>trackClientifyEvent,
-    "trackFormSubmission",
-    ()=>trackFormSubmission,
-    "trackPageView",
-    ()=>trackPageView,
-    "trackProductViewed",
-    ()=>trackProductViewed,
-    "trackPurchase",
-    ()=>trackPurchase,
-    "trackRemoveFromCart",
-    ()=>trackRemoveFromCart,
-    "trackSearch",
-    ()=>trackSearch
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/script.js [app-client] (ecmascript)");
-"use client";
-;
-;
-function ClientifyTracking() {
-    const accountId = ("TURBOPACK compile-time value", "335191");
-    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-    ;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-        id: "clientify-tracking",
-        strategy: "afterInteractive",
-        dangerouslySetInnerHTML: {
-            __html: `
-          (function(c,l,i,e,n,t,f,y){
-            c['ClientifyObject']=n;c[n]=c[n]||function(){
-            (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
-            f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
-            f.parentNode.insertBefore(t,f);
-          })(window,document,'script','//tracking.clientify.net/${accountId}.js','cf');
-        `
-        }
-    }, void 0, false, {
-        fileName: "[project]/components/clientify/clientify-tracking.tsx",
-        lineNumber: 11,
-        columnNumber: 5
-    }, this);
-}
-_c = ClientifyTracking;
-const identifyUser = (userData)=>{
-    if (("TURBOPACK compile-time value", "object") !== "undefined" && window.cf) {
-        window.cf("identify", userData);
-    }
-};
-const trackClientifyEvent = (eventName, eventData)=>{
-    if (("TURBOPACK compile-time value", "object") !== "undefined" && window.cf) {
-        window.cf("track", eventName, eventData);
-    }
-};
-const trackProductViewed = (product)=>{
-    trackClientifyEvent("product_viewed", {
-        product_id: product.id,
-        product_name: product.name,
-        price: product.price,
-        category: product.category,
-        sku: product.sku
-    });
-};
-const trackAddToCart = (product)=>{
-    trackClientifyEvent("add_to_cart", {
-        product_id: product.id,
-        product_name: product.name,
-        price: product.price,
-        quantity: product.quantity,
-        value: product.price * product.quantity,
-        category: product.category
-    });
-};
-const trackRemoveFromCart = (product)=>{
-    trackClientifyEvent("remove_from_cart", {
-        product_id: product.id,
-        product_name: product.name,
-        quantity: product.quantity
-    });
-};
-const trackBeginCheckout = (data)=>{
-    trackClientifyEvent("begin_checkout", {
-        value: data.value,
-        items_count: data.items_count,
-        currency: data.currency || "COP"
-    });
-};
-const trackPurchase = (order)=>{
-    trackClientifyEvent("purchase", {
-        order_id: order.order_id,
-        value: order.value,
-        currency: order.currency || "COP",
-        items: order.items
-    });
-};
-const trackSearch = (query, results_count)=>{
-    trackClientifyEvent("search", {
-        search_query: query,
-        results_count
-    });
-};
-const trackPageView = (page, title)=>{
-    trackClientifyEvent("page_view", {
-        page,
-        title: title || document.title
-    });
-};
-const trackFormSubmission = (formName, formData)=>{
-    trackClientifyEvent("form_submitted", {
-        form_name: formName,
-        ...formData
-    });
-};
-var _c;
-__turbopack_context__.k.register(_c, "ClientifyTracking");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
 "[project]/components/ui/label.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -4123,6 +4127,371 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
 }),
+"[project]/components/clientify/lead-capture-popup.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LeadCapturePopup",
+    ()=>LeadCapturePopup
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gift$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gift$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/gift.js [app-client] (ecmascript) <export default as Gift>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/mail.js [app-client] (ecmascript) <export default as Mail>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/input.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/label.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/clientify/clientify-tracking.tsx [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+const STORAGE_KEY = "mesanova_popup_dismissed";
+const DISMISS_DAYS = 7;
+function LeadCapturePopup({ delaySeconds = 30, scrollPercentage = 50, showOnExitIntent = true, offer = "10% de descuento en tu primera compra", disabled = false }) {
+    _s();
+    const [isVisible, setIsVisible] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isSubmitting, setIsSubmitting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [hasTriggered, setHasTriggered] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        email: "",
+        name: ""
+    });
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LeadCapturePopup.useEffect": ()=>{
+            if (disabled) return;
+            // Check if already dismissed recently
+            const dismissedAt = localStorage.getItem(STORAGE_KEY);
+            if (dismissedAt) {
+                const dismissDate = new Date(dismissedAt);
+                const daysSinceDismiss = (Date.now() - dismissDate.getTime()) / (1000 * 60 * 60 * 24);
+                if (daysSinceDismiss < DISMISS_DAYS) {
+                    return;
+                }
+            }
+            // Time-based trigger
+            const timeoutId = setTimeout({
+                "LeadCapturePopup.useEffect.timeoutId": ()=>{
+                    if (!hasTriggered) {
+                        showPopup("time_delay");
+                    }
+                }
+            }["LeadCapturePopup.useEffect.timeoutId"], delaySeconds * 1000);
+            // Scroll-based trigger
+            const handleScroll = {
+                "LeadCapturePopup.useEffect.handleScroll": ()=>{
+                    if (hasTriggered) return;
+                    const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+                    if (scrolled >= scrollPercentage) {
+                        showPopup("scroll_depth");
+                    }
+                }
+            }["LeadCapturePopup.useEffect.handleScroll"];
+            // Exit intent trigger (desktop only)
+            const handleMouseLeave = {
+                "LeadCapturePopup.useEffect.handleMouseLeave": (e)=>{
+                    if (!showOnExitIntent || hasTriggered) return;
+                    if (e.clientY <= 0) {
+                        showPopup("exit_intent");
+                    }
+                }
+            }["LeadCapturePopup.useEffect.handleMouseLeave"];
+            window.addEventListener("scroll", handleScroll);
+            document.addEventListener("mouseleave", handleMouseLeave);
+            return ({
+                "LeadCapturePopup.useEffect": ()=>{
+                    clearTimeout(timeoutId);
+                    window.removeEventListener("scroll", handleScroll);
+                    document.removeEventListener("mouseleave", handleMouseLeave);
+                }
+            })["LeadCapturePopup.useEffect"];
+        }
+    }["LeadCapturePopup.useEffect"], [
+        delaySeconds,
+        scrollPercentage,
+        showOnExitIntent,
+        hasTriggered,
+        disabled
+    ]);
+    const showPopup = (trigger)=>{
+        setHasTriggered(true);
+        setIsVisible(true);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["trackClientifyEvent"])("popup_shown", {
+            trigger,
+            offer
+        });
+    };
+    const handleClose = ()=>{
+        setIsVisible(false);
+        localStorage.setItem(STORAGE_KEY, new Date().toISOString());
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["trackClientifyEvent"])("popup_closed", {
+            had_email: !!formData.email
+        });
+    };
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (!formData.email) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Por favor ingresa tu email");
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            // Identificar en Clientify
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["identifyUser"])({
+                email: formData.email,
+                first_name: formData.name || undefined
+            });
+            // Crear contacto en Clientify
+            await fetch("/api/clientify/create-contact", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    first_name: formData.name || undefined,
+                    tags: [
+                        "popup-descuento",
+                        "lead-mesanova",
+                        "newsletter"
+                    ],
+                    custom_fields: {
+                        oferta_popup: offer,
+                        fecha_suscripcion: new Date().toISOString()
+                    },
+                    source: "popup_web"
+                })
+            });
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$clientify$2f$clientify$2d$tracking$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["trackClientifyEvent"])("popup_converted", {
+                email: formData.email,
+                offer
+            });
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("¡Listo! 🎉", {
+                description: "Revisa tu email para obtener tu código de descuento"
+            });
+            setIsVisible(false);
+            localStorage.setItem(STORAGE_KEY, new Date().toISOString());
+        } catch (error) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Error al suscribirse", {
+                description: "Por favor intenta nuevamente"
+            });
+        } finally{
+            setIsSubmitting(false);
+        }
+    };
+    if (!isVisible) return null;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    onClick: handleClose,
+                    className: "absolute top-3 right-3 z-10 p-1 rounded-full hover:bg-gray-100 transition-colors",
+                    "aria-label": "Cerrar",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                        className: "w-5 h-5 text-gray-500"
+                    }, void 0, false, {
+                        fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                        lineNumber: 160,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                    lineNumber: 155,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-gradient-to-r from-primary to-primary/80 px-6 py-8 text-center text-white",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gift$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gift$3e$__["Gift"], {
+                                className: "w-8 h-8"
+                            }, void 0, false, {
+                                fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                lineNumber: 166,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 165,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            className: "text-2xl font-bold mb-2",
+                            children: "¡Espera!"
+                        }, void 0, false, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 168,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-lg opacity-90",
+                            children: [
+                                "Obtén ",
+                                offer
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 169,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                    lineNumber: 164,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                    onSubmit: handleSubmit,
+                    className: "p-6 space-y-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-center text-gray-600 text-sm",
+                            children: "Suscríbete a nuestro newsletter y recibe ofertas exclusivas"
+                        }, void 0, false, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 174,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "space-y-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "popup-name",
+                                            className: "sr-only",
+                                            children: "Nombre"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                            lineNumber: 180,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "popup-name",
+                                            placeholder: "Tu nombre (opcional)",
+                                            value: formData.name,
+                                            onChange: (e)=>setFormData({
+                                                    ...formData,
+                                                    name: e.target.value
+                                                }),
+                                            disabled: isSubmitting
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                            lineNumber: 183,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                    lineNumber: 179,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                            htmlFor: "popup-email",
+                                            className: "sr-only",
+                                            children: "Email"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                            lineNumber: 192,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                            id: "popup-email",
+                                            type: "email",
+                                            placeholder: "tu@email.com",
+                                            value: formData.email,
+                                            onChange: (e)=>setFormData({
+                                                    ...formData,
+                                                    email: e.target.value
+                                                }),
+                                            required: true,
+                                            disabled: isSubmitting
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                            lineNumber: 195,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                    lineNumber: 191,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 178,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                            type: "submit",
+                            size: "lg",
+                            className: "w-full",
+                            disabled: isSubmitting,
+                            children: isSubmitting ? "Enviando..." : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__["Mail"], {
+                                        className: "w-4 h-4 mr-2"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                                        lineNumber: 217,
+                                        columnNumber: 17
+                                    }, this),
+                                    "Obtener mi descuento"
+                                ]
+                            }, void 0, true)
+                        }, void 0, false, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 207,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-xs text-center text-gray-400",
+                            children: "Al suscribirte aceptas recibir emails promocionales. Puedes cancelar cuando quieras."
+                        }, void 0, false, {
+                            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                            lineNumber: 223,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+                    lineNumber: 173,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+            lineNumber: 153,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/components/clientify/lead-capture-popup.tsx",
+        lineNumber: 152,
+        columnNumber: 5
+    }, this);
+}
+_s(LeadCapturePopup, "ztBWi+aDE7w+DbmNqhTLEvLenHQ=");
+_c = LeadCapturePopup;
+var _c;
+__turbopack_context__.k.register(_c, "LeadCapturePopup");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
 ]);
 
-//# sourceMappingURL=_29def91f._.js.map
+//# sourceMappingURL=_5d36a967._.js.map
