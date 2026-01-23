@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   Area,
   AreaChart,
@@ -22,70 +22,20 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 
 type DateRangePreset = "7d" | "30d" | "90d"
 
+type AnalyticsApiResponse = {
+  range: { startDate: string; endDate: string; preset: string }
+  kpis: { sessions: number; users: number; conversions: number; conversionRate: number }
+  timeseries: Array<{ date: string; day: string; sessions: number; users: number }>
+  sources: Array<{ source: string; sessions: number }>
+  topPages: Array<{ path: string; views: number }>
+  topEvents: Array<{ name: string; count: number }>
+}
+
 const chartConfig = {
   sessions: { label: "Sesiones", color: "hsl(var(--chart-1))" },
   users: { label: "Usuarios", color: "hsl(var(--chart-2))" },
   conversions: { label: "Conversiones", color: "hsl(var(--chart-3))" },
 } as const
-
-const trafficDataByPreset: Record<DateRangePreset, Array<{ day: string; sessions: number; users: number }>> = {
-  "7d": [
-    { day: "Lun", sessions: 1240, users: 890 },
-    { day: "Mar", sessions: 1320, users: 940 },
-    { day: "Mié", sessions: 980, users: 760 },
-    { day: "Jue", sessions: 1550, users: 1120 },
-    { day: "Vie", sessions: 1680, users: 1210 },
-    { day: "Sáb", sessions: 1100, users: 820 },
-    { day: "Dom", sessions: 950, users: 710 },
-  ],
-  "30d": Array.from({ length: 30 }).map((_, idx) => ({
-    day: String(idx + 1),
-    sessions: 900 + ((idx * 47) % 900),
-    users: 650 + ((idx * 31) % 700),
-  })),
-  "90d": Array.from({ length: 12 }).map((_, idx) => ({
-    day: `S${idx + 1}`,
-    sessions: 18000 + ((idx * 2100) % 9000),
-    users: 12000 + ((idx * 1500) % 7000),
-  })),
-}
-
-const sourceDataByPreset: Record<DateRangePreset, Array<{ source: string; sessions: number }>> = {
-  "7d": [
-    { source: "Organic", sessions: 3200 },
-    { source: "Paid", sessions: 1100 },
-    { source: "Direct", sessions: 980 },
-    { source: "Referral", sessions: 420 },
-  ],
-  "30d": [
-    { source: "Organic", sessions: 14200 },
-    { source: "Paid", sessions: 6800 },
-    { source: "Direct", sessions: 5200 },
-    { source: "Referral", sessions: 1900 },
-  ],
-  "90d": [
-    { source: "Organic", sessions: 44100 },
-    { source: "Paid", sessions: 20200 },
-    { source: "Direct", sessions: 15800 },
-    { source: "Referral", sessions: 6200 },
-  ],
-}
-
-const topPages = [
-  { path: "/", title: "Home", views: 28450, avgTime: "01:24", bounceRate: 42.1 },
-  { path: "/buscar", title: "Buscar", views: 12420, avgTime: "00:58", bounceRate: 55.4 },
-  { path: "/carrito", title: "Carrito", views: 6120, avgTime: "01:10", bounceRate: 37.6 },
-  { path: "/checkout", title: "Checkout", views: 3410, avgTime: "02:05", bounceRate: 29.3 },
-  { path: "/blog", title: "Blog", views: 2890, avgTime: "01:46", bounceRate: 61.2 },
-]
-
-const topEvents = [
-  { name: "view_item", count: 18420, category: "Ecommerce" },
-  { name: "add_to_cart", count: 6420, category: "Ecommerce" },
-  { name: "begin_checkout", count: 2190, category: "Ecommerce" },
-  { name: "purchase", count: 410, category: "Ecommerce" },
-  { name: "generate_lead", count: 380, category: "Lead" },
-]
 
 function formatCompactNumber(value: number) {
   return new Intl.NumberFormat("es-CO", { notation: "compact" }).format(value)
@@ -93,18 +43,53 @@ function formatCompactNumber(value: number) {
 
 export function AnalyticsDashboard() {
   const [preset, setPreset] = useState<DateRangePreset>("30d")
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [data, setData] = useState<AnalyticsApiResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const trafficData = useMemo(() => trafficDataByPreset[preset], [preset])
-  const sourceData = useMemo(() => sourceDataByPreset[preset], [preset])
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const fetchAnalytics = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch(`/api/admin/analytics?preset=${preset}`, {
+          method: "GET",
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        })
+
+        const json = (await res.json()) as any
+        if (!res.ok) {
+          throw new Error(json?.error || `Error HTTP ${res.status}`)
+        }
+
+        setData(json as AnalyticsApiResponse)
+      } catch (e) {
+        if ((e as any)?.name !== "AbortError") {
+          setError(e instanceof Error ? e.message : "Error desconocido")
+          setData(null)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
+
+    return () => {
+      controller.abort()
+    }
+  }, [preset, refreshKey])
+
+  const trafficData = useMemo(() => data?.timeseries || [], [data])
+  const sourceData = useMemo(() => data?.sources || [], [data])
 
   const totals = useMemo(() => {
-    const sessions = trafficData.reduce((sum, d) => sum + d.sessions, 0)
-    const users = trafficData.reduce((sum, d) => sum + d.users, 0)
-    const conversions = Math.round(sessions * 0.021)
-    const conversionRate = sessions > 0 ? (conversions / sessions) * 100 : 0
-
-    return { sessions, users, conversions, conversionRate }
-  }, [trafficData])
+    return data?.kpis || { sessions: 0, users: 0, conversions: 0, conversionRate: 0 }
+  }, [data])
 
   return (
     <div className="space-y-6">
@@ -126,11 +111,23 @@ export function AnalyticsDashboard() {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" onClick={() => setPreset(preset)}>
+          <Button variant="outline" onClick={() => setRefreshKey((k) => k + 1)}>
             Actualizar
           </Button>
         </div>
       </div>
+
+      {error && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>No se pudo cargar analíticas desde GA4</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -285,29 +282,37 @@ export function AnalyticsDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Top páginas</CardTitle>
-              <CardDescription>Páginas más vistas (mock)</CardDescription>
+              <CardDescription>Páginas más vistas</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Página</TableHead>
                     <TableHead>Ruta</TableHead>
                     <TableHead className="text-right">Vistas</TableHead>
-                    <TableHead className="text-right">Tiempo prom.</TableHead>
-                    <TableHead className="text-right">Bounce</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topPages.map((p) => (
-                    <TableRow key={p.path}>
-                      <TableCell className="font-medium">{p.title}</TableCell>
-                      <TableCell className="text-muted-foreground">{p.path}</TableCell>
-                      <TableCell className="text-right">{formatCompactNumber(p.views)}</TableCell>
-                      <TableCell className="text-right">{p.avgTime}</TableCell>
-                      <TableCell className="text-right">{p.bounceRate.toFixed(1)}%</TableCell>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        Cargando...
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  ) : !data?.topPages?.length ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        Sin datos
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    data.topPages.map((p) => (
+                      <TableRow key={p.path}>
+                        <TableCell className="text-muted-foreground">{p.path}</TableCell>
+                        <TableCell className="text-right">{formatCompactNumber(p.views)}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -318,30 +323,42 @@ export function AnalyticsDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Top eventos</CardTitle>
-              <CardDescription>Eventos GA4 (mock)</CardDescription>
+              <CardDescription>Eventos GA4</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Evento</TableHead>
-                    <TableHead>Categoría</TableHead>
                     <TableHead className="text-right">Ocurrencias</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topEvents.map((e) => (
-                    <TableRow key={e.name}>
-                      <TableCell className="font-medium">{e.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <MousePointerClick className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">{e.category}</span>
-                        </div>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        Cargando...
                       </TableCell>
-                      <TableCell className="text-right">{formatCompactNumber(e.count)}</TableCell>
                     </TableRow>
-                  ))}
+                  ) : !data?.topEvents?.length ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                        Sin datos
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    data.topEvents.map((e) => (
+                      <TableRow key={e.name}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <MousePointerClick className="h-4 w-4 text-muted-foreground" />
+                            <span>{e.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">{formatCompactNumber(e.count)}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
