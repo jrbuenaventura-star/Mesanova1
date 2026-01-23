@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { trackFormSubmission } from "@/components/clientify/clientify-tracking"
 
 interface ContactFormProps {
   tipo: "mayoristas" | "minoristas" | "institucional" | "cliente-final"
@@ -69,6 +70,42 @@ export function ContactForm({ tipo, showVolumen = false }: ContactFormProps) {
 
       if (!response.ok) {
         throw new Error(data.error || "Error al enviar el formulario")
+      }
+
+      // Enviar lead a Clientify
+      try {
+        const nameParts = formData.nombre.trim().split(" ")
+        const firstName = nameParts[0] || ""
+        const lastName = nameParts.slice(1).join(" ") || ""
+
+        await fetch("/api/clientify/create-contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            first_name: firstName,
+            last_name: lastName,
+            phone: formData.telefono,
+            company: formData.empresa,
+            city: formData.ciudad,
+            tags: [`web-${tipo}`, "lead-mesanova", "formulario-contacto"],
+            custom_fields: {
+              tipo_cliente: tipo,
+              volumen_estimado: formData.volumen,
+              mensaje: formData.mensaje,
+            },
+            source: "formulario_web",
+          }),
+        })
+
+        // Rastrear evento en Clientify
+        trackFormSubmission(`contacto-${tipo}`, {
+          email: formData.email,
+          tipo,
+        })
+      } catch (clientifyError) {
+        // No bloquear si falla Clientify, ya se guardó en nuestra BD
+        console.error("Error sending to Clientify:", clientifyError)
       }
 
       toast.success("¡Solicitud enviada!", {

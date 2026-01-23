@@ -803,6 +803,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/clientify/create-contact/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/clientify/create-contact">> = Specific
+  const handler = {} as typeof import("../../../app/api/clientify/create-contact/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/clientify/track-event/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/clientify/track-event">> = Specific
+  const handler = {} as typeof import("../../../app/api/clientify/track-event/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/contact/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/contact">> = Specific

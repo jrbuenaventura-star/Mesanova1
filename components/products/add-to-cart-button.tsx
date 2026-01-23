@@ -6,6 +6,7 @@ import { ShoppingCart, Minus, Plus, Check } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "sonner"
 import type { Product } from "@/lib/db/types"
+import { trackAddToCart } from "@/components/clientify/clientify-tracking"
 
 interface AddToCartButtonProps {
   product: Product
@@ -56,6 +57,15 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         maxStock: totalStock,
         slug: product.slug,
         silo: siloSlug,
+      })
+
+      // Rastrear en Clientify
+      trackAddToCart({
+        id: product.id,
+        name: product.nombre_comercial || product.pdt_descripcion,
+        price: product.precio || 0,
+        quantity,
+        category: primaryCategory?.subcategory?.name,
       })
 
       toast.success("Producto agregado al carrito", {

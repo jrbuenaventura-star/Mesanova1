@@ -10,6 +10,8 @@ import { Toaster } from "@/components/ui/sonner"
 import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import { MetaPixel } from "@/components/analytics/meta-pixel"
 import { CrossDomainLinker } from "@/components/analytics/cross-domain-linker"
+import { ClientifyTracking } from "@/components/clientify/clientify-tracking"
+import { WhatsAppWidget } from "@/components/clientify/whatsapp-widget"
 import "./globals.css"
 
 import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
@@ -74,12 +76,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {gaId && <GoogleAnalytics gaId={gaId} />}
         {pixelId && <MetaPixel pixelId={pixelId} />}
         <CrossDomainLinker />
+        <ClientifyTracking />
         <CartProvider>
           <SiteHeader />
           {children}
           <SiteFooter />
           <Toaster />
           <Analytics />
+          <WhatsAppWidget />
         </CartProvider>
       </body>
     </html>
