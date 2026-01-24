@@ -11,7 +11,7 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import { MetaPixel } from "@/components/analytics/meta-pixel"
 import { CrossDomainLinker } from "@/components/analytics/cross-domain-linker"
 import { ClientifyTracking } from "@/components/clientify/clientify-tracking"
-import { WhatsAppWidget } from "@/components/clientify/whatsapp-widget"
+import { WhatsAppWidget } from "@/components/whatsapp-widget"
 import { LeadCapturePopup } from "@/components/clientify/lead-capture-popup"
 import "./globals.css"
 

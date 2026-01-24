@@ -14,6 +14,8 @@ import {
   Truck,
   Gift,
   MessageSquare,
+  Tag,
+  CreditCard,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -131,6 +133,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Button variant="ghost" className="w-full justify-start">
               <MessageSquare className="mr-2 h-4 w-4" />
               Gestión de PQRs
+            </Button>
+          </Link>
+          <Link href="/admin/cupones">
+            <Button variant="ghost" className="w-full justify-start">
+              <Tag className="mr-2 h-4 w-4" />
+              Cupones
+            </Button>
+          </Link>
+          <Link href="/admin/bonos">
+            <Button variant="ghost" className="w-full justify-start">
+              <CreditCard className="mr-2 h-4 w-4" />
+              Bonos de Regalo
             </Button>
           </Link>
           <Link href="/admin/settings">

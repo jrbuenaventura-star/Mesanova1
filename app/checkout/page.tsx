@@ -16,6 +16,8 @@ import { ShoppingBag, CreditCard, Truck, CheckCircle2, AlertCircle, Loader2 } fr
 import { toast } from "sonner"
 import Image from "next/image"
 import { identifyUser, trackBeginCheckout, trackPurchase } from "@/components/clientify/clientify-tracking"
+import { CouponInput } from "@/components/checkout/coupon-input"
+import { GiftCardInput } from "@/components/checkout/gift-card-input"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -23,6 +25,10 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
+  const [appliedGiftCard, setAppliedGiftCard] = useState<any>(null)
+  const [giftCardAmount, setGiftCardAmount] = useState(0)
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -80,8 +86,16 @@ export default function CheckoutPage() {
     })
   }
 
-  const shippingCost = cart.total >= 200000 ? 0 : 15000
-  const totalWithShipping = cart.total + shippingCost
+  const shippingCost = appliedCoupon?.discount_type === 'free_shipping' 
+    ? 0 
+    : (cart.total >= 200000 ? 0 : 15000)
+  
+  const subtotal = cart.total
+  const discountAmount = couponDiscount
+  const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount)
+  const totalWithShipping = subtotalAfterDiscount + shippingCost
+  const giftCardApplied = Math.min(giftCardAmount, totalWithShipping)
+  const finalTotal = Math.max(0, totalWithShipping - giftCardApplied)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -118,7 +132,7 @@ export default function CheckoutPage() {
         shipping_method: formData.shippingMethod,
         subtotal: cart.total,
         shipping_cost: shippingCost,
-        total: totalWithShipping,
+        total: finalTotal,
         status: "pending",
         items: cart.items.map(item => ({
           product_id: item.productId,
@@ -138,6 +152,42 @@ export default function CheckoutPage() {
 
       if (error) throw error
 
+      // Registrar uso de cupón si aplica
+      if (appliedCoupon) {
+        await supabase.from('coupon_usages').insert({
+          coupon_id: appliedCoupon.id,
+          user_id: user?.id || null,
+          order_id: order.id,
+          discount_applied: discountAmount,
+          order_total_before: subtotal + shippingCost,
+          order_total_after: totalWithShipping,
+        })
+      }
+
+      // Registrar uso de bono si aplica
+      if (appliedGiftCard && giftCardApplied > 0) {
+        const newBalance = appliedGiftCard.current_balance - giftCardApplied
+        
+        // Actualizar balance del bono
+        await supabase
+          .from('gift_cards')
+          .update({ 
+            current_balance: newBalance,
+            last_used_at: new Date().toISOString()
+          })
+          .eq('id', appliedGiftCard.id)
+        
+        // Registrar transacción
+        await supabase.from('gift_card_transactions').insert({
+          gift_card_id: appliedGiftCard.id,
+          order_id: order.id,
+          amount: giftCardApplied,
+          transaction_type: 'redemption',
+          balance_before: appliedGiftCard.current_balance,
+          balance_after: newBalance,
+        })
+      }
+
       // Identificar usuario y rastrear compra en Clientify
       identifyUser({
         email: formData.email,
@@ -148,7 +198,7 @@ export default function CheckoutPage() {
 
       trackPurchase({
         order_id: order.id,
-        value: totalWithShipping,
+        value: finalTotal,
         currency: "COP",
         items: cart.items.map(item => ({
           id: item.productId,
@@ -467,9 +517,17 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">
-                      ${cart.total.toLocaleString("es-CO")}
+                      ${subtotal.toLocaleString("es-CO")}
                     </span>
                   </div>
+                  
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Descuento (Cupón)</span>
+                      <span className="font-medium">-${discountAmount.toLocaleString("es-CO")}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Envío</span>
                     <span className="font-medium">
@@ -480,14 +538,58 @@ export default function CheckoutPage() {
                       )}
                     </span>
                   </div>
+                  
+                  {giftCardApplied > 0 && (
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span>Bono de Regalo</span>
+                      <span className="font-medium">-${giftCardApplied.toLocaleString("es-CO")}</span>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span>${totalWithShipping.toLocaleString("es-CO")}</span>
+                  <span>${finalTotal.toLocaleString("es-CO")}</span>
                 </div>
+                
+                {(discountAmount > 0 || giftCardApplied > 0) && (
+                  <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
+                    <p className="text-sm text-green-900 dark:text-green-100 font-medium">
+                      🎉 Ahorras ${(discountAmount + giftCardApplied).toLocaleString("es-CO")}
+                    </p>
+                  </div>
+                )}
+                
+                <Separator />
+                
+                <CouponInput
+                  cartTotal={subtotal}
+                  userId={user?.id}
+                  productIds={cart.items.map(item => item.productId)}
+                  onCouponApplied={(discount, couponData) => {
+                    setCouponDiscount(discount)
+                    setAppliedCoupon(couponData)
+                  }}
+                  onCouponRemoved={() => {
+                    setCouponDiscount(0)
+                    setAppliedCoupon(null)
+                  }}
+                  appliedCoupon={appliedCoupon}
+                />
+                
+                <GiftCardInput
+                  onGiftCardApplied={(amount, giftCardData) => {
+                    setGiftCardAmount(amount)
+                    setAppliedGiftCard(giftCardData)
+                  }}
+                  onGiftCardRemoved={() => {
+                    setGiftCardAmount(0)
+                    setAppliedGiftCard(null)
+                  }}
+                  appliedGiftCard={appliedGiftCard}
+                />
 
                 {cart.total < 200000 && (
                   <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
