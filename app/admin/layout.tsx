@@ -13,6 +13,7 @@ import {
   Building2,
   Truck,
   Gift,
+  MessageSquare,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -124,6 +125,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Button variant="ghost" className="w-full justify-start">
               <BarChart3 className="mr-2 h-4 w-4" />
               Analíticas
+            </Button>
+          </Link>
+          <Link href="/admin/pqrs">
+            <Button variant="ghost" className="w-full justify-start">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Gestión de PQRs
             </Button>
           </Link>
           <Link href="/admin/settings">

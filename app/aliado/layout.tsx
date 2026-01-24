@@ -2,7 +2,7 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Home, Users, UserPlus, ShoppingCart, BarChart3, UserCog } from "lucide-react"
+import { Home, Users, UserPlus, ShoppingCart, BarChart3, UserCog, MessageSquare } from "lucide-react"
 
 export default async function AliadoLayout({
   children,
@@ -77,6 +77,13 @@ export default async function AliadoLayout({
           >
             <BarChart3 className="h-4 w-4" />
             Estadísticas
+          </Link>
+          <Link
+            href="/distributor/pqrs"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Soporte / PQRs
           </Link>
           
           <div className="pt-4 mt-4 border-t">

@@ -120,6 +120,8 @@ function createAdminClient() {
 "use strict";
 
 __turbopack_context__.s([
+    "GET",
+    ()=>GET,
     "POST",
     ()=>POST,
     "PUT",
@@ -131,6 +133,82 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$admin$2e$
 ;
 ;
 ;
+async function GET() {
+    try {
+        const supabase = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createClient"])();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'No autorizado'
+            }, {
+                status: 401
+            });
+        }
+        const { data: profile, error: profileError } = await supabase.from('user_profiles').select('role').eq('id', user.id).single();
+        if (profileError) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: profileError.message
+            }, {
+                status: 500
+            });
+        }
+        if (profile?.role !== 'superadmin') {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'No autorizado'
+            }, {
+                status: 403
+            });
+        }
+        const admin = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$admin$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createAdminClient"])();
+        const { data: distData, error: distError } = await admin.from('distributors').select('*').order('company_name', {
+            ascending: true
+        });
+        if (distError) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: distError.message
+            }, {
+                status: 500
+            });
+        }
+        const userIds = (distData || []).map((d)=>d?.user_id).filter((v)=>typeof v === 'string' && v.length > 0);
+        const { data: profilesData, error: profilesError } = userIds.length ? await admin.from('user_profiles').select('*').in('id', userIds) : {
+            data: [],
+            error: null
+        };
+        if (profilesError) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: profilesError.message
+            }, {
+                status: 500
+            });
+        }
+        const profileById = new Map();
+        for (const p of profilesData || []){
+            if (p?.id) profileById.set(p.id, p);
+        }
+        const withCounts = await Promise.all((distData || []).map(async (dist)=>{
+            const { count } = await admin.from('companies').select('*', {
+                count: 'exact',
+                head: true
+            }).eq('distribuidor_asignado_id', dist.id);
+            return {
+                ...dist,
+                profile: profileById.get(dist.user_id) || null,
+                clients_count: count || 0
+            };
+        }));
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            distributors: withCounts
+        });
+    } catch (error) {
+        console.error('Error listing distributors:', error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: error instanceof Error ? error.message : 'Error al listar distribuidores'
+        }, {
+            status: 500
+        });
+    }
+}
 async function POST(request) {
     try {
         const supabase = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createClient"])();
