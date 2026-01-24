@@ -1,69 +1,27 @@
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingBag, Truck, Shield, CreditCard, Star, ArrowRight, Gift, Percent } from "lucide-react"
+import { HeroCarousel } from "@/components/home/hero-carousel"
+import { createClient } from "@/lib/supabase/server"
 
-export default function HomePage() {
+async function getBannerSlides() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('home_banner_slides')
+    .select('*')
+    .eq('is_active', true)
+    .order('order_index', { ascending: true })
+  return data || []
+}
+
+export default async function HomePage() {
+  const slides = await getBannerSlides()
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-primary/5 py-20 md:py-32">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-12 lg:grid-cols-2 items-center">
-            <div className="space-y-8">
-              <Badge className="w-fit">Calidad Premium desde 1995</Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-                Artículos para Cocina y Mesa de la Más Alta Calidad
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Descubre nuestra amplia selección de vajillas, copas, vasos, platos y utensilios para cocina. Elegancia y funcionalidad para tu hogar.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild size="lg" className="text-lg">
-                  <Link href="/productos">
-                    <ShoppingBag className="mr-2 h-5 w-5" />
-                    Explorar Productos
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="text-lg">
-                  <Link href="/nosotros/sobre-mesanova">
-                    Conoce Más
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-              
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-6 pt-4">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Garantía de Calidad</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Envío Gratis +$200k</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Pago Seguro</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl bg-muted">
-              <Image
-                src="/images/hero-mesa-cocina.jpg"
-                alt="Vajillas, Copas, Vasos y Platos Mesanova"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Carousel */}
+      <HeroCarousel slides={slides} />
 
       {/* Ofertas Especiales */}
       <section className="py-16 bg-primary/5">

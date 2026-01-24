@@ -17,6 +17,8 @@ import {
   Tag,
   CreditCard,
   Star,
+  Sparkles,
+  Image,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -152,6 +154,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Button variant="ghost" className="w-full justify-start">
               <Star className="mr-2 h-4 w-4" />
               Reviews
+            </Button>
+          </Link>
+          <Link href="/admin/productos-destacados">
+            <Button variant="ghost" className="w-full justify-start">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Productos Destacados
+            </Button>
+          </Link>
+          <Link href="/admin/banner-home">
+            <Button variant="ghost" className="w-full justify-start">
+              <Image className="mr-2 h-4 w-4" />
+              Banner del Home
             </Button>
           </Link>
           <Link href="/admin/settings">
