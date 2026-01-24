@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation"
-
-export default function HomePage() {
-  redirect("/productos")
-}
+export { default } from "./(home)/page"
