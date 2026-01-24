@@ -23,9 +23,9 @@ const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200"
 const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
 
 export const metadata: Metadata = {
-  title: "Mesanova - Artículos para Cocina, Mesa y Hogar",
+  title: "Mesanova - Vajillas, Copas, Vasos y Platos | Artículos para Mesa y Cocina",
   description:
-    "Tu tienda especializada en artículos para cocina, mesa y hogar. Calidad y variedad para distribuidores y consumidores finales.",
+    "Especialistas en artículos para mesa y cocina. Descubre nuestra selección de vajillas, copas, vasos, platos y utensilios de cocina. Calidad premium desde 1995.",
   generator: "v0.app",
   icons: {
     icon: [

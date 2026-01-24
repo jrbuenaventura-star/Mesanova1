@@ -12,7 +12,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, ChefHat, UtensilsCrossed, Coffee, Thermometer, Briefcase, Gift } from "lucide-react"
+import { Menu, ChefHat, UtensilsCrossed, Coffee, Briefcase, Gift } from "lucide-react"
 import { SearchAutocomplete } from "@/components/search/search-autocomplete"
 import { SearchButton } from "@/components/search-button"
 import { CartIcon } from "@/components/cart/cart-icon"
@@ -36,12 +36,6 @@ const silos = [
     name: "Café, Té y Bar",
     icon: Coffee,
     description: "Copas, vasos y accesorios para bebidas",
-  },
-  {
-    slug: "termos-neveras",
-    name: "Termos y Neveras",
-    icon: Thermometer,
-    description: "Productos portátiles para bebidas",
   },
   {
     slug: "profesional",

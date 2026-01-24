@@ -64,14 +64,6 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="/productos/termos-neveras"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Termos y Neveras
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/productos/profesional"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >

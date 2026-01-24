@@ -15,10 +15,10 @@ export default function HomePage() {
             <div className="space-y-8">
               <Badge className="w-fit">Calidad Premium desde 1995</Badge>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-                Productos de Aluminio de la Más Alta Calidad
+                Artículos para Cocina y Mesa de la Más Alta Calidad
               </h1>
               <p className="text-xl text-muted-foreground">
-                Descubre nuestra amplia selección de utensilios de cocina, artículos para el hogar y soluciones profesionales en aluminio.
+                Descubre nuestra amplia selección de vajillas, copas, vasos, platos y utensilios para cocina. Elegancia y funcionalidad para tu hogar.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="text-lg">
@@ -54,8 +54,8 @@ export default function HomePage() {
             
             <div className="relative h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl bg-muted">
               <Image
-                src="/images/hero-products.jpg"
-                alt="Productos Mesanova"
+                src="/images/hero-mesa-cocina.jpg"
+                alt="Vajillas, Copas, Vasos y Platos Mesanova"
                 fill
                 className="object-cover"
                 priority

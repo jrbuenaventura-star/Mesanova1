@@ -171,7 +171,7 @@ export default async function SettingsPage() {
               <Label htmlFor="site-description">Descripción</Label>
               <Input 
                 id="site-description" 
-                defaultValue="Productos de aluminio y menaje para el hogar"
+                defaultValue="Artículos para cocina y mesa - Vajillas, copas, vasos, platos y utensilios"
               />
             </div>
           </CardContent>
