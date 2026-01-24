@@ -123,8 +123,8 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { name: "Cocina", href: "/productos/cocina", icon: "🍳" },
-              { name: "Hogar", href: "/productos/hogar", icon: "🏠" },
-              { name: "Profesional", href: "/productos/profesional", icon: "👨‍🍳" },
+              { name: "Mesa", href: "/productos/mesa", icon: "🍽️" },
+              { name: "Café, Té y Bar", href: "/productos/cafe-te-bar", icon: "☕" },
               { name: "Ofertas", href: "/ofertas", icon: "🏷️" },
             ].map((category) => (
               <Link key={category.name} href={category.href}>
