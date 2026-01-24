@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
-export default function ConfirmacionBonoPage() {
+function ConfirmacionContent() {
   const searchParams = useSearchParams()
   const code = searchParams.get("code")
   const [giftCard, setGiftCard] = useState<any>(null)
@@ -231,5 +231,20 @@ export default function ConfirmacionBonoPage() {
         </Button>
       </div>
     </div>
+  )
+}
+
+export default function ConfirmacionBonoPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-16 text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-muted rounded-full mb-4 animate-pulse">
+          <Gift className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <p className="text-muted-foreground">Cargando información del bono...</p>
+      </div>
+    }>
+      <ConfirmacionContent />
+    </Suspense>
   )
 }
