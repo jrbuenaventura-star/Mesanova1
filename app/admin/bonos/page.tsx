@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, DollarSign, TrendingUp, CreditCard } from "lucide-react"
+import { Gift, DollarSign, TrendingUp, CreditCard, Download } from "lucide-react"
 
 export default async function BonosAdminPage() {
   const supabase = await createClient()
@@ -39,6 +39,12 @@ export default async function BonosAdminPage() {
           <h1 className="text-3xl font-bold">Gestión de Bonos</h1>
           <p className="text-muted-foreground">Administra bonos de regalo</p>
         </div>
+        <Button variant="outline" asChild>
+          <a href="/api/admin/export/gift-cards" download>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </a>
+        </Button>
       </div>
 
       {/* Stats */}

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Tag, TrendingUp, Users, DollarSign } from "lucide-react"
+import { Plus, Tag, TrendingUp, Users, DollarSign, BarChart3, Download } from "lucide-react"
 import Link from "next/link"
 
 export default async function CuponesAdminPage() {
@@ -44,12 +44,26 @@ export default async function CuponesAdminPage() {
           <h1 className="text-3xl font-bold">Gestión de Cupones</h1>
           <p className="text-muted-foreground">Administra cupones de descuento</p>
         </div>
-        <Button asChild>
-          <Link href="/admin/cupones/nuevo">
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Cupón
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/admin/cupones/estadisticas">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Estadísticas
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <a href="/api/admin/export/coupons" download>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </a>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/cupones/nuevo">
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Cupón
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
