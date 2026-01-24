@@ -23,7 +23,7 @@ export default async function DistributorTicketDetailPage({
     .eq('id', user.id)
     .single()
 
-  if (!profile || !['distributor', 'canal', 'aliado'].includes(profile.role)) {
+  if (!profile || !['distributor', 'aliado'].includes(profile.role)) {
     redirect('/')
   }
 

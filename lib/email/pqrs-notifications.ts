@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
 
 interface EmailNotification {
   to: string
@@ -7,29 +7,30 @@ interface EmailNotification {
 }
 
 export async function sendPQRSNotification(notification: EmailNotification) {
-  // Aquí implementarías el envío real de email usando tu servicio preferido
-  // Por ejemplo: SendGrid, Resend, AWS SES, etc.
-  
-  console.log('Sending PQRS notification:', {
-    to: notification.to,
-    subject: notification.subject,
-  })
-
-  // Ejemplo con fetch a un endpoint de email (ajustar según tu implementación)
   try {
-    // Descomentar y ajustar cuando tengas configurado el servicio de email
-    /*
-    const response = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(notification),
-    })
-    
-    if (!response.ok) {
-      throw new Error('Error sending email')
+    const resendApiKey = process.env.RESEND_API_KEY
+    const resendFrom = process.env.RESEND_FROM
+
+    if (!resendApiKey) {
+      throw new Error('RESEND_API_KEY is not configured')
     }
-    */
-    
+
+    if (!resendFrom) {
+      throw new Error('RESEND_FROM is not configured')
+    }
+
+    const resend = new Resend(resendApiKey)
+    const { error } = await resend.emails.send({
+      from: resendFrom,
+      to: notification.to,
+      subject: notification.subject,
+      html: notification.html,
+    })
+
+    if (error) {
+      throw error
+    }
+
     return { success: true }
   } catch (error) {
     console.error('Error sending PQRS notification:', error)

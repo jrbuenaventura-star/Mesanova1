@@ -407,24 +407,6 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
-// Validate ../../../app/canal/nuevo-pedido/page.tsx
-{
-  type __IsExpected<Specific extends AppPageConfig<"/canal/nuevo-pedido">> = Specific
-  const handler = {} as typeof import("../../../app/canal/nuevo-pedido/page.js")
-  type __Check = __IsExpected<typeof handler>
-  // @ts-ignore
-  type __Unused = __Check
-}
-
-// Validate ../../../app/canal/page.tsx
-{
-  type __IsExpected<Specific extends AppPageConfig<"/canal">> = Specific
-  const handler = {} as typeof import("../../../app/canal/page.js")
-  type __Check = __IsExpected<typeof handler>
-  // @ts-ignore
-  type __Unused = __Check
-}
-
 // Validate ../../../app/carrito/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/carrito">> = Specific
