@@ -52,16 +52,13 @@ export default function HomePage() {
               </div>
             </div>
             
-            <div className="relative h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl bg-muted">
               <Image
                 src="/images/hero-products.jpg"
                 alt="Productos Mesanova"
                 fill
                 className="object-cover"
                 priority
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder-hero.jpg"
-                }}
               />
             </div>
           </div>
