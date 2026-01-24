@@ -18,29 +18,37 @@ export default async function DistributorLayout({
     redirect("/auth/login")
   }
 
-  // Verificar que es distribuidor
+  // Verificar que es distribuidor o aliado
   const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", user.id).single()
 
-  if (!profile || profile.role !== "distributor") {
+  if (!profile || !['distributor', 'aliado'].includes(profile.role)) {
     redirect("/")
   }
 
-  // Obtener info del distribuidor para mostrar alertas
+  // Obtener info del distribuidor o aliado
   const { data: distributor } = await supabase
     .from("distributors")
     .select("company_name, is_active, requires_approval")
     .eq("user_id", user.id)
     .single()
 
-  const showSetupAlert = !distributor || distributor.requires_approval
+  const { data: aliado } = await supabase
+    .from("aliados")
+    .select("company_name")
+    .eq("user_id", user.id)
+    .single()
+
+  const showSetupAlert = profile.role === 'distributor' && (!distributor || distributor.requires_approval)
+  const companyName = distributor?.company_name || aliado?.company_name
+  const panelTitle = profile.role === 'aliado' ? 'Panel Aliado' : 'Panel Distribuidor'
 
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 border-r bg-muted/40">
         <div className="p-6">
-          <h2 className="text-lg font-semibold">Panel Distribuidor</h2>
-          {distributor && (
-            <p className="text-sm text-muted-foreground truncate">{distributor.company_name}</p>
+          <h2 className="text-lg font-semibold">{panelTitle}</h2>
+          {companyName && (
+            <p className="text-sm text-muted-foreground truncate">{companyName}</p>
           )}
         </div>
         

@@ -56,6 +56,7 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
   const [loading, setLoading] = useState(true)
   const [comentario, setComentario] = useState('')
   const [enviandoComentario, setEnviandoComentario] = useState(false)
+  const [descargando, setDescargando] = useState<string | null>(null)
 
   const fetchTicket = async () => {
     try {
@@ -85,6 +86,33 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
   useEffect(() => {
     fetchTicket()
   }, [ticketId])
+
+  const handleDescargarArchivo = async (archivoId: string, nombreArchivo: string) => {
+    setDescargando(archivoId)
+    try {
+      const response = await fetch(`/api/pqrs/attachments/${archivoId}/download`)
+      const data = await response.json()
+
+      if (response.ok && data.url) {
+        const link = document.createElement('a')
+        link.href = data.url
+        link.download = nombreArchivo
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        throw new Error(data.error || 'Error al descargar archivo')
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al descargar archivo',
+        variant: 'destructive',
+      })
+    } finally {
+      setDescargando(null)
+    }
+  }
 
   const handleEnviarComentario = async () => {
     if (!comentario.trim()) return
@@ -202,8 +230,17 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
                         {(archivo.tamano_bytes / 1024).toFixed(2)} KB
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDescargarArchivo(archivo.id, archivo.nombre_archivo)}
+                      disabled={descargando === archivo.id}
+                    >
+                      {descargando === archivo.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 ))}
