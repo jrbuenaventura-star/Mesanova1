@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
@@ -53,6 +54,8 @@ const contactLinks = [
 ]
 
 export function SiteNav() {
+  const router = useRouter()
+
   return (
     <>
       {/* Desktop Navigation */}
@@ -65,7 +68,28 @@ export function SiteNav() {
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Productos</NavigationMenuTrigger>
+            <NavigationMenuTrigger>
+              <span
+                role="link"
+                tabIndex={0}
+                onPointerDown={(e) => {
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push("/productos")
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    router.push("/productos")
+                  }
+                }}
+              >
+                Productos
+              </span>
+            </NavigationMenuTrigger>
             <NavigationMenuContent className="bg-popover text-popover-foreground border shadow-md">
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {silos.map((silo) => {
@@ -181,23 +205,25 @@ export function SiteNav() {
         <UserMenu />
 
         {/* Mobile Navigation */}
-        <Sheet>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Abrir menú</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
-            <nav className="flex flex-col gap-4 mt-8 pb-10">
-              <SheetClose asChild>
-                <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors">
-                  Home
-                </Link>
-              </SheetClose>
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col space-y-6">
+                <SheetClose asChild>
+                  <Link href="/" className="text-lg font-semibold">Home</Link>
+                </SheetClose>
 
-              <div className="space-y-3">
-                <p className="text-sm font-semibold text-muted-foreground">Productos</p>
+                <SheetClose asChild>
+                  <Link href="/productos" className="text-lg font-semibold">Productos</Link>
+                </SheetClose>
+
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Categorías</h3>
                 <div className="pl-4 space-y-2">
                   {silos.map((silo) => (
                     <SheetClose asChild key={silo.slug}>
@@ -260,6 +286,8 @@ export function SiteNav() {
             </nav>
           </SheetContent>
         </Sheet>
+      </div>
+
       </div>
     </>
   )
