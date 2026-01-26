@@ -9,6 +9,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { toast } from "sonner"
 import { trackRemoveFromCart } from "@/components/clientify/clientify-tracking"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 export default function CartPage() {
   const { cart, updateQuantity, removeItem, clearCart } = useCart()
@@ -90,7 +91,7 @@ export default function CartPage() {
                   <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border">
                     {item.imageUrl ? (
                       <Image
-                        src={item.imageUrl}
+                        src={getImageKitUrl(item.imageUrl, { width: 192, height: 192, quality: 70, format: "auto" })}
                         alt={item.name}
                         fill
                         className="object-cover"

@@ -5,6 +5,7 @@ import { Percent, Tag, TrendingDown, Package } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 export const metadata = {
   title: "Ofertas - Mesanova",
@@ -82,7 +83,7 @@ export default async function OfertasPage() {
                     <div className="relative h-48 w-full">
                       {producto.imagen_principal_url ? (
                         <Image
-                          src={producto.imagen_principal_url}
+                          src={getImageKitUrl(producto.imagen_principal_url, { width: 900, height: 480, quality: 80, format: "auto" })}
                           alt={producto.nombre_comercial || producto.pdt_descripcion}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"

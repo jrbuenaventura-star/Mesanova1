@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChefHat, UtensilsCrossed, Coffee, Briefcase, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 const silos = [
   {
@@ -152,7 +153,7 @@ export default async function ProductosPage() {
                               <div className="relative h-48 bg-muted rounded-t-lg overflow-hidden">
                                 {product.imagen_principal_url ? (
                                   <Image
-                                    src={product.imagen_principal_url}
+                                    src={getImageKitUrl(product.imagen_principal_url, { width: 800, height: 480, quality: 80, format: "auto" })}
                                     alt={product.nombre_comercial || product.pdt_descripcion}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"

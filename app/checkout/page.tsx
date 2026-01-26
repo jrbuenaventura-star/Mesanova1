@@ -16,6 +16,7 @@ import { ShoppingBag, CreditCard, Truck, CheckCircle2, AlertCircle, Loader2 } fr
 import { toast } from "sonner"
 import Image from "next/image"
 import { identifyUser, trackBeginCheckout, trackPurchase } from "@/components/clientify/clientify-tracking"
+import { getImageKitUrl } from "@/lib/imagekit"
 import { CouponInput } from "@/components/checkout/coupon-input"
 import { GiftCardInput } from "@/components/checkout/gift-card-input"
 
@@ -484,7 +485,7 @@ export default function CheckoutPage() {
                       <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded border">
                         {item.imageUrl ? (
                           <Image
-                            src={item.imageUrl}
+                            src={getImageKitUrl(item.imageUrl, { width: 128, height: 128, quality: 70, format: "auto" })}
                             alt={item.name}
                             fill
                             className="object-cover"

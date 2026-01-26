@@ -7,6 +7,7 @@ import { Heart, ShoppingCart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { FavoriteButton } from "@/components/products/favorite-button"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 export default async function FavoritosPage() {
   const supabase = await createClient()
@@ -53,7 +54,7 @@ export default async function FavoritosPage() {
                   <Link href={`/productos/${product.slug}`}>
                     {product.imagen_principal_url ? (
                       <Image
-                        src={product.imagen_principal_url}
+                        src={getImageKitUrl(product.imagen_principal_url, { width: 700, height: 700, quality: 80, format: "auto" })}
                         alt={product.nombre_comercial || "Producto"}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"

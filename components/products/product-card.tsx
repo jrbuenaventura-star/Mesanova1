@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { FavoriteButton } from "@/components/products/favorite-button"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 interface ProductCardProps {
   product: Product
@@ -15,6 +16,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, showFavoriteButton = true, isFavorited = false }: ProductCardProps) {
   const hasStock = product.upp_existencia > 0
+  const imageUrl = product.imagen_principal_url
+    ? getImageKitUrl(product.imagen_principal_url, { width: 600, height: 600, quality: 80, format: "auto" })
+    : "/placeholder.svg?height=300&width=300"
 
   return (
     <Card className="group overflow-hidden h-full flex flex-col">
@@ -22,7 +26,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
         <Link href={`/productos/${product.slug}`} className="block">
           <div className="relative aspect-square overflow-hidden bg-muted">
             <Image
-              src={product.imagen_principal_url || "/placeholder.svg?height=300&width=300"}
+              src={imageUrl}
               alt={product.nombre_comercial || product.pdt_descripcion}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"

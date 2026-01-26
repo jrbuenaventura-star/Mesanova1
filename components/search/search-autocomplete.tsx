@@ -9,6 +9,7 @@ import { Search, Loader2 } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import Image from "next/image"
 import { trackSearch } from "@/components/clientify/clientify-tracking"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 export function SearchAutocomplete() {
   const router = useRouter()
@@ -125,7 +126,7 @@ export function SearchAutocomplete() {
                       <div className="relative h-10 w-10 flex-shrink-0 rounded border overflow-hidden">
                         {product.imagen_principal_url ? (
                           <Image
-                            src={product.imagen_principal_url}
+                            src={getImageKitUrl(product.imagen_principal_url, { width: 80, height: 80, quality: 70, format: "auto" })}
                             alt={product.nombre_comercial || product.pdt_descripcion}
                             fill
                             className="object-cover"

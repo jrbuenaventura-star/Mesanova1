@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trash2, Save } from "lucide-react"
 import Image from "next/image"
 import type { Company } from "@/lib/db/types"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 interface Product {
   id: string
@@ -257,7 +258,7 @@ export default function CreateOrderForm({ distributorId, companies, products, us
                         <div className="relative h-12 w-12 overflow-hidden rounded-md border">
                           {item.product.imagen_principal_url ? (
                             <Image
-                              src={item.product.imagen_principal_url || "/placeholder.svg"}
+                              src={getImageKitUrl(item.product.imagen_principal_url, { width: 96, height: 96, quality: 70, format: "auto" })}
                               alt={item.product.nombre_comercial || item.product.pdt_descripcion}
                               fill
                               className="object-cover"

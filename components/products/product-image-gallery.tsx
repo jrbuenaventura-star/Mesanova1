@@ -5,6 +5,7 @@ import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { getImageKitUrl } from "@/lib/imagekit"
 
 interface ProductImageGalleryProps {
   images: { url: string; alt: string }[]
@@ -35,7 +36,11 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
       {/* Imagen principal */}
       <div className="relative aspect-square rounded-lg overflow-hidden bg-muted group">
         <Image
-          src={images[selectedIndex].url || "/placeholder.svg"}
+          src={
+            images[selectedIndex].url
+              ? getImageKitUrl(images[selectedIndex].url, { width: 1200, height: 1200, quality: 85, format: "auto" })
+              : "/placeholder.svg"
+          }
           alt={images[selectedIndex].alt || productName}
           fill
           className="object-contain"
@@ -95,7 +100,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               onClick={() => setSelectedIndex(index)}
             >
               <Image
-                src={image.url || "/placeholder.svg"}
+                src={image.url ? getImageKitUrl(image.url, { width: 250, height: 250, quality: 75, format: "auto" }) : "/placeholder.svg"}
                 alt={image.alt || `${productName} - imagen ${index + 1}`}
                 fill
                 className="object-cover"
