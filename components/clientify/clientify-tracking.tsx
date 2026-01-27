@@ -4,8 +4,13 @@ import Script from "next/script"
 
 export function ClientifyTracking() {
   const accountId = process.env.NEXT_PUBLIC_CLIENTIFY_ACCOUNT_ID
+  const trackingHostRaw = process.env.NEXT_PUBLIC_CLIENTIFY_TRACKING_HOST || "tracking.clientify.com"
 
   if (!accountId) return null
+
+  const trackingHost = trackingHostRaw
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "")
 
   return (
     <Script
@@ -18,7 +23,7 @@ export function ClientifyTracking() {
             (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
             f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
             f.parentNode.insertBefore(t,f);
-          })(window,document,'script','//tracking.clientify.net/${accountId}.js','cf');
+          })(window,document,'script','https://${trackingHost}/${accountId}.js','cf');
         `,
       }}
     />
