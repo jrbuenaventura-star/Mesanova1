@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -36,35 +37,34 @@ export default async function AliadoOrdersPage() {
   }
 
   // Obtener distribuidores asignados al aliado
-  const { data: distributors } = await supabase
+  const admin = createAdminClient()
+  const { data: distributors, error: distributorsError } = await admin
     .from("distributors")
-    .select(`
-      id,
-      company_name,
-      discount_percentage,
-      contact_email,
-      contact_phone,
-      is_active,
-      user_id
-    `)
+    .select("id, company_name, discount_percentage, contact_email, contact_phone, is_active, user_id")
     .eq("aliado_id", aliado.id)
     .eq("is_active", true)
     .order("company_name")
 
+  if (distributorsError) {
+    console.error("Error loading aliado active clients for orders:", distributorsError)
+  }
+
+  const safeDistributors = distributorsError ? [] : distributors || []
+
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Crear Pedido para Distribuidor</h1>
+        <h1 className="text-3xl font-bold">Crear Pedido para Cliente</h1>
         <p className="text-muted-foreground">
-          Crea pedidos a nombre de tus distribuidores asignados
+          Crea pedidos a nombre de tus clientes asignados
         </p>
       </div>
 
-      {!distributors || distributors.length === 0 ? (
+      {safeDistributors.length === 0 ? (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No tienes distribuidores activos asignados. Contacta al administrador para que te asigne distribuidores.
+            No tienes clientes activos asignados. Contacta al administrador para que te asigne clientes.
           </AlertDescription>
         </Alert>
       ) : (
@@ -72,12 +72,12 @@ export default async function AliadoOrdersPage() {
           <CardHeader>
             <CardTitle>Nuevo Pedido</CardTitle>
             <CardDescription>
-              Selecciona el distribuidor y agrega los productos al pedido
+              Selecciona el cliente y agrega los productos al pedido
             </CardDescription>
           </CardHeader>
           <CardContent>
             <CreateOrderForDistributorForm 
-              distributors={distributors}
+              distributors={safeDistributors}
               aliadoId={aliado.id}
             />
           </CardContent>

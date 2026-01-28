@@ -55,7 +55,7 @@ export default async function AliadoLayout({
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
           >
             <Users className="h-4 w-4" />
-            Mis Distribuidores
+            Mis Clientes
           </Link>
           <Link
             href="/aliado/leads"

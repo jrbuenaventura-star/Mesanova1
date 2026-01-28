@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -64,15 +65,17 @@ export default async function AliadoDistributorDetailPage({
   }
 
   // Obtener distribuidor
-  const { data: distributor } = await supabase
+  const admin = createAdminClient()
+  const { data: distributor, error: distributorError } = await admin
     .from("distributors")
-    .select(`
-      *,
-      user:user_profiles(full_name, phone)
-    `)
+    .select("*")
     .eq("id", params.id)
     .eq("aliado_id", aliado.id)
     .single()
+
+  if (distributorError) {
+    console.error("Error loading aliado client detail:", distributorError)
+  }
 
   if (!distributor) {
     return (
@@ -80,13 +83,13 @@ export default async function AliadoDistributorDetailPage({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Distribuidor no encontrado o no tienes acceso a este distribuidor.
+            Cliente no encontrado o no tienes acceso a este cliente.
           </AlertDescription>
         </Alert>
         <Button asChild className="mt-4">
           <Link href="/aliado/distributors">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Distribuidores
+            Volver a Clientes
           </Link>
         </Button>
       </div>
@@ -115,7 +118,7 @@ export default async function AliadoDistributorDetailPage({
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{distributor.company_name}</h1>
-          <p className="text-muted-foreground">Detalle del distribuidor</p>
+          <p className="text-muted-foreground">Detalle del cliente</p>
         </div>
         <Button asChild>
           <Link href="/aliado/orders">
@@ -264,7 +267,7 @@ export default async function AliadoDistributorDetailPage({
         <CardHeader>
           <CardTitle>Últimas Órdenes</CardTitle>
           <CardDescription>
-            Historial de pedidos del distribuidor
+            Historial de pedidos del cliente
           </CardDescription>
         </CardHeader>
         <CardContent>

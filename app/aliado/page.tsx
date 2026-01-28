@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -50,7 +51,8 @@ export default async function AliadoDashboardPage() {
   // Obtener distribuidores asignados
   let distributors: any[] = []
   try {
-    const { data } = await supabase
+    const admin = createAdminClient()
+    const { data } = await admin
       .from("distributors")
       .select("id, company_name, is_active, last_purchase_date, total_purchases, contact_name")
       .eq("aliado_id", aliado.id)
@@ -131,7 +133,7 @@ export default async function AliadoDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Distribuidores</CardTitle>
+            <CardTitle className="text-sm font-medium">Clientes</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -147,13 +149,13 @@ export default async function AliadoDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${totalSales.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">De tus distribuidores</p>
+            <p className="text-xs text-muted-foreground">De tus clientes</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Promedio por Distribuidor</CardTitle>
+            <CardTitle className="text-sm font-medium">Promedio por Cliente</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -180,7 +182,7 @@ export default async function AliadoDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Mis Distribuidores</CardTitle>
+              <CardTitle className="text-lg">Mis Clientes</CardTitle>
               <CardDescription>Última compra y promedio anual</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
@@ -194,7 +196,7 @@ export default async function AliadoDashboardPage() {
             {distributors.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
                 <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No tienes distribuidores asignados</p>
+                <p>No tienes clientes asignados</p>
               </div>
             ) : (
               <div className="space-y-3">

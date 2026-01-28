@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -53,36 +54,30 @@ export default async function AliadoDistributorsPage() {
   }
 
   // Obtener distribuidores asignados con métricas
-  const { data: distributors } = await supabase
+  const admin = createAdminClient()
+  const { data: distributors, error: distributorsError } = await admin
     .from("distributors")
-    .select(`
-      id,
-      company_name,
-      business_type,
-      discount_percentage,
-      is_active,
-      credit_limit,
-      current_balance,
-      created_at,
-      contact_name,
-      contact_phone,
-      contact_email,
-      last_purchase_date,
-      total_purchases
-    `)
+    .select(
+      "id, company_name, business_type, discount_percentage, is_active, credit_limit, current_balance, created_at, contact_name, contact_phone, contact_email, last_purchase_date, total_purchases",
+    )
     .eq("aliado_id", aliado.id)
     .order("company_name")
 
-  const activeDistributors = distributors?.filter(d => d.is_active).length || 0
-  const totalSales = distributors?.reduce((sum, d) => sum + (d.total_purchases || 0), 0) || 0
+  if (distributorsError) {
+    console.error("Error loading aliado clients:", distributorsError)
+  }
+
+  const safeDistributors = distributorsError ? [] : distributors || []
+  const activeDistributors = safeDistributors.filter((d: any) => d.is_active).length || 0
+  const totalSales = safeDistributors.reduce((sum: number, d: any) => sum + (d.total_purchases || 0), 0) || 0
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Mis Distribuidores</h1>
+          <h1 className="text-3xl font-bold">Mis Clientes</h1>
           <p className="text-muted-foreground">
-            Gestiona y evalúa los distribuidores asignados a tu cartera
+            Gestiona y evalúa los clientes asignados a tu cartera
           </p>
         </div>
       </div>
@@ -91,11 +86,11 @@ export default async function AliadoDistributorsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Distribuidores</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Clientes</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{distributors?.length || 0}</div>
+            <div className="text-2xl font-bold">{safeDistributors.length || 0}</div>
             <p className="text-xs text-muted-foreground">{activeDistributors} activos</p>
           </CardContent>
         </Card>
@@ -107,18 +102,18 @@ export default async function AliadoDistributorsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${totalSales.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">De tus distribuidores</p>
+            <p className="text-xs text-muted-foreground">De tus clientes</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Promedio por Distribuidor</CardTitle>
+            <CardTitle className="text-sm font-medium">Promedio por Cliente</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${distributors?.length ? (totalSales / distributors.length).toLocaleString() : 0}
+              ${safeDistributors.length ? (totalSales / safeDistributors.length).toLocaleString() : 0}
             </div>
             <p className="text-xs text-muted-foreground">Compras promedio</p>
           </CardContent>
@@ -128,18 +123,18 @@ export default async function AliadoDistributorsPage() {
       {/* Tabla de distribuidores */}
       <Card>
         <CardHeader>
-          <CardTitle>Listado de Distribuidores</CardTitle>
+          <CardTitle>Listado de Clientes</CardTitle>
           <CardDescription>
-            Todos los distribuidores asignados a tu cartera
+            Todos los clientes asignados a tu cartera
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!distributors || distributors.length === 0 ? (
+          {safeDistributors.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No tienes distribuidores asignados</p>
+              <p className="text-lg font-medium">No tienes clientes asignados</p>
               <p className="text-sm">
-                Contacta al administrador para que te asigne distribuidores
+                Contacta al administrador para que te asigne clientes
               </p>
             </div>
           ) : (
@@ -156,7 +151,7 @@ export default async function AliadoDistributorsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {distributors.map((distributor) => (
+                {safeDistributors.map((distributor: any) => (
                   <TableRow key={distributor.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
