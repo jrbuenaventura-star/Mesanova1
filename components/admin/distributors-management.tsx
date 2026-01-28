@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -36,9 +37,16 @@ interface DistributorWithProfile extends Distributor {
   clients_count?: number
 }
 
+type AliadoOption = {
+  id: string
+  company_name: string
+  is_active: boolean
+}
+
 export function DistributorsManagement() {
   const router = useRouter()
   const [distributors, setDistributors] = useState<DistributorWithProfile[]>([])
+  const [aliados, setAliados] = useState<AliadoOption[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [showDialog, setShowDialog] = useState(false)
@@ -56,6 +64,7 @@ export function DistributorsManagement() {
     business_type: "",
     discount_percentage: "0",
     credit_limit: "0",
+    aliado_id: "",
     document_type: "CC",
     document_number: "",
     shipping_address: "",
@@ -67,7 +76,24 @@ export function DistributorsManagement() {
 
   useEffect(() => {
     loadDistributors()
+    loadAliados()
   }, [])
+
+  async function loadAliados() {
+    try {
+      const response = await fetch('/api/admin/aliados')
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cargar aliados')
+      }
+
+      setAliados(data.aliados || [])
+    } catch (error) {
+      console.error('Error loading aliados:', error)
+      setAliados([])
+    }
+  }
 
   async function loadDistributors() {
     setIsLoading(true)
@@ -100,6 +126,7 @@ export function DistributorsManagement() {
       business_type: "",
       discount_percentage: "0",
       credit_limit: "0",
+      aliado_id: "",
       document_type: "CC",
       document_number: "",
       shipping_address: "",
@@ -123,6 +150,7 @@ export function DistributorsManagement() {
       business_type: distributor.business_type || "",
       discount_percentage: distributor.discount_percentage?.toString() || "0",
       credit_limit: distributor.credit_limit?.toString() || "0",
+      aliado_id: distributor.aliado_id || "",
       document_type: distributor.profile?.document_type || "CC",
       document_number: distributor.profile?.document_number || "",
       shipping_address: distributor.profile?.shipping_address || "",
@@ -447,6 +475,28 @@ export function DistributorsManagement() {
                   onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
                   placeholder="Tienda, Restaurante, Hotel..."
                 />
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label>Aliado asignado</Label>
+                <Select
+                  value={formData.aliado_id || "none"}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, aliado_id: value === "none" ? "" : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un aliado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sin aliado</SelectItem>
+                    {aliados.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {a.company_name}{a.is_active ? "" : " (Inactivo)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

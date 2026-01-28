@@ -228,6 +228,7 @@ export interface UserProfile {
 export interface Distributor {
   id: string
   user_id: string
+  aliado_id?: string
   company_name: string
   company_rif?: string
   business_type?: string

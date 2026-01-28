@@ -247,6 +247,8 @@ export async function POST(request: Request) {
 
     const discount = Number.parseFloat(String((formData as any).discount_percentage ?? '0'));
     const credit = Number.parseFloat(String((formData as any).credit_limit ?? '0'));
+    const aliadoIdRaw = (formData as any).aliado_id;
+    const aliado_id = typeof aliadoIdRaw === 'string' && aliadoIdRaw.length > 0 ? aliadoIdRaw : null;
 
     const { error: distError } = await admin.from('distributors').insert({
       user_id: userId,
@@ -255,6 +257,7 @@ export async function POST(request: Request) {
       business_type: (formData as any).business_type,
       discount_percentage: Number.isFinite(discount) ? discount : 0,
       credit_limit: Number.isFinite(credit) ? credit : 0,
+      aliado_id,
     });
     
     if (distError) throw distError;
@@ -297,6 +300,9 @@ export async function PUT(request: Request) {
     const { distributorId, userId, formData } = body;
     
     const admin = createAdminClient();
+
+    const aliadoIdRaw = formData?.aliado_id;
+    const aliado_id = typeof aliadoIdRaw === 'string' && aliadoIdRaw.length > 0 ? aliadoIdRaw : null;
     
     // Actualizar distribuidor
     const { error: distError } = await admin
@@ -307,6 +313,7 @@ export async function PUT(request: Request) {
         business_type: formData.business_type,
         discount_percentage: parseFloat(formData.discount_percentage),
         credit_limit: parseFloat(formData.credit_limit),
+        aliado_id,
       })
       .eq('id', distributorId);
     

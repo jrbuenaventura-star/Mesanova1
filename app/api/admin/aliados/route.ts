@@ -11,6 +11,50 @@ type CreateAliadoBody = {
   is_active?: boolean
 }
 
+export async function GET() {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 500 })
+    }
+
+    if (profile?.role !== "superadmin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+    }
+
+    const admin = createAdminClient()
+
+    const { data: aliados, error } = await admin
+      .from("aliados")
+      .select("id, company_name, is_active")
+      .order("company_name", { ascending: true })
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ aliados: aliados || [] })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Unknown error"
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
