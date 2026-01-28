@@ -122,9 +122,7 @@ CREATE TABLE orders (
 
 **Ejecutar tests:**
 ```bash
-npm test
-# o
-yarn test
+pnpm test
 ```
 
 ---
@@ -184,12 +182,12 @@ supabase/migrations/create_orders_table.sql
 
 ### 2. Instalar dependencias de testing (si no están)
 ```bash
-npm install -D jest @testing-library/react @testing-library/jest-dom jest-environment-jsdom
+pnpm add -D jest @testing-library/react @testing-library/jest-dom jest-environment-jsdom
 ```
 
 ### 3. Ejecutar tests
 ```bash
-npm test
+pnpm test
 ```
 
 ### 4. Verificar funcionamiento
