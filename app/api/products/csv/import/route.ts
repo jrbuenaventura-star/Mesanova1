@@ -28,21 +28,17 @@ export async function POST(request: Request) {
     }
     
     // Obtener contenido del archivo y opciones
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const mode = (formData.get('mode') as string) || 'update';
+    const body = await request.json();
+    const { content, filename, mode = 'update' } = body;
     
-    if (!file) {
-      return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
+    if (!content) {
+      return NextResponse.json({ error: 'No se proporcionó contenido del archivo' }, { status: 400 });
     }
     
     // Validar modo
     if (!['update', 'add_only', 'replace_all'].includes(mode)) {
       return NextResponse.json({ error: 'Modo de importación inválido' }, { status: 400 });
     }
-    
-    // Leer contenido
-    const content = await file.text();
     
     // Parsear y validar CSV
     const parseResult = parseCSV(content);
@@ -69,7 +65,7 @@ export async function POST(request: Request) {
       diffs,
       mode as 'update' | 'add_only' | 'replace_all',
       user.id,
-      file.name
+      filename || 'import.csv'
     );
     
     return NextResponse.json({

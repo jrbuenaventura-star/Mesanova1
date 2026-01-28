@@ -28,15 +28,12 @@ export async function POST(request: Request) {
     }
     
     // Obtener contenido del archivo
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const body = await request.json();
+    const { content, filename } = body;
     
-    if (!file) {
-      return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
+    if (!content) {
+      return NextResponse.json({ error: 'No se proporcionó contenido del archivo' }, { status: 400 });
     }
-    
-    // Leer contenido
-    const content = await file.text();
     
     // Parsear y validar CSV
     const parseResult = parseCSV(content);
