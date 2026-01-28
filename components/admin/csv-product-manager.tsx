@@ -136,12 +136,18 @@ export function CSVProductManager() {
     setIsValidating(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', csvFile);
+      // Leer el archivo como texto
+      const content = await csvFile.text();
 
       const response = await fetch('/api/products/csv/validate', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          filename: csvFile.name,
+        }),
       });
 
       const result = await parseApiResponse(response);
@@ -176,13 +182,19 @@ export function CSVProductManager() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('mode', importMode);
+      // Leer el archivo como texto
+      const content = await file.text();
 
       const response = await fetch('/api/products/csv/import', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          filename: file.name,
+          mode: importMode,
+        }),
       });
 
       const result = await parseApiResponse(response);
