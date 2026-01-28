@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const { data: ticket, error } = await supabase
+    let { data: ticket, error } = await supabase
       .from('pqrs_tickets')
       .select(`
         *,
@@ -28,6 +28,28 @@ export async function GET(
       `)
       .eq('id', params.id)
       .single()
+
+    if (error) {
+      const errorMessage = (error as any)?.message || String(error)
+      const isRelationshipError =
+        errorMessage.includes('Could not find a relationship') ||
+        errorMessage.includes('schema cache')
+
+      if (isRelationshipError) {
+        const fallbackResult = await supabase
+          .from('pqrs_tickets')
+          .select(`
+            *,
+            tareas:pqrs_tasks(*),
+            comentarios:pqrs_comments(*),
+            archivos:pqrs_attachments(*)
+          `)
+          .eq('id', params.id)
+          .single()
+        ticket = fallbackResult.data
+        error = fallbackResult.error
+      }
+    }
 
     if (error) {
       console.error('Error fetching ticket:', error)

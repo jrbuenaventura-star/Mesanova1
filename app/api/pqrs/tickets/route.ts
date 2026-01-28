@@ -52,14 +52,55 @@ export async function GET(request: Request) {
       query = query.eq('tipo', tipo)
     }
 
-    const { data: tickets, error } = await query
+    let { data: tickets, error } = await query
+
+    if (error) {
+      const errorMessage = (error as any)?.message || String(error)
+      const isRelationshipError =
+        errorMessage.includes('Could not find a relationship') ||
+        errorMessage.includes('schema cache')
+
+      if (isRelationshipError) {
+        let fallbackQuery = supabase
+          .from('pqrs_tickets')
+          .select(`
+            *,
+            tareas:pqrs_tasks(count)
+          `)
+          .order('fecha_creacion', { ascending: false })
+
+        if (profile?.role !== 'superadmin') {
+          fallbackQuery = fallbackQuery.eq('creado_por', user.id)
+        }
+
+        if (!incluirOcultos) {
+          fallbackQuery = fallbackQuery.eq('oculto', false)
+        }
+
+        if (estado) {
+          fallbackQuery = fallbackQuery.eq('estado', estado)
+        }
+
+        if (prioridad) {
+          fallbackQuery = fallbackQuery.eq('prioridad', prioridad)
+        }
+
+        if (tipo) {
+          fallbackQuery = fallbackQuery.eq('tipo', tipo)
+        }
+
+        const fallbackResult = await fallbackQuery
+        tickets = fallbackResult.data
+        error = fallbackResult.error
+      }
+    }
 
     if (error) {
       console.error('Error fetching tickets:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: (error as any)?.message || 'Error interno' }, { status: 500 })
     }
 
-    return NextResponse.json({ tickets })
+    return NextResponse.json({ tickets: tickets || [] })
   } catch (error) {
     console.error('Error in GET /api/pqrs/tickets:', error)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
