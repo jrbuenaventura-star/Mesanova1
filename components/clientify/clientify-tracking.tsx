@@ -4,9 +4,33 @@ import Script from "next/script"
 
 export function ClientifyTracking() {
   const accountId = process.env.NEXT_PUBLIC_CLIENTIFY_ACCOUNT_ID
-  const trackingHostRaw = process.env.NEXT_PUBLIC_CLIENTIFY_TRACKING_HOST || "tracking.clientify.com"
+  const scriptSrcRaw = process.env.NEXT_PUBLIC_CLIENTIFY_TRACKING_SCRIPT_SRC
+  const trackingHostRaw = process.env.NEXT_PUBLIC_CLIENTIFY_TRACKING_HOST
 
-  if (!accountId) return null
+  if (scriptSrcRaw) {
+    const scriptSrc = scriptSrcRaw.trim()
+
+    if (!/^https?:\/\//.test(scriptSrc)) return null
+
+    return (
+      <Script
+        id="clientify-tracking"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(c,l,i,e,n,t,f,y){
+              c['ClientifyObject']=n;c[n]=c[n]||function(){
+              (c[n].q=c[n].q||[]).push(arguments)};t=l.createElement(i);
+              f=l.getElementsByTagName(i)[0];t.async=1;t.src=e;
+              f.parentNode.insertBefore(t,f);
+            })(window,document,'script','${scriptSrc}','cf');
+          `,
+        }}
+      />
+    )
+  }
+
+  if (!accountId || !trackingHostRaw) return null
 
   const trackingHost = trackingHostRaw
     .replace(/^https?:\/\//, "")
