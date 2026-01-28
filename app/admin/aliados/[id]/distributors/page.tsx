@@ -59,17 +59,46 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
 
   let distributors: any[] = []
   try {
-    const { data } = await supabase
+    const { data: distData, error: distError } = await supabase
       .from("distributors")
-      .select(`
-        *,
-        user:user_profiles(full_name)
-      `)
+      .select("*")
       .eq("aliado_id", id)
       .order("created_at", { ascending: false })
-    distributors = data || []
+
+    if (distError) {
+      const message = distError.message || "Error al cargar clientes"
+      if (message.toLowerCase().includes("aliado_id") && message.toLowerCase().includes("does not exist")) {
+        distributors = []
+      } else {
+        console.error("Error loading aliado clients:", distError)
+        distributors = []
+      }
+    } else {
+      const userIds = (distData || [])
+        .map((d: any) => d?.user_id)
+        .filter((v: any): v is string => typeof v === "string" && v.length > 0)
+
+      const { data: profilesData, error: profilesError } = userIds.length
+        ? await supabase.from("user_profiles").select("id, full_name").in("id", userIds)
+        : { data: [], error: null }
+
+      if (profilesError) {
+        console.error("Error loading user_profiles for aliado clients:", profilesError)
+      }
+
+      const profileById = new Map<string, any>()
+      for (const p of profilesData || []) {
+        if (p?.id) profileById.set(p.id, p)
+      }
+
+      distributors = (distData || []).map((d: any) => ({
+        ...d,
+        user: d?.user_id ? profileById.get(d.user_id) || null : null,
+      }))
+    }
   } catch (e) {
-    // Columna aliado_id aún no existe
+    console.error("Unexpected error loading aliado clients:", e)
+    distributors = []
   }
 
   const getStatusBadge = (status: string) => {

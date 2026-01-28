@@ -94,7 +94,7 @@ export default async function EditAliadoPage({ params }: { params: Promise<{ id:
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground">Distribuidores asignados</p>
+                <p className="text-sm text-muted-foreground">Clientes asignados</p>
                 <p className="text-2xl font-bold">{distributorCount}</p>
               </div>
               <div>
@@ -118,7 +118,7 @@ export default async function EditAliadoPage({ params }: { params: Promise<{ id:
               <Button variant="outline" className="w-full justify-start" asChild>
                 <Link href={`/admin/aliados/${aliado.id}/distributors`}>
                   <Users className="mr-2 h-4 w-4" />
-                  Ver distribuidores ({distributorCount})
+                  Ver clientes ({distributorCount})
                 </Link>
               </Button>
             </CardContent>
