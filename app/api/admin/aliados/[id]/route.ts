@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -27,7 +28,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const { data: aliado, error } = await supabase
       .from("aliados")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (error) {
@@ -41,8 +42,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -89,7 +91,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const { data: aliado, error } = await admin
       .from("aliados")
       .update(updateData)
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single()
 
@@ -104,8 +106,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -131,7 +134,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     const { data: aliado } = await admin
       .from("aliados")
       .select("user_id")
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (!aliado) {
@@ -141,7 +144,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     const { error: deleteError } = await admin
       .from("aliados")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
 
     if (deleteError) {
       return NextResponse.json({ error: deleteError.message }, { status: 400 })

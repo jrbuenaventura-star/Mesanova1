@@ -25,7 +25,8 @@ import {
   Clock
 } from "lucide-react"
 
-export default async function AliadoDistributorsPage({ params }: { params: { id: string } }) {
+export default async function AliadoDistributorsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const {
@@ -49,7 +50,7 @@ export default async function AliadoDistributorsPage({ params }: { params: { id:
   const { data: aliado } = await supabase
     .from("aliados")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
   if (!aliado) {
@@ -64,7 +65,7 @@ export default async function AliadoDistributorsPage({ params }: { params: { id:
         *,
         user:user_profiles(full_name)
       `)
-      .eq("aliado_id", params.id)
+      .eq("aliado_id", id)
       .order("created_at", { ascending: false })
     distributors = data || []
   } catch (e) {
@@ -103,7 +104,7 @@ export default async function AliadoDistributorsPage({ params }: { params: { id:
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/admin/aliados/${params.id}`}>
+          <Link href={`/admin/aliados/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

@@ -7,7 +7,8 @@ import Link from "next/link"
 import { ArrowLeft, Building2, Users } from "lucide-react"
 import { AliadoEditForm } from "@/components/admin/aliado-edit-form"
 
-export default async function EditAliadoPage({ params }: { params: { id: string } }) {
+export default async function EditAliadoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const {
@@ -31,7 +32,7 @@ export default async function EditAliadoPage({ params }: { params: { id: string 
   const { data: aliado } = await supabase
     .from("aliados")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
   if (!aliado) {
