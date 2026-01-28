@@ -3,6 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 import { parseCSV, compareWithExisting } from '@/lib/csv/product-parser';
 import { getExistingProductsMap } from '@/lib/csv/product-importer';
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
+};
+
+export const maxDuration = 300;
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
