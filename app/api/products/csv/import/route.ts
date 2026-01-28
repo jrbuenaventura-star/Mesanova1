@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { parseCSV, compareWithExisting } from '@/lib/csv/product-parser';
 import { importProducts, getExistingProductsMap } from '@/lib/csv/product-importer';
 
@@ -27,12 +28,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
     
-    // Obtener contenido del archivo y opciones
+    // Obtener referencia del archivo y opciones
     const body = await request.json();
-    const { content, filename, mode = 'update' } = body;
-    
-    if (!content) {
-      return NextResponse.json({ error: 'No se proporcionó contenido del archivo' }, { status: 400 });
+    const { bucket, path, filename, mode = 'update' } = body as {
+      bucket?: string;
+      path?: string;
+      filename?: string;
+      mode?: string;
+    };
+
+    if (!bucket || !path) {
+      return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });
     }
     
     // Validar modo
@@ -40,6 +46,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Modo de importación inválido' }, { status: 400 });
     }
     
+    // Descargar contenido desde Storage usando service role (evita problemas de permisos)
+    const admin = createAdminClient();
+    const { data: fileData, error: downloadError } = await admin.storage.from(bucket).download(path);
+
+    if (downloadError || !fileData) {
+      console.error('Error descargando CSV:', downloadError);
+      return NextResponse.json({ error: 'No se pudo descargar el archivo' }, { status: 400 });
+    }
+
+    const content = await fileData.text();
+
     // Parsear y validar CSV
     const parseResult = parseCSV(content);
     

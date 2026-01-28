@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { createClient } from '@/lib/supabase/client';
 import {
   Upload,
   Download,
@@ -98,9 +99,18 @@ interface ImportResult {
 type ImportMode = 'update' | 'add_only' | 'replace_all';
 type Step = 'upload' | 'preview' | 'importing' | 'complete';
 
+interface UploadedCSVRef {
+  bucket: string;
+  path: string;
+  filename: string;
+  token: string;
+}
+
 export function CSVProductManager() {
+  const supabase = createClient();
   const [step, setStep] = useState<Step>('upload');
   const [file, setFile] = useState<File | null>(null);
+  const [uploadedRef, setUploadedRef] = useState<UploadedCSVRef | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importMode, setImportMode] = useState<ImportMode>('update');
@@ -132,21 +142,58 @@ export function CSVProductManager() {
     if (!csvFile) return;
 
     setFile(csvFile);
+    setUploadedRef(null);
     setError(null);
     setIsValidating(true);
 
     try {
-      // Leer el archivo como texto
-      const content = await csvFile.text();
+      // Pedir signed upload URL
+      const signedResp = await fetch('/api/products/csv/upload-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: csvFile.name,
+          contentType: csvFile.type || 'text/csv',
+        }),
+      });
 
+      const signedResult = await parseApiResponse(signedResp);
+      if (!signedResp.ok) {
+        throw new Error(signedResult.error || 'No se pudo preparar la subida del archivo');
+      }
+
+      const { bucket, path, token, filename } = signedResult as {
+        bucket: string;
+        path: string;
+        token: string;
+        filename: string;
+      };
+
+      // Subir directo a Storage (evita pasar el CSV por Vercel)
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .uploadToSignedUrl(path, token, csvFile, {
+          contentType: csvFile.type || 'text/csv',
+        });
+
+      if (uploadError) {
+        throw new Error(uploadError.message || 'No se pudo subir el archivo');
+      }
+
+      setUploadedRef({ bucket, path, filename, token });
+
+      // Validar usando referencia del archivo
       const response = await fetch('/api/products/csv/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content,
-          filename: csvFile.name,
+          bucket,
+          path,
+          filename,
         }),
       });
 
@@ -163,7 +210,7 @@ export function CSVProductManager() {
     } finally {
       setIsValidating(false);
     }
-  }, []);
+  }, [supabase]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -175,24 +222,22 @@ export function CSVProductManager() {
   });
 
   const handleImport = async () => {
-    if (!file) return;
+    if (!file || !uploadedRef) return;
 
     setIsImporting(true);
     setStep('importing');
     setError(null);
 
     try {
-      // Leer el archivo como texto
-      const content = await file.text();
-
       const response = await fetch('/api/products/csv/import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content,
-          filename: file.name,
+          bucket: uploadedRef.bucket,
+          path: uploadedRef.path,
+          filename: uploadedRef.filename,
           mode: importMode,
         }),
       });
