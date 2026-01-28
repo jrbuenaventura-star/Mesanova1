@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { CleanupUserDialog } from "@/components/admin/cleanup-user-dialog"
 
 export default async function AliadosManagementPage() {
   const supabase = await createClient()
@@ -102,12 +103,15 @@ export default async function AliadosManagementPage() {
             Administra los aliados comerciales y sus distribuidores asignados
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/aliados/nuevo">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nuevo Aliado
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <CleanupUserDialog />
+          <Button asChild>
+            <Link href="/admin/aliados/nuevo">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nuevo Aliado
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Estadísticas */}
