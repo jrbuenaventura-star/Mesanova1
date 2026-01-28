@@ -29,12 +29,12 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Search, MoreVertical, Pencil, Plus, Trash2, Users } from "lucide-react"
+import { Search, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
 import type { Distributor, UserProfile } from "@/lib/db/types"
 
 interface DistributorWithProfile extends Distributor {
   profile?: UserProfile
-  clients_count?: number
+  aliado?: { id: string; company_name: string } | null
 }
 
 type AliadoOption = {
@@ -65,6 +65,9 @@ export function DistributorsManagement() {
     discount_percentage: "0",
     credit_limit: "0",
     aliado_id: "",
+    commercial_name: "",
+    payment_terms: "",
+    notes: "",
     document_type: "CC",
     document_number: "",
     shipping_address: "",
@@ -127,6 +130,9 @@ export function DistributorsManagement() {
       discount_percentage: "0",
       credit_limit: "0",
       aliado_id: "",
+      commercial_name: "",
+      payment_terms: "",
+      notes: "",
       document_type: "CC",
       document_number: "",
       shipping_address: "",
@@ -151,6 +157,9 @@ export function DistributorsManagement() {
       discount_percentage: distributor.discount_percentage?.toString() || "0",
       credit_limit: distributor.credit_limit?.toString() || "0",
       aliado_id: distributor.aliado_id || "",
+      commercial_name: (distributor as any).commercial_name || "",
+      payment_terms: (distributor as any).payment_terms || "",
+      notes: (distributor as any).notes || "",
       document_type: distributor.profile?.document_type || "CC",
       document_number: distributor.profile?.document_number || "",
       shipping_address: distributor.profile?.shipping_address || "",
@@ -224,10 +233,6 @@ export function DistributorsManagement() {
     }
   }
 
-  function viewDistributorClients(distributorId: string) {
-    router.push(`/admin/distributors/${distributorId}/clients`)
-  }
-
   async function handleToggleActive(id: string, currentStatus: boolean) {
     const supabase = createClient()
     const { error } = await supabase.from("distributors").update({ is_active: !currentStatus }).eq("id", id)
@@ -260,7 +265,7 @@ export function DistributorsManagement() {
 
         <Button onClick={openCreateDialog} className="gap-2">
           <Plus className="h-4 w-4" />
-          Agregar Distribuidor
+          Agregar Cliente
         </Button>
       </div>
 
@@ -268,10 +273,10 @@ export function DistributorsManagement() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Distribuidor</TableHead>
+              <TableHead>Cliente</TableHead>
               <TableHead>Empresa</TableHead>
               <TableHead>Contacto</TableHead>
-              <TableHead>Clientes Asignados</TableHead>
+              <TableHead>Aliado Asignado</TableHead>
               <TableHead>Descuento</TableHead>
               <TableHead>Crédito</TableHead>
               <TableHead>Estado</TableHead>
@@ -304,15 +309,7 @@ export function DistributorsManagement() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => viewDistributorClients(distributor.id)}
-                  >
-                    <Users className="h-4 w-4" />
-                    {distributor.clients_count || 0}
-                  </Button>
+                  {distributor.aliado?.company_name || "-"}
                 </TableCell>
                 <TableCell>{distributor.discount_percentage}%</TableCell>
                 <TableCell>
@@ -336,10 +333,6 @@ export function DistributorsManagement() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => viewDistributorClients(distributor.id)}>
-                        <Users className="mr-2 h-4 w-4" />
-                        Ver Clientes
-                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => openEditDialog(distributor)}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar
@@ -369,11 +362,11 @@ export function DistributorsManagement() {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Editar Distribuidor" : "Crear Nuevo Distribuidor"}</DialogTitle>
+            <DialogTitle>{isEditing ? "Editar Cliente" : "Crear Nuevo Cliente"}</DialogTitle>
             <DialogDescription>
               {isEditing
-                ? "Actualiza la información del distribuidor"
-                : "Completa los datos para crear un nuevo distribuidor"}
+                ? "Actualiza la información del cliente"
+                : "Completa los datos para crear un nuevo cliente"}
             </DialogDescription>
           </DialogHeader>
 
@@ -387,7 +380,7 @@ export function DistributorsManagement() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="distribuidor@empresa.com"
+                  placeholder="cliente@empresa.com"
                   required
                 />
               </div>
@@ -447,15 +440,27 @@ export function DistributorsManagement() {
               <h4 className="text-sm font-semibold mb-4">Información de la Empresa</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_name">Nombre de la Empresa *</Label>
+                  <Label htmlFor="company_name">Razón Social *</Label>
                   <Input
                     id="company_name"
                     value={formData.company_name}
                     onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                    placeholder="Distribuidora XYZ"
+                    placeholder="Empresa S.A.S."
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="commercial_name">Nombre Comercial</Label>
+                  <Input
+                    id="commercial_name"
+                    value={formData.commercial_name}
+                    onChange={(e) => setFormData({ ...formData, commercial_name: e.target.value })}
+                    placeholder="Mi Negocio"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="company_rif">NIT/RIF</Label>
                   <Input
@@ -505,6 +510,25 @@ export function DistributorsManagement() {
               <h4 className="text-sm font-semibold mb-4">Configuración Comercial</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="payment_terms">Términos de Pago</Label>
+                  <Select
+                    value={formData.payment_terms || ""}
+                    onValueChange={(value) => setFormData({ ...formData, payment_terms: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Contado">Contado</SelectItem>
+                      <SelectItem value="15 días">15 días</SelectItem>
+                      <SelectItem value="30 días">30 días</SelectItem>
+                      <SelectItem value="45 días">45 días</SelectItem>
+                      <SelectItem value="60 días">60 días</SelectItem>
+                      <SelectItem value="90 días">90 días</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="discount_percentage">Descuento General (%)</Label>
                   <Input
                     id="discount_percentage"
@@ -527,6 +551,17 @@ export function DistributorsManagement() {
                     onChange={(e) => setFormData({ ...formData, credit_limit: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="notes">Notas</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Observaciones adicionales sobre el cliente..."
+                  rows={3}
+                />
               </div>
             </div>
 
@@ -590,7 +625,7 @@ export function DistributorsManagement() {
             <Button variant="outline" onClick={() => setShowDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveDistributor}>{isEditing ? "Actualizar" : "Crear"} Distribuidor</Button>
+            <Button onClick={handleSaveDistributor}>{isEditing ? "Actualizar" : "Crear"} Cliente</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -600,7 +635,7 @@ export function DistributorsManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará el distribuidor{" "}
+              Esta acción no se puede deshacer. Se eliminará el cliente{" "}
               <strong>{selectedDistributor?.company_name}</strong> y toda su información asociada.
             </AlertDialogDescription>
           </AlertDialogHeader>

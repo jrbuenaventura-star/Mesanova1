@@ -91,13 +91,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/distributors">
             <Button variant="ghost" className="w-full justify-start">
               <Truck className="mr-2 h-4 w-4" />
-              Distribuidores
+              Clientes
             </Button>
           </Link>
           <Link href="/admin/distributors/csv">
             <Button variant="ghost" className="w-full justify-start">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Distribuidores CSV
+              Clientes CSV
             </Button>
           </Link>
           {userRole === "superadmin" && (
@@ -108,12 +108,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </Button>
             </Link>
           )}
-          <Link href="/admin/clients">
-            <Button variant="ghost" className="w-full justify-start">
-              <Building2 className="mr-2 h-4 w-4" />
-              Clientes
-            </Button>
-          </Link>
           <Link href="/admin/gift-registries">
             <Button variant="ghost" className="w-full justify-start">
               <Gift className="mr-2 h-4 w-4" />

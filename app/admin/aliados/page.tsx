@@ -100,7 +100,7 @@ export default async function AliadosManagementPage() {
         <div>
           <h1 className="text-3xl font-bold">Gestión de Aliados</h1>
           <p className="text-muted-foreground">
-            Administra los aliados comerciales y sus distribuidores asignados
+            Administra los aliados comerciales y sus clientes asignados
           </p>
         </div>
         <div className="flex gap-2">
@@ -138,7 +138,7 @@ export default async function AliadosManagementPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Distribuidores Asignados</CardTitle>
+            <CardTitle className="text-sm font-medium">Clientes Asignados</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -190,7 +190,7 @@ export default async function AliadosManagementPage() {
                   <TableHead>Contacto</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Teléfono</TableHead>
-                  <TableHead>Distribuidores</TableHead>
+                  <TableHead>Clientes</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
@@ -215,7 +215,7 @@ export default async function AliadosManagementPage() {
                     <TableCell>{aliado.phone || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">
-                        {distributorCounts[aliado.id] || 0} distribuidores
+                        {distributorCounts[aliado.id] || 0} clientes
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -240,7 +240,7 @@ export default async function AliadosManagementPage() {
                           <DropdownMenuItem asChild>
                             <Link href={`/admin/aliados/${aliado.id}/distributors`}>
                               <Users className="mr-2 h-4 w-4" />
-                              Ver distribuidores
+                              Ver clientes
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">

@@ -10,7 +10,7 @@ import type { UserRole } from "@/lib/db/types"
 export function InviteUserForm() {
   const router = useRouter()
   const [email, setEmail] = useState("")
-  const [role, setRole] = useState<UserRole>("end_user")
+  const [role, setRole] = useState<UserRole>("superadmin")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -57,7 +57,6 @@ export function InviteUserForm() {
             <SelectValue placeholder="Rol" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="end_user">Cliente</SelectItem>
             <SelectItem value="superadmin">Superadmin</SelectItem>
           </SelectContent>
         </Select>

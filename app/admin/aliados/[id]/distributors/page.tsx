@@ -109,9 +109,9 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">Distribuidores de {aliado.company_name}</h1>
+          <h1 className="text-3xl font-bold">Clientes de {aliado.company_name}</h1>
           <p className="text-muted-foreground">
-            Gestiona los distribuidores asignados a este aliado comercial
+            Gestiona los clientes asignados a este aliado comercial
           </p>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Distribuidores</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Clientes</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -153,24 +153,24 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
       <div className="flex gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar distribuidores..." className="pl-10" />
+          <Input placeholder="Buscar clientes..." className="pl-10" />
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Listado de Distribuidores</CardTitle>
+          <CardTitle>Listado de Clientes</CardTitle>
           <CardDescription>
-            Distribuidores asignados a {aliado.company_name}
+            Clientes asignados a {aliado.company_name}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {distributors.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No hay distribuidores asignados</p>
+              <p className="text-lg font-medium">No hay clientes asignados</p>
               <p className="text-sm">
-                Este aliado aún no tiene distribuidores asociados
+                Este aliado aún no tiene clientes asociados
               </p>
             </div>
           ) : (

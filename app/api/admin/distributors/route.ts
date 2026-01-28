@@ -57,22 +57,29 @@ export async function GET() {
       if (p?.id) profileById.set(p.id, p);
     }
 
-    const withCounts = await Promise.all(
-      (distData || []).map(async (dist: any) => {
-        const { count } = await admin
-          .from('companies')
-          .select('*', { count: 'exact', head: true })
-          .eq('distribuidor_asignado_id', dist.id);
+    // Get aliados info for displaying names
+    const aliadoIds = (distData || [])
+      .map((d: any) => d?.aliado_id)
+      .filter((v: any): v is string => typeof v === 'string' && v.length > 0);
 
-        return {
-          ...dist,
-          profile: profileById.get(dist.user_id) || null,
-          clients_count: count || 0,
-        };
-      })
-    );
+    const { data: aliadosData } = aliadoIds.length
+      ? await admin.from('aliados').select('id, company_name').in('id', aliadoIds)
+      : { data: [] };
 
-    return NextResponse.json({ distributors: withCounts });
+    const aliadoById = new Map<string, any>();
+    for (const a of aliadosData || []) {
+      if (a?.id) aliadoById.set(a.id, a);
+    }
+
+    const withAliados = (distData || []).map((dist: any) => {
+      return {
+        ...dist,
+        profile: profileById.get(dist.user_id) || null,
+        aliado: dist.aliado_id ? aliadoById.get(dist.aliado_id) || null : null,
+      };
+    });
+
+    return NextResponse.json({ distributors: withAliados });
   } catch (error) {
     console.error('Error listing distributors:', error);
     return NextResponse.json(
@@ -258,6 +265,9 @@ export async function POST(request: Request) {
       discount_percentage: Number.isFinite(discount) ? discount : 0,
       credit_limit: Number.isFinite(credit) ? credit : 0,
       aliado_id,
+      commercial_name: (formData as any).commercial_name || null,
+      payment_terms: (formData as any).payment_terms || null,
+      notes: (formData as any).notes || null,
     });
     
     if (distError) throw distError;
@@ -314,6 +324,9 @@ export async function PUT(request: Request) {
         discount_percentage: parseFloat(formData.discount_percentage),
         credit_limit: parseFloat(formData.credit_limit),
         aliado_id,
+        commercial_name: formData.commercial_name || null,
+        payment_terms: formData.payment_terms || null,
+        notes: formData.notes || null,
       })
       .eq('id', distributorId);
     

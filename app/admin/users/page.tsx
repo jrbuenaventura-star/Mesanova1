@@ -41,7 +41,7 @@ export default async function AdminUsersPage() {
         <CardHeader>
           <CardTitle>Gestión de Usuarios</CardTitle>
           <CardDescription>
-            Gestiona clientes y superadmins. Los distribuidores se crean desde "Distribuidores" o "Distribuidores CSV", 
+            Gestiona usuarios superadmin. Los clientes se gestionan desde "Clientes" o "Clientes CSV", 
             y los aliados desde "Aliados".
           </CardDescription>
         </CardHeader>

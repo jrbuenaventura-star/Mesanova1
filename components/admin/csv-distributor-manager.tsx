@@ -217,9 +217,9 @@ export function CSVDistributorManager() {
       {/* Header con opciones de descarga */}
       <div className="flex flex-wrap gap-4 justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Importación de Distribuidores</h2>
+          <h2 className="text-2xl font-bold">Importación de Clientes</h2>
           <p className="text-muted-foreground">
-            Importa distribuidores masivamente desde un archivo CSV
+            Importa clientes masivamente desde un archivo CSV
           </p>
         </div>
         <div className="flex gap-2">
@@ -240,9 +240,9 @@ export function CSVDistributorManager() {
         <AlertTitle>Información importante</AlertTitle>
         <AlertDescription>
           <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-            <li>Los distribuidores se identifican por su <strong>NIT/RIF (company_rif)</strong></li>
-            <li>Los nuevos distribuidores recibirán un <strong>email de invitación</strong> para configurar su contraseña</li>
-            <li>Las direcciones de envío se gestionan por separado (cada distribuidor puede tener varias)</li>
+            <li>Los clientes se identifican por su <strong>NIT/RIF (company_rif)</strong></li>
+            <li>Los nuevos clientes recibirán un <strong>email de invitación</strong> para configurar su contraseña</li>
+            <li>Las direcciones de envío se gestionan por separado (cada cliente puede tener varias)</li>
           </ul>
         </AlertDescription>
       </Alert>
@@ -467,7 +467,7 @@ export function CSVDistributorManager() {
                     disabled={validationResult.stats.invalid > 0}
                   >
                     <Upload className="mr-2 h-4 w-4" />
-                    Importar {validationResult.stats.valid} distribuidores
+                    Importar {validationResult.stats.valid} clientes
                   </Button>
                 </div>
               </div>
@@ -488,7 +488,7 @@ export function CSVDistributorManager() {
             <div className="flex flex-col items-center gap-4">
               <RefreshCw className="h-12 w-12 animate-spin text-primary" />
               <div className="text-center">
-                <p className="text-lg font-medium">Importando distribuidores...</p>
+                <p className="text-lg font-medium">Importando clientes...</p>
                 <p className="text-sm text-muted-foreground">
                   Por favor no cierres esta página
                 </p>
@@ -515,8 +515,8 @@ export function CSVDistributorManager() {
             </AlertTitle>
             <AlertDescription>
               <div className="mt-2 space-y-1">
-                <p>• <strong>{importResult.created}</strong> distribuidores creados</p>
-                <p>• <strong>{importResult.updated}</strong> distribuidores actualizados</p>
+                <p>• <strong>{importResult.created}</strong> clientes creados</p>
+                <p>• <strong>{importResult.updated}</strong> clientes actualizados</p>
                 <p>• <strong>{importResult.skipped}</strong> sin cambios/omitidos</p>
                 {importResult.invited > 0 && (
                   <p className="flex items-center gap-1">

@@ -15,9 +15,9 @@ export default async function DistributorsPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Distribuidores</h1>
+        <h1 className="text-3xl font-bold">Clientes</h1>
         <p className="text-muted-foreground mt-2">
-          Gestiona los distribuidores, sus datos de contacto y clientes asignados
+          Gestiona los clientes, sus datos de contacto y aliados asignados
         </p>
       </div>
       <DistributorsManagement />
