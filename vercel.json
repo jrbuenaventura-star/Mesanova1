@@ -2,11 +2,11 @@
   "functions": {
     "app/api/products/csv/validate/route.ts": {
       "maxDuration": 300,
-      "memory": 3008
+      "memory": 2048
     },
     "app/api/products/csv/import/route.ts": {
       "maxDuration": 300,
-      "memory": 3008
+      "memory": 2048
     }
   }
 }
