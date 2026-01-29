@@ -34,6 +34,23 @@ export function SiteFooter() {
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
+                <a
+                  href="https://www.tiktok.com/@alumarcolombia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                  aria-label="TikTok"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    <path d="M16.75 3c.7 2.74 2.51 4.5 5.25 4.75v3.14c-1.93.12-3.63-.5-5.25-1.57v6.44c0 3.89-3.16 7.04-7.05 7.04A7.04 7.04 0 0 1 2.6 15.4c0-3.83 3.1-6.96 6.93-7.04.32 0 .64.03.96.08v3.46a3.57 3.57 0 0 0-1.04-.16 3.66 3.66 0 1 0 3.66 3.66V3h3.64Z" />
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
