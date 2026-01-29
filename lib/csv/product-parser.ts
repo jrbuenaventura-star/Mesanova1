@@ -6,6 +6,12 @@ import {
   NUMERIC_FIELDS,
   VALID_CATEGORIES,
   VALID_ROTACION,
+  HORECA_VALUES,
+  parseDateDDMMYYYY,
+  normalizeNumeric,
+  normalizeBoolean,
+  normalizeEstado,
+  normalizeHoReCa,
 } from './product-template';
 
 export interface ParsedProduct {
@@ -116,7 +122,7 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
   // Validar campos booleanos
   for (const field of BOOLEAN_FIELDS) {
     const value = row[field]?.toUpperCase();
-    if (value && value !== '' && value !== 'SI' && value !== 'NO' && value !== 'TRUE' && value !== 'FALSE' && value !== '1' && value !== '0') {
+    if (value && value !== '' && value !== 'SI' && value !== 'SÍ' && value !== 'NO' && value !== 'TRUE' && value !== 'FALSE' && value !== '1' && value !== '0' && value !== 'YES') {
       errors.push({
         field,
         message: `El campo ${field} debe ser SI/NO`,
@@ -125,14 +131,72 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     }
   }
   
-  // Validar categoría
-  if (row.Categoria && row.Categoria.trim() !== '') {
-    const normalizedCat = row.Categoria.trim();
-    if (!VALID_CATEGORIES.some(c => c.toLowerCase() === normalizedCat.toLowerCase())) {
+  // Validar Estado (ACTIVO/INACTIVO)
+  if (row.Estado && row.Estado.trim() !== '') {
+    const estado = row.Estado.toUpperCase().trim();
+    const validEstados = ['ACTIVO', 'INACTIVO', 'ACTIVE', 'INACTIVE', 'SI', 'SÍ', 'NO', 'YES', 'TRUE', 'FALSE', '1', '0'];
+    if (!validEstados.includes(estado)) {
+      errors.push({
+        field: 'Estado',
+        message: 'El campo Estado debe ser ACTIVO o INACTIVO',
+        value: row.Estado,
+      });
+    }
+  }
+  
+  // Validar HoReCa (NO/EXCLUSIVO/SI)
+  if (row.HoReCa && row.HoReCa.trim() !== '') {
+    const horeca = row.HoReCa.toUpperCase().trim();
+    const validHoReCa = ['NO', 'EXCLUSIVO', 'EXCLUSIVE', 'SI', 'SÍ', 'YES', 'TRUE', '1', '0', 'FALSE', 'AMBOS', 'BOTH'];
+    if (!validHoReCa.includes(horeca)) {
+      errors.push({
+        field: 'HoReCa',
+        message: `El campo HoReCa debe ser: ${HORECA_VALUES.join(', ')}`,
+        value: row.HoReCa,
+      });
+    }
+  }
+  
+  // Validar categorías (1, 2, 3)
+  const categoryFields: { cat: keyof ProductCSVRow; sub: keyof ProductCSVRow; type: keyof ProductCSVRow; required: boolean }[] = [
+    { cat: 'Categoria_1', sub: 'Subcategoria_1', type: 'Tipo_producto_1', required: true },
+    { cat: 'Categoria_2', sub: 'Subcategoria_2', type: 'Tipo_producto_2', required: false },
+    { cat: 'Categoria_3', sub: 'Subcategoria_3', type: 'Tipo_producto_3', required: false },
+  ];
+  
+  for (const catSet of categoryFields) {
+    const catValue = row[catSet.cat]?.trim() || '';
+    const subValue = row[catSet.sub]?.trim() || '';
+    const typeValue = row[catSet.type]?.trim() || '';
+    
+    // Si la categoría tiene valor, validar que sea válida
+    if (catValue) {
+      if (!VALID_CATEGORIES.some(c => c.toLowerCase() === catValue.toLowerCase())) {
+        warnings.push({
+          field: catSet.cat,
+          message: `Categoría "${catValue}" no reconocida. Válidas: ${VALID_CATEGORIES.join(', ')}`,
+          value: catValue,
+        });
+      }
+      
+      // Si hay categoría pero no subcategoría (y es requerido o parcialmente completado)
+      if (!subValue && catSet.required) {
+        // Ya está en REQUIRED_FIELDS
+      } else if (!subValue && !catSet.required && (catValue || typeValue)) {
+        warnings.push({
+          field: catSet.sub,
+          message: `Se recomienda completar ${catSet.sub} si se especifica ${catSet.cat}`,
+          value: '',
+        });
+      }
+    }
+    
+    // Si hay subcategoría sin categoría
+    if (subValue && !catValue) {
       warnings.push({
-        field: 'Categoria',
-        message: `Categoría "${normalizedCat}" no reconocida. Válidas: ${VALID_CATEGORIES.join(', ')}`,
-        value: row.Categoria,
+        field: catSet.cat,
+        message: `Falta ${catSet.cat} para ${catSet.sub}`,
+        value: '',
       });
     }
   }
@@ -173,17 +237,17 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     }
   }
   
-  // Validar fecha de lanzamiento
+  // Validar fecha de lanzamiento (acepta DD/MM/YYYY, YYYY-MM-DD, o serial de Excel)
   if (row.Fecha_Lanzamiento && row.Fecha_Lanzamiento.trim() !== '') {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(row.Fecha_Lanzamiento)) {
+    const parsedDate = parseDateDDMMYYYY(row.Fecha_Lanzamiento);
+    if (!parsedDate) {
       errors.push({
         field: 'Fecha_Lanzamiento',
-        message: 'La fecha debe tener formato YYYY-MM-DD',
+        message: 'La fecha debe tener formato DD/MM/YYYY (ej: 15/01/2026)',
         value: row.Fecha_Lanzamiento,
       });
     } else {
-      const date = new Date(row.Fecha_Lanzamiento);
+      const date = new Date(parsedDate);
       if (isNaN(date.getTime())) {
         errors.push({
           field: 'Fecha_Lanzamiento',
@@ -366,8 +430,10 @@ export function compareWithExisting(
       
       const fieldMappings: Record<keyof ProductCSVRow, string> = {
         Ref: 'pdt_codigo',
+        Ref_Pub: 'ref_pub',
         Cod_Barra: 'codigo_barras',
         Producto: 'nombre_comercial',
+        Estado: 'is_active',
         Descripcion: 'pdt_descripcion',
         Marca: 'marca',
         Precio_COP: 'precio',
@@ -378,9 +444,15 @@ export function compareWithExisting(
         Inner_pack: 'pdt_empaque',
         Outer_pack: 'outer_pack',
         Coleccion: 'nombre_coleccion',
-        Categoria: '_category', // Handled separately
-        Subcategoria: '_subcategory',
-        Tipo_producto: '_type',
+        Categoria_1: '_category_1', // Handled separately via product_categories
+        Subcategoria_1: '_subcategory_1',
+        Tipo_producto_1: '_type_1',
+        Categoria_2: '_category_2',
+        Subcategoria_2: '_subcategory_2',
+        Tipo_producto_2: '_type_2',
+        Categoria_3: '_category_3',
+        Subcategoria_3: '_subcategory_3',
+        Tipo_producto_3: '_type_3',
         Material: 'material',
         Color: 'color',
         Dimensiones: 'dimensiones',
@@ -401,6 +473,7 @@ export function compareWithExisting(
         Video_URL: 'video_url',
         Ficha_Tecnica_URL: 'ficha_tecnica_url',
         Fecha_Lanzamiento: 'fecha_lanzamiento',
+        HoReCa: 'horeca',
         Image_1: 'imagen_principal_url',
         Image_2: '_image_2',
         Image_3: '_image_3',
@@ -472,12 +545,17 @@ function normalizeValue(value: string, field: keyof ProductCSVRow): string {
 }
 
 export function parseBooleanValue(value: string): boolean {
-  const upper = (value || '').toUpperCase().trim();
-  return upper === 'SI' || upper === 'TRUE' || upper === '1' || upper === 'YES';
+  return normalizeBoolean(value);
 }
 
 export function parseNumericValue(value: string): number | null {
-  if (!value || value.trim() === '') return null;
-  const num = parseFloat(value.replace(/[,$]/g, ''));
-  return isNaN(num) ? null : num;
+  return normalizeNumeric(value);
+}
+
+export function parseEstadoValue(value: string): boolean {
+  return normalizeEstado(value);
+}
+
+export function parseHoReCaValue(value: string): 'NO' | 'EXCLUSIVO' | 'SI' {
+  return normalizeHoReCa(value);
 }

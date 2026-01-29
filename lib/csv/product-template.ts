@@ -1,32 +1,41 @@
 // Definición del template CSV para productos
 // Los campos están ordenados según la especificación del usuario
+// Actualizado: soporte para múltiples categorías, HoReCa, Estado, Ref_Pub
 
 export interface ProductCSVRow {
-  // Campos de identificación
-  Ref: string;
+  // Campos de identificación (ERP)
+  Ref: string; // Código único del ERP (obligatorio)
+  Ref_Pub: string; // Referencia pública/comercial
   Cod_Barra: string;
-  Producto: string;
+  Producto: string; // Nombre comercial (obligatorio)
+  Estado: string; // ACTIVO/INACTIVO - visibilidad en marketplace (obligatorio)
   Descripcion: string;
   Marca: string;
   
   // Precios y ofertas
-  Precio_COP: string;
+  Precio_COP: string; // Obligatorio
   Descuento: string; // Porcentaje (0-100)
   
-  // Inventario
+  // Inventario (sincronizable con ERP)
   Existencia_inv: string;
   Pedido_en_camino: string; // SI/NO
-  Descontinuado: string; // SI/NO
+  Descontinuado: string; // SI/NO - informativo, el fabricante ya no produce
   
   // Empaque
   Inner_pack: string;
   Outer_pack: string;
   
-  // Categorización
+  // Categorización (hasta 3 jerarquías)
   Coleccion: string;
-  Categoria: string; // Silo principal
-  Subcategoria: string;
-  Tipo_producto: string;
+  Categoria_1: string; // Obligatorio
+  Subcategoria_1: string; // Obligatorio
+  Tipo_producto_1: string; // Obligatorio
+  Categoria_2: string;
+  Subcategoria_2: string;
+  Tipo_producto_2: string;
+  Categoria_3: string;
+  Subcategoria_3: string;
+  Tipo_producto_3: string;
   
   // Características físicas
   Material: string;
@@ -56,7 +65,10 @@ export interface ProductCSVRow {
   // Multimedia
   Video_URL: string;
   Ficha_Tecnica_URL: string;
-  Fecha_Lanzamiento: string; // YYYY-MM-DD
+  Fecha_Lanzamiento: string; // DD/MM/YYYY
+  
+  // HoReCa
+  HoReCa: string; // NO/EXCLUSIVO/SI
   
   // Imágenes (URLs)
   Image_1: string;
@@ -73,8 +85,10 @@ export interface ProductCSVRow {
 
 export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Ref',
+  'Ref_Pub',
   'Cod_Barra',
   'Producto',
+  'Estado',
   'Descripcion',
   'Marca',
   'Precio_COP',
@@ -85,9 +99,15 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Inner_pack',
   'Outer_pack',
   'Coleccion',
-  'Categoria',
-  'Subcategoria',
-  'Tipo_producto',
+  'Categoria_1',
+  'Subcategoria_1',
+  'Tipo_producto_1',
+  'Categoria_2',
+  'Subcategoria_2',
+  'Tipo_producto_2',
+  'Categoria_3',
+  'Subcategoria_3',
+  'Tipo_producto_3',
   'Material',
   'Color',
   'Dimensiones',
@@ -108,6 +128,7 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Video_URL',
   'Ficha_Tecnica_URL',
   'Fecha_Lanzamiento',
+  'HoReCa',
   'Image_1',
   'Image_2',
   'Image_3',
@@ -121,22 +142,30 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
 ];
 
 export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
-  Ref: 'Código de referencia único del producto (obligatorio)',
+  Ref: 'Código de referencia único del ERP (obligatorio)',
+  Ref_Pub: 'Referencia pública/comercial visible para clientes',
   Cod_Barra: 'Código de barras EAN/UPC',
   Producto: 'Nombre comercial del producto (obligatorio)',
+  Estado: 'ACTIVO/INACTIVO - Visibilidad en marketplace (obligatorio)',
   Descripcion: 'Descripción corta o subtítulo',
   Marca: 'Marca del producto',
   Precio_COP: 'Precio base en pesos colombianos (obligatorio)',
   Descuento: 'Porcentaje de descuento (0-100). Si > 0, aparece en ofertas',
-  Existencia_inv: 'Cantidad en inventario',
+  Existencia_inv: 'Cantidad en inventario (sincronizable con ERP)',
   Pedido_en_camino: 'SI/NO - Indica si hay pedido en tránsito',
-  Descontinuado: 'SI/NO - Producto que no se volverá a pedir',
+  Descontinuado: 'SI/NO - El fabricante ya no produce este SKU',
   Inner_pack: 'Empaque primario (unidades por empaque)',
   Outer_pack: 'Empaque secundario (empaques primarios por caja)',
   Coleccion: 'Nombre de la colección a la que pertenece',
-  Categoria: 'Categoría principal (Cocina, Mesa, Café-Té-Bar, Termos-Neveras, HoReCa)',
-  Subcategoria: 'Subcategoría dentro de la categoría principal',
-  Tipo_producto: 'Tipo específico de producto (3er nivel)',
+  Categoria_1: 'Categoría principal: Cocina, Mesa, Café-Té-Bar (obligatorio)',
+  Subcategoria_1: 'Subcategoría dentro de la categoría 1 (obligatorio)',
+  Tipo_producto_1: 'Tipo específico de producto (3er nivel) (obligatorio)',
+  Categoria_2: 'Segunda categoría (opcional)',
+  Subcategoria_2: 'Subcategoría dentro de la categoría 2',
+  Tipo_producto_2: 'Tipo específico de producto (3er nivel)',
+  Categoria_3: 'Tercera categoría (opcional)',
+  Subcategoria_3: 'Subcategoría dentro de la categoría 3',
+  Tipo_producto_3: 'Tipo específico de producto (3er nivel)',
   Material: 'Material principal del producto',
   Color: 'Color del producto',
   Dimensiones: 'Dimensiones del producto (ej: 30x20x10 cm)',
@@ -156,8 +185,9 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Tags: 'Etiquetas de búsqueda separadas por coma',
   Video_URL: 'URL del video del producto',
   Ficha_Tecnica_URL: 'URL del PDF de ficha técnica',
-  Fecha_Lanzamiento: 'Fecha de lanzamiento (YYYY-MM-DD)',
-  Image_1: 'URL de imagen principal (obligatoria)',
+  Fecha_Lanzamiento: 'Fecha de lanzamiento (DD/MM/YYYY)',
+  HoReCa: 'NO=Solo retail, EXCLUSIVO=Solo HoReCa, SI=Ambos canales',
+  Image_1: 'URL de imagen principal',
   Image_2: 'URL de imagen 2',
   Image_3: 'URL de imagen 3',
   Image_4: 'URL de imagen 4',
@@ -172,13 +202,24 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
 export const REQUIRED_FIELDS: (keyof ProductCSVRow)[] = [
   'Ref',
   'Producto',
+  'Estado',
   'Precio_COP',
+  'Categoria_1',
+  'Subcategoria_1',
+  'Tipo_producto_1',
 ];
 
 export const BOOLEAN_FIELDS: (keyof ProductCSVRow)[] = [
   'Pedido_en_camino',
   'Descontinuado',
 ];
+
+export const ESTADO_FIELDS: (keyof ProductCSVRow)[] = [
+  'Estado',
+];
+
+export const HORECA_VALUES = ['NO', 'EXCLUSIVO', 'SI'] as const;
+export type HoReCaValue = typeof HORECA_VALUES[number];
 
 export const NUMERIC_FIELDS: (keyof ProductCSVRow)[] = [
   'Precio_COP',
@@ -192,8 +233,6 @@ export const VALID_CATEGORIES = [
   'Cocina',
   'Mesa',
   'Café-Té-Bar',
-  'Termos-Neveras',
-  'HoReCa',
 ];
 
 export const VALID_ROTACION = ['alta', 'media', 'baja'];
@@ -213,8 +252,10 @@ export function generateCSVWithDescriptions(): string {
 function generateExampleRow(): string {
   const example: Partial<ProductCSVRow> = {
     Ref: 'ABC-001',
+    Ref_Pub: 'MN-001',
     Cod_Barra: '7701234567890',
     Producto: 'Tabla de Cortar Bambú Premium',
+    Estado: 'ACTIVO',
     Descripcion: 'Tabla de cortar profesional en bambú ecológico',
     Marca: 'Mesa Nova',
     Precio_COP: '89900',
@@ -225,9 +266,15 @@ function generateExampleRow(): string {
     Inner_pack: '1',
     Outer_pack: '12',
     Coleccion: 'Eco Kitchen',
-    Categoria: 'Cocina',
-    Subcategoria: 'Corte y Picado',
-    Tipo_producto: 'Tablas de Cortar',
+    Categoria_1: 'Cocina',
+    Subcategoria_1: 'Corte y Picado',
+    Tipo_producto_1: 'Tablas de Cortar',
+    Categoria_2: '',
+    Subcategoria_2: '',
+    Tipo_producto_2: '',
+    Categoria_3: '',
+    Subcategoria_3: '',
+    Tipo_producto_3: '',
     Material: 'Bambú',
     Color: 'Natural',
     Dimensiones: '40x30x2 cm',
@@ -247,7 +294,8 @@ function generateExampleRow(): string {
     Tags: 'tabla,cortar,bambú,cocina,ecológico',
     Video_URL: 'https://youtube.com/watch?v=xxx',
     Ficha_Tecnica_URL: 'https://cdn.mesanova.com/fichas/abc-001.pdf',
-    Fecha_Lanzamiento: '2026-01-15',
+    Fecha_Lanzamiento: '15/01/2026',
+    HoReCa: 'SI',
     Image_1: 'https://cdn.mesanova.com/products/abc-001-1.jpg',
     Image_2: 'https://cdn.mesanova.com/products/abc-001-2.jpg',
     Image_3: '',
@@ -264,4 +312,106 @@ function generateExampleRow(): string {
     const value = example[h] || '';
     return value.includes(',') || value.includes('"') ? `"${value.replace(/"/g, '""')}"` : value;
   }).join(',');
+}
+
+// Función para parsear fecha DD/MM/YYYY a YYYY-MM-DD (formato DB)
+export function parseDateDDMMYYYY(dateStr: string): string | null {
+  if (!dateStr || dateStr.trim() === '') return null;
+  
+  const trimmed = dateStr.trim();
+  
+  // Intentar formato DD/MM/YYYY
+  const ddmmyyyy = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
+  const match = trimmed.match(ddmmyyyy);
+  if (match) {
+    const day = match[1].padStart(2, '0');
+    const month = match[2].padStart(2, '0');
+    const year = match[3];
+    return `${year}-${month}-${day}`;
+  }
+  
+  // Intentar formato YYYY-MM-DD (ya está en formato correcto)
+  const yyyymmdd = /^\d{4}-\d{2}-\d{2}$/;
+  if (yyyymmdd.test(trimmed)) {
+    return trimmed;
+  }
+  
+  // Intentar detectar formato Excel serial
+  const excelSerial = parseFloat(trimmed);
+  if (!isNaN(excelSerial) && excelSerial > 40000 && excelSerial < 60000) {
+    const date = new Date((excelSerial - 25569) * 86400 * 1000);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+  }
+  
+  return null;
+}
+
+// Función para formatear fecha YYYY-MM-DD a DD/MMM/YY para mostrar en UI
+export function formatDateForDisplay(dateStr: string): string {
+  if (!dateStr) return '';
+  
+  try {
+    const date = new Date(dateStr + 'T00:00:00');
+    if (isNaN(date.getTime())) return dateStr;
+    
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = months[date.getMonth()];
+    const year = date.getFullYear().toString().slice(-2);
+    
+    return `${day}/${month}/${year}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+// Función para normalizar valores booleanos
+export function normalizeBoolean(value: string): boolean {
+  if (!value) return false;
+  const upper = value.toUpperCase().trim();
+  return ['SI', 'SÍ', 'YES', 'TRUE', '1', 'ACTIVO', 'ACTIVE'].includes(upper);
+}
+
+// Función para normalizar Estado (ACTIVO/INACTIVO)
+export function normalizeEstado(value: string): boolean {
+  if (!value) return true; // Default: activo
+  const upper = value.toUpperCase().trim();
+  return ['ACTIVO', 'ACTIVE', 'SI', 'SÍ', 'YES', 'TRUE', '1'].includes(upper);
+}
+
+// Función para normalizar HoReCa
+export function normalizeHoReCa(value: string): 'NO' | 'EXCLUSIVO' | 'SI' {
+  if (!value) return 'NO';
+  const upper = value.toUpperCase().trim();
+  if (upper === 'EXCLUSIVO' || upper === 'EXCLUSIVE') return 'EXCLUSIVO';
+  if (['SI', 'SÍ', 'YES', 'TRUE', '1', 'AMBOS', 'BOTH'].includes(upper)) return 'SI';
+  return 'NO';
+}
+
+// Función para normalizar números (acepta , o . como separador decimal)
+export function normalizeNumeric(value: string): number | null {
+  if (!value || value.trim() === '') return null;
+  
+  let normalized = value.trim();
+  
+  // Si tiene punto de miles y coma decimal (formato europeo/colombiano): 1.234,56
+  if (/^\d{1,3}(\.\d{3})*(,\d+)?$/.test(normalized)) {
+    normalized = normalized.replace(/\./g, '').replace(',', '.');
+  }
+  // Si tiene coma de miles y punto decimal (formato US): 1,234.56
+  else if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(normalized)) {
+    normalized = normalized.replace(/,/g, '');
+  }
+  // Si solo tiene coma como decimal: 1234,56
+  else if (/^\d+(,\d+)?$/.test(normalized)) {
+    normalized = normalized.replace(',', '.');
+  }
+  
+  // Remover símbolos de moneda
+  normalized = normalized.replace(/[$€]/g, '').trim();
+  
+  const num = parseFloat(normalized);
+  return isNaN(num) ? null : num;
 }

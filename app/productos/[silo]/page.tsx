@@ -8,6 +8,7 @@ import {
   getSilosWithSubcategories,
   getProductsBySubcategoryAndType,
   getAvailableProductTypesBySubcategory,
+  getProductsForHoReCa,
 } from "@/lib/db/queries"
 import { ProductCard } from "@/components/products/product-card"
 import { ProductsWithFilters } from "@/components/products/products-with-filters"
@@ -60,8 +61,14 @@ export default async function SiloPage({
   // Si hay una subcategoría seleccionada, obtener tipos disponibles y productos
   let availableTypes: any[] = []
   let products: any[] = []
+  
+  // Para HoReCa (silo "profesional"), mostrar productos con horeca = 'SI' o 'EXCLUSIVO'
+  const isHoReCaSilo = silo === 'profesional'
 
-  if (selectedSubcategory) {
+  if (isHoReCaSilo) {
+    // En la sección HoReCa, mostrar todos los productos con horeca SI o EXCLUSIVO
+    products = await getProductsForHoReCa(100)
+  } else if (selectedSubcategory) {
     availableTypes = await getAvailableProductTypesBySubcategory(selectedSubcategory.slug)
     products = await getProductsBySubcategoryAndType(selectedSubcategory.slug, search.tipo)
   }

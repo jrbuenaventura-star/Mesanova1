@@ -4,8 +4,10 @@ import {
   ProductDiff,
   parseBooleanValue,
   parseNumericValue,
+  parseEstadoValue,
+  parseHoReCaValue,
 } from './product-parser';
-import { ProductCSVRow } from './product-template';
+import { ProductCSVRow, parseDateDDMMYYYY } from './product-template';
 
 export interface ImportResult {
   success: boolean;
@@ -193,11 +195,18 @@ async function loadCategoryCache(supabase: Awaited<ReturnType<typeof createClien
 
 function getCategoryInfo(
   data: ProductCSVRow,
-  cache: Map<string, CategoryInfo>
+  cache: Map<string, CategoryInfo>,
+  categoryIndex: 1 | 2 | 3 = 1
 ): CategoryInfo | null {
-  const categoria = data.Categoria?.toLowerCase().trim() || '';
-  const subcategoria = data.Subcategoria?.toLowerCase().trim() || '';
-  const tipo = data.Tipo_producto?.toLowerCase().trim() || '';
+  const catField = `Categoria_${categoryIndex}` as keyof ProductCSVRow;
+  const subField = `Subcategoria_${categoryIndex}` as keyof ProductCSVRow;
+  const typeField = `Tipo_producto_${categoryIndex}` as keyof ProductCSVRow;
+  
+  const categoria = data[catField]?.toLowerCase().trim() || '';
+  const subcategoria = data[subField]?.toLowerCase().trim() || '';
+  const tipo = data[typeField]?.toLowerCase().trim() || '';
+  
+  if (!categoria) return null;
   
   // Intentar con los 3 niveles
   if (tipo) {
@@ -216,6 +225,22 @@ function getCategoryInfo(
   return null;
 }
 
+function getAllCategoryInfos(
+  data: ProductCSVRow,
+  cache: Map<string, CategoryInfo>
+): CategoryInfo[] {
+  const categories: CategoryInfo[] = [];
+  
+  for (const idx of [1, 2, 3] as const) {
+    const info = getCategoryInfo(data, cache, idx);
+    if (info) {
+      categories.push(info);
+    }
+  }
+  
+  return categories;
+}
+
 async function createProduct(
   supabase: Awaited<ReturnType<typeof createClient>>,
   data: ProductCSVRow,
@@ -227,14 +252,19 @@ async function createProduct(
   // Generar slug
   const slug = generateSlug(data.Producto);
   
-  // Obtener categoría
-  const categoryInfo = getCategoryInfo(data, categoryCache);
+  // Obtener todas las categorías (hasta 3)
+  const categoryInfos = getAllCategoryInfos(data, categoryCache);
+  const primaryCategory = categoryInfos[0] || null;
+  
+  // Parsear fecha de lanzamiento (DD/MM/YYYY -> YYYY-MM-DD)
+  const fechaLanzamiento = parseDateDDMMYYYY(data.Fecha_Lanzamiento);
   
   // Crear producto
   const { data: product, error } = await supabase
     .from('products')
     .insert({
       pdt_codigo: data.Ref,
+      ref_pub: data.Ref_Pub || null,
       codigo_barras: data.Cod_Barra || null,
       nombre_comercial: data.Producto,
       pdt_descripcion: data.Descripcion || null,
@@ -247,7 +277,7 @@ async function createProduct(
       pdt_empaque: data.Inner_pack || null,
       outer_pack: parseNumericValue(data.Outer_pack) as number | null,
       nombre_coleccion: data.Coleccion || null,
-      product_type_id: categoryInfo?.productTypeId || null,
+      product_type_id: primaryCategory?.productTypeId || null,
       material: data.Material || null,
       color: data.Color || null,
       dimensiones: data.Dimensiones || null,
@@ -267,10 +297,11 @@ async function createProduct(
       tags: data.Tags ? data.Tags.split(',').map(t => t.trim()) : null,
       video_url: data.Video_URL || null,
       ficha_tecnica_url: data.Ficha_Tecnica_URL || null,
-      fecha_lanzamiento: data.Fecha_Lanzamiento || null,
+      fecha_lanzamiento: fechaLanzamiento,
+      horeca: parseHoReCaValue(data.HoReCa),
       imagen_principal_url: data.Image_1 || null,
       slug,
-      is_active: true,
+      is_active: parseEstadoValue(data.Estado),
       is_on_sale: (parseNumericValue(data.Descuento) || 0) > 0,
       last_csv_update: new Date().toISOString(),
       created_by: userId,
@@ -283,15 +314,17 @@ async function createProduct(
     throw new Error(`Error creando producto: ${error.message}`);
   }
   
-  // Asociar con categoría
-  if (product && categoryInfo) {
+  // Asociar con todas las categorías (hasta 3)
+  if (product && categoryInfos.length > 0) {
+    const categoryInserts = categoryInfos.map((catInfo, index) => ({
+      product_id: product.id,
+      subcategory_id: catInfo.subcategoryId,
+      is_primary: index === 0, // Primera categoría es primaria
+    }));
+    
     await supabase
       .from('product_categories')
-      .insert({
-        product_id: product.id,
-        subcategory_id: categoryInfo.subcategoryId,
-        is_primary: true,
-      });
+      .insert(categoryInserts);
   }
   
   // Insertar imágenes adicionales
@@ -345,8 +378,10 @@ async function updateProduct(
   
   // Mapear campos CSV a campos de BD
   const fieldMap: Record<string, { dbField: string; transform?: (v: string) => unknown }> = {
+    Ref_Pub: { dbField: 'ref_pub' },
     Cod_Barra: { dbField: 'codigo_barras' },
     Producto: { dbField: 'nombre_comercial' },
+    Estado: { dbField: 'is_active', transform: parseEstadoValue },
     Descripcion: { dbField: 'pdt_descripcion' },
     Marca: { dbField: 'marca' },
     Precio_COP: { dbField: 'precio', transform: parseNumericValue },
@@ -376,7 +411,8 @@ async function updateProduct(
     Tags: { dbField: 'tags', transform: (v) => v ? v.split(',').map(t => t.trim()) : null },
     Video_URL: { dbField: 'video_url' },
     Ficha_Tecnica_URL: { dbField: 'ficha_tecnica_url' },
-    Fecha_Lanzamiento: { dbField: 'fecha_lanzamiento' },
+    Fecha_Lanzamiento: { dbField: 'fecha_lanzamiento', transform: parseDateDDMMYYYY },
+    HoReCa: { dbField: 'horeca', transform: parseHoReCaValue },
     Image_1: { dbField: 'imagen_principal_url' },
   };
   
@@ -400,12 +436,40 @@ async function updateProduct(
     throw new Error(`Error actualizando producto: ${error.message}`);
   }
   
-  // Actualizar tipo de producto si cambió
-  if (categoryInfo?.productTypeId) {
+  // Actualizar categorías si cambiaron (cualquiera de las 3)
+  const categoryChanges = diff.changes.filter(c => 
+    c.field.startsWith('Categoria_') || 
+    c.field.startsWith('Subcategoria_') || 
+    c.field.startsWith('Tipo_producto_')
+  );
+  
+  if (categoryChanges.length > 0) {
+    // Eliminar categorías existentes y reinsertar
     await supabase
-      .from('products')
-      .update({ product_type_id: categoryInfo.productTypeId })
-      .eq('id', productId);
+      .from('product_categories')
+      .delete()
+      .eq('product_id', productId);
+    
+    const categoryInfos = getAllCategoryInfos(data, categoryCache);
+    if (categoryInfos.length > 0) {
+      const categoryInserts = categoryInfos.map((catInfo, index) => ({
+        product_id: productId,
+        subcategory_id: catInfo.subcategoryId,
+        is_primary: index === 0,
+      }));
+      
+      await supabase
+        .from('product_categories')
+        .insert(categoryInserts);
+      
+      // Actualizar product_type_id con la categoría primaria
+      if (categoryInfos[0]?.productTypeId) {
+        await supabase
+          .from('products')
+          .update({ product_type_id: categoryInfos[0].productTypeId })
+          .eq('id', productId);
+      }
+    }
   }
   
   // Actualizar imágenes si cambiaron

@@ -67,11 +67,11 @@ export async function getProductBySlug(slug: string): Promise<ProductWithCategor
   return data
 }
 
-// Obtener productos por categoría
-export async function getProductsBySubcategory(subcategorySlug: string, limit = 20) {
+// Obtener productos por categoría (excluye productos EXCLUSIVO de HoReCa para retail)
+export async function getProductsBySubcategory(subcategorySlug: string, limit = 20, includeHorecaExclusive = false) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("products")
     .select(`
       *,
@@ -83,10 +83,45 @@ export async function getProductsBySubcategory(subcategorySlug: string, limit = 
     `)
     .eq("product_categories.subcategory.slug", subcategorySlug)
     .eq("is_active", true)
+  
+  // Excluir productos EXCLUSIVO de HoReCa en secciones retail
+  if (!includeHorecaExclusive) {
+    query = query.or('horeca.is.null,horeca.neq.EXCLUSIVO')
+  }
+  
+  const { data, error } = await query
     .order("pdt_descripcion")
     .limit(limit)
 
   if (error) {
+    return []
+  }
+
+  return data || []
+}
+
+// Obtener productos para la sección HoReCa (solo productos con horeca = 'SI' o 'EXCLUSIVO')
+export async function getProductsForHoReCa(limit = 50) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(`
+      *,
+      product_categories (
+        subcategory:subcategories (
+          *,
+          silo:silos (*)
+        )
+      )
+    `)
+    .in("horeca", ["SI", "EXCLUSIVO"])
+    .eq("is_active", true)
+    .order("pdt_descripcion")
+    .limit(limit)
+
+  if (error) {
+    console.log("[v0] Error fetching HoReCa products:", error)
     return []
   }
 
@@ -136,19 +171,24 @@ export async function getAvailableProductTypesBySubcategory(subcategorySlug: str
   }
 }
 
-// Obtener productos filtrados por subcategoría y tipo de producto
-export async function getProductsBySubcategoryAndType(subcategorySlug: string, productTypeSlug: string) {
+// Obtener productos filtrados por subcategoría y tipo de producto (excluye EXCLUSIVO HoReCa en retail)
+export async function getProductsBySubcategoryAndType(subcategorySlug: string, productTypeSlug?: string, includeHorecaExclusive = false) {
   const supabase = await createClient()
 
   const { error: checkError } = await supabase.from("product_types").select("id").limit(1)
 
   if (checkError) {
     console.log("[v0] product_types table doesn't exist yet, falling back to subcategory only")
-    return getProductsBySubcategory(subcategorySlug)
+    return getProductsBySubcategory(subcategorySlug, 20, includeHorecaExclusive)
+  }
+
+  // Si no hay tipo de producto, obtener todos los productos de la subcategoría
+  if (!productTypeSlug) {
+    return getProductsBySubcategory(subcategorySlug, 100, includeHorecaExclusive)
   }
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select(
         `
@@ -168,37 +208,23 @@ export async function getProductsBySubcategoryAndType(subcategorySlug: string, p
       .eq("product_categories.subcategory.slug", subcategorySlug)
       .eq("product_product_types.product_type.slug", productTypeSlug)
       .eq("is_active", true)
-      .order("pdt_descripcion")
+    
+    // Excluir productos EXCLUSIVO de HoReCa en secciones retail
+    if (!includeHorecaExclusive) {
+      query = query.or('horeca.is.null,horeca.neq.EXCLUSIVO')
+    }
+    
+    const { data, error } = await query.order("pdt_descripcion")
 
     if (error) {
       // Si falla el filtrado por tipo, intentar solo por subcategoría
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from("products")
-        .select(
-          `
-          *,
-          product_categories!inner (
-            subcategory:subcategories!inner (
-              slug
-            )
-          )
-        `,
-        )
-        .eq("product_categories.subcategory.slug", subcategorySlug)
-        .eq("is_active", true)
-        .order("pdt_descripcion")
-
-      if (fallbackError) {
-        return []
-      }
-
-      return fallbackData || []
+      return getProductsBySubcategory(subcategorySlug, 100, includeHorecaExclusive)
     }
 
     return data || []
   } catch (err) {
     console.log("[v0] Exception in getProductsBySubcategoryAndType:", err)
-    return getProductsBySubcategory(subcategorySlug)
+    return getProductsBySubcategory(subcategorySlug, 100, includeHorecaExclusive)
   }
 }
 
