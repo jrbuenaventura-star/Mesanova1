@@ -158,32 +158,28 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       const total = calculateTotal()
       const orderNumber = `ORD-${Date.now()}`
 
-      // Crear la orden
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: distributor.user_id,
-          distributor_id: selectedDistributorId,
+      const response = await fetch("/api/aliado/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           aliado_id: aliadoId,
-          status: "por_aprobar",
-          subtotal: total,
+          distributor_id: selectedDistributorId,
+          distributor_user_id: distributor.user_id,
+          distributor_company_name: distributor.company_name,
+          distributor_contact_email: distributor.contact_email || "",
+          distributor_contact_phone: distributor.contact_phone || "",
           discount_percentage: distributor.discount_percentage,
-          shipping_cost: 0,
-          total: total,
-          notes: notes,
-          customer_name: distributor.company_name,
-          customer_email: distributor.contact_email || "",
-          customer_phone: distributor.contact_phone || "",
-          shipping_address: "Por definir",
-          shipping_city: "Por definir",
-          payment_method: "Por definir",
-          shipping_method: "Por definir",
-          items: orderItems
-        })
-        .select()
-        .single()
+          notes,
+          items: orderItems,
+        }),
+      })
 
-      if (orderError) throw orderError
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || "Error al crear el pedido")
+      }
+
+      const order = json.order
 
       // Enviar correo a atencion@alumaronline.com
       try {

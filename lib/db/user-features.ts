@@ -1,6 +1,7 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 // =============================================================================
 // FAVORITOS
@@ -305,8 +306,8 @@ export async function purchaseGiftRegistryItem(
   quantity: number,
   orderId?: string
 ) {
-  const supabase = await createClient()
-  const { data, error } = await supabase
+  const admin = createAdminClient()
+  const { data, error } = await admin
     .from("gift_registry_purchases")
     .insert({
       registry_item_id: registryItemId,

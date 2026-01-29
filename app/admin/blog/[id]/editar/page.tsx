@@ -101,7 +101,6 @@ export default function EditarPostPage({ params }: { params: Promise<{ id: strin
     setSaving(true)
 
     const formData = new FormData(e.currentTarget)
-    const supabase = createClient()
 
     const title = formData.get("title") as string
     const slug = formData.get("slug") as string
@@ -109,35 +108,35 @@ export default function EditarPostPage({ params }: { params: Promise<{ id: strin
     const status = formData.get("status") as string
     const categoryId = formData.get("category") as string
 
-    const { error } = await supabase
-      .from("blog_posts")
-      .update({
-        title,
-        slug,
-        excerpt,
-        content,
-        status,
-        featured_image_url: featuredImageUrl || null,
-        published_at: status === "published" && !post.published_at ? new Date().toISOString() : post.published_at,
+    try {
+      const response = await fetch(`/api/admin/blog/posts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          excerpt,
+          content,
+          status,
+          featured_image_url: featuredImageUrl || null,
+          category_id: categoryId || null,
+          published_at: post?.published_at || null,
+        }),
       })
-      .eq("id", id)
 
-    if (error) {
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || "Failed to update post")
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "No se pudo actualizar el post"
       toast({
         title: "Error",
-        description: "No se pudo actualizar el post: " + error.message,
+        description: message,
         variant: "destructive",
       })
       setSaving(false)
       return
-    }
-
-    if (categoryId) {
-      await supabase.from("blog_post_categories").delete().eq("post_id", id)
-      await supabase.from("blog_post_categories").insert({
-        post_id: id,
-        category_id: categoryId,
-      })
     }
 
     toast({

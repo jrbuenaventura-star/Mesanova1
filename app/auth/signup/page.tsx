@@ -53,19 +53,6 @@ export default function SignupPage() {
       })
       if (error) throw error
 
-      if (data.user) {
-        // Crear perfil de usuario
-        const { error: profileError } = await supabase.from("user_profiles").insert({
-          id: data.user.id,
-          full_name: fullName,
-          role: "end_user",
-        })
-
-        if (profileError) {
-          console.error("Error creating profile:", profileError)
-        }
-      }
-
       router.push("/auth/verify-email")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Ha ocurrido un error")

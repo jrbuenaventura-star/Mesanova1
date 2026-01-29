@@ -145,49 +145,35 @@ export default function CheckoutPage() {
         })),
       }
 
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert(orderData)
-        .select()
-        .single()
+      const response = await fetch("/api/checkout/place-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order: orderData,
+          coupon: appliedCoupon
+            ? {
+                id: appliedCoupon.id,
+                discount_applied: discountAmount,
+                order_total_before: subtotal + shippingCost,
+                order_total_after: totalWithShipping,
+              }
+            : null,
+          giftCardRedemption:
+            appliedGiftCard && giftCardApplied > 0
+              ? {
+                  gift_card_id: appliedGiftCard.id,
+                  amount: giftCardApplied,
+                }
+              : null,
+        }),
+      })
 
-      if (error) throw error
-
-      // Registrar uso de cupón si aplica
-      if (appliedCoupon) {
-        await supabase.from('coupon_usages').insert({
-          coupon_id: appliedCoupon.id,
-          user_id: user?.id || null,
-          order_id: order.id,
-          discount_applied: discountAmount,
-          order_total_before: subtotal + shippingCost,
-          order_total_after: totalWithShipping,
-        })
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || "Error placing order")
       }
 
-      // Registrar uso de bono si aplica
-      if (appliedGiftCard && giftCardApplied > 0) {
-        const newBalance = appliedGiftCard.current_balance - giftCardApplied
-        
-        // Actualizar balance del bono
-        await supabase
-          .from('gift_cards')
-          .update({ 
-            current_balance: newBalance,
-            last_used_at: new Date().toISOString()
-          })
-          .eq('id', appliedGiftCard.id)
-        
-        // Registrar transacción
-        await supabase.from('gift_card_transactions').insert({
-          gift_card_id: appliedGiftCard.id,
-          order_id: order.id,
-          amount: giftCardApplied,
-          transaction_type: 'redemption',
-          balance_before: appliedGiftCard.current_balance,
-          balance_after: newBalance,
-        })
-      }
+      const order = json.order
 
       // Identificar usuario y rastrear compra en Clientify
       identifyUser({

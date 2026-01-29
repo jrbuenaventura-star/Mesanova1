@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Gift, Loader2, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
 
 const PRESET_AMOUNTS = [50000, 100000, 200000, 500000]
 
@@ -53,45 +52,26 @@ export default function ComprarBonoPage() {
     setIsProcessing(true)
 
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      // Generar código de bono
-      const { data: codeData } = await supabase.rpc('generate_gift_card_code')
-      const code = codeData || `GC-${Date.now()}`
-
-      const expiresAt = new Date()
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1) // 12 meses
-
-      const { data: giftCard, error } = await supabase
-        .from('gift_cards')
-        .insert({
-          code,
-          initial_amount: finalAmount,
-          current_balance: finalAmount,
-          purchased_by: user?.id || null,
-          purchaser_email: formData.purchaserEmail,
-          purchaser_name: formData.purchaserName,
-          recipient_email: isGift ? formData.recipientEmail : formData.purchaserEmail,
-          recipient_name: isGift ? formData.recipientName : formData.purchaserName,
-          personal_message: isGift ? formData.personalMessage : null,
-          expires_at: expiresAt.toISOString(),
-          status: 'active',
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-
-      // Registrar transacción inicial
-      await supabase.from('gift_card_transactions').insert({
-        gift_card_id: giftCard.id,
-        amount: finalAmount,
-        transaction_type: 'purchase',
-        balance_before: 0,
-        balance_after: finalAmount,
-        notes: 'Compra inicial',
+      const response = await fetch("/api/gift-cards/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalAmount,
+          purchaserName: formData.purchaserName,
+          purchaserEmail: formData.purchaserEmail,
+          isGift,
+          recipientName: formData.recipientName,
+          recipientEmail: formData.recipientEmail,
+          personalMessage: formData.personalMessage,
+        }),
       })
+
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || "Error creating gift card")
+      }
+
+      const code = json.code as string
 
       toast.success("¡Bono creado exitosamente!", {
         description: `Código: ${code}`

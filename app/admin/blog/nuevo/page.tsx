@@ -76,21 +76,6 @@ export default function NuevoPostPage() {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const supabase = createClient()
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "Debes estar autenticado para crear posts",
-        variant: "destructive",
-      })
-      setLoading(false)
-      return
-    }
 
     const title = formData.get("title") as string
     const slug = formData.get("slug") as string
@@ -98,36 +83,34 @@ export default function NuevoPostPage() {
     const status = formData.get("status") as string
     const categoryId = formData.get("category") as string
 
-    const { data: post, error } = await supabase
-      .from("blog_posts")
-      .insert({
-        title,
-        slug,
-        excerpt,
-        content,
-        status,
-        featured_image_url: featuredImageUrl || null,
-        author_id: user.id,
-        published_at: status === "published" ? new Date().toISOString() : null,
+    try {
+      const response = await fetch("/api/admin/blog/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          excerpt,
+          content,
+          status,
+          featured_image_url: featuredImageUrl || null,
+          category_id: categoryId || null,
+        }),
       })
-      .select()
-      .single()
 
-    if (error) {
+      const json = await response.json()
+      if (!response.ok) {
+        throw new Error(json?.error || "Failed to create post")
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "No se pudo crear el post"
       toast({
         title: "Error",
-        description: "No se pudo crear el post: " + error.message,
+        description: message,
         variant: "destructive",
       })
       setLoading(false)
       return
-    }
-
-    if (categoryId && post) {
-      await supabase.from("blog_post_categories").insert({
-        post_id: post.id,
-        category_id: categoryId,
-      })
     }
 
     toast({
