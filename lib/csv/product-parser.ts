@@ -414,6 +414,29 @@ export function parseCSV(csvContent: string): CSVParseResult {
     if (line.trim() === '') continue;
     
     const values = parseCSVLine(line);
+
+    if (values.length !== headers.length) {
+      const rowData: ProductCSVRow = {} as ProductCSVRow;
+      for (const header of CSV_HEADERS) {
+        const index = headerIndexMap[header];
+        rowData[header] = index !== undefined ? (values[index] || '') : '';
+      }
+
+      products.push({
+        row: i + 1,
+        data: rowData,
+        errors: [
+          {
+            field: 'Ref',
+            message: `La fila tiene ${values.length} columnas pero se esperaban ${headers.length}. Esto suele ocurrir cuando un campo de texto (por ejemplo Descrip_Cliente_Final) contiene comas o saltos de línea sin estar entre comillas.`,
+            value: '',
+          },
+        ],
+        warnings: [],
+        isValid: false,
+      });
+      continue;
+    }
     
     // Crear objeto ProductCSVRow
     const rowData: ProductCSVRow = {} as ProductCSVRow;
