@@ -320,14 +320,24 @@ export function parseDateDDMMYYYY(dateStr: string): string | null {
   
   const trimmed = dateStr.trim();
   
-  // Intentar formato DD/MM/YYYY
-  const ddmmyyyy = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
+  // Intentar formato DD/MM/YYYY o DD/MM/YY
+  const ddmmyyyy = /^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{2}|[0-9]{4})$/;
   const match = trimmed.match(ddmmyyyy);
   if (match) {
-    const day = match[1].padStart(2, '0');
-    const month = match[2].padStart(2, '0');
-    const year = match[3];
-    return `${year}-${month}-${day}`;
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    let year = parseInt(match[3], 10);
+    if (match[3].length === 2) {
+      year = year >= 50 ? 1900 + year : 2000 + year;
+    }
+    
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    
+    // Crear fecha y validar
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) return null;
+    
+    return date.toISOString().split('T')[0];
   }
   
   // Intentar formato YYYY-MM-DD (ya está en formato correcto)

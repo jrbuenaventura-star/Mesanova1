@@ -102,8 +102,8 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
   for (const field of NUMERIC_FIELDS) {
     const value = row[field];
     if (value && value.trim() !== '') {
-      const numValue = parseFloat(value.replace(/[,$]/g, ''));
-      if (isNaN(numValue)) {
+      const numValue = normalizeNumeric(value);
+      if (numValue === null || isNaN(numValue)) {
         errors.push({
           field,
           message: `El campo ${field} debe ser un número válido`,
@@ -243,7 +243,7 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     if (!parsedDate) {
       errors.push({
         field: 'Fecha_Lanzamiento',
-        message: 'La fecha debe tener formato DD/MM/YYYY (ej: 15/01/2026)',
+        message: 'La fecha debe tener formato DD/MM/YYYY o DD/MM/AA (ej: 15/01/2026 o 15/01/26)',
         value: row.Fecha_Lanzamiento,
       });
     } else {
