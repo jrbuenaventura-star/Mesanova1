@@ -83,6 +83,48 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
+function splitCSVRows(csvContent: string): string[] {
+  const rows: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < csvContent.length; i++) {
+    const char = csvContent[i];
+    const nextChar = csvContent[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        i++;
+        continue;
+      }
+      inQuotes = !inQuotes;
+      current += char;
+      continue;
+    }
+
+    if (!inQuotes && (char === '\n' || char === '\r')) {
+      if (char === '\r' && nextChar === '\n') {
+        i++;
+      }
+
+      if (current.trim() !== '') {
+        rows.push(current);
+      }
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.trim() !== '') {
+    rows.push(current);
+  }
+
+  return rows;
+}
+
 function validateRow(row: ProductCSVRow, rowNumber: number): { errors: ValidationError[]; warnings: ValidationWarning[] } {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
@@ -318,7 +360,7 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
 }
 
 export function parseCSV(csvContent: string): CSVParseResult {
-  const lines = csvContent.split(/\r?\n/).filter(line => line.trim() !== '');
+  const lines = splitCSVRows(csvContent).filter(line => line.trim() !== '');
   const globalErrors: string[] = [];
   const products: ParsedProduct[] = [];
   
