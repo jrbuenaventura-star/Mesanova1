@@ -196,11 +196,11 @@ async function loadCategoryCache(supabase: Awaited<ReturnType<typeof createClien
 function getCategoryInfo(
   data: ProductCSVRow,
   cache: Map<string, CategoryInfo>,
-  categoryIndex: 1 | 2 | 3 = 1
+  index: 1 | 2 = 1
 ): CategoryInfo | null {
-  const catField = `Categoria_${categoryIndex}` as keyof ProductCSVRow;
-  const subField = `Subcategoria_${categoryIndex}` as keyof ProductCSVRow;
-  const typeField = `Tipo_producto_${categoryIndex}` as keyof ProductCSVRow;
+  const catField = `Categoria_${index}` as keyof ProductCSVRow;
+  const subField = `Subcategoria_${index}` as keyof ProductCSVRow;
+  const typeField = `Tipo_producto_${index}` as keyof ProductCSVRow;
   
   const categoria = data[catField]?.toLowerCase().trim() || '';
   const subcategoria = data[subField]?.toLowerCase().trim() || '';
@@ -229,16 +229,17 @@ function getAllCategoryInfos(
   data: ProductCSVRow,
   cache: Map<string, CategoryInfo>
 ): CategoryInfo[] {
-  const categories: CategoryInfo[] = [];
+  const categoryInfos: CategoryInfo[] = [];
   
-  for (const idx of [1, 2, 3] as const) {
-    const info = getCategoryInfo(data, cache, idx);
+  // Procesar hasta 2 categorías
+  for (let i = 1; i <= 2; i++) {
+    const info = getCategoryInfo(data, cache, i as 1 | 2);
     if (info) {
-      categories.push(info);
+      categoryInfos.push(info);
     }
   }
   
-  return categories;
+  return categoryInfos;
 }
 
 async function createProduct(
@@ -264,13 +265,13 @@ async function createProduct(
     .from('products')
     .insert({
       pdt_codigo: data.Ref,
-      ref_pub: data.Ref_Pub || null,
-      codigo_barras: data.Cod_Barra || null,
+      ref_pub: data.SKU || null,
       nombre_comercial: data.Producto,
       pdt_descripcion: data.Descripcion || null,
       marca: data.Marca || null,
       precio: parseNumericValue(data.Precio_COP),
       descuento_porcentaje: parseNumericValue(data.Descuento) || 0,
+      precio_dist: parseNumericValue(data.Precio_Dist),
       upp_existencia: parseNumericValue(data.Existencia_inv) || 0,
       pedido_en_camino: parseBooleanValue(data.Pedido_en_camino),
       descontinuado: parseBooleanValue(data.Descontinuado),
@@ -378,14 +379,14 @@ async function updateProduct(
   
   // Mapear campos CSV a campos de BD
   const fieldMap: Record<string, { dbField: string; transform?: (v: string) => unknown }> = {
-    Ref_Pub: { dbField: 'ref_pub' },
-    Cod_Barra: { dbField: 'codigo_barras' },
+    SKU: { dbField: 'ref_pub' },
     Producto: { dbField: 'nombre_comercial' },
     Estado: { dbField: 'is_active', transform: parseEstadoValue },
     Descripcion: { dbField: 'pdt_descripcion' },
     Marca: { dbField: 'marca' },
     Precio_COP: { dbField: 'precio', transform: parseNumericValue },
     Descuento: { dbField: 'descuento_porcentaje', transform: (v) => parseNumericValue(v) || 0 },
+    Precio_Dist: { dbField: 'precio_dist', transform: parseNumericValue },
     Existencia_inv: { dbField: 'upp_existencia', transform: (v) => parseNumericValue(v) || 0 },
     Pedido_en_camino: { dbField: 'pedido_en_camino', transform: parseBooleanValue },
     Descontinuado: { dbField: 'descontinuado', transform: parseBooleanValue },
@@ -595,12 +596,13 @@ export async function exportProductsToCSV(
     
     const row: string[] = [
       escapeCSV(product.pdt_codigo || ''),
-      escapeCSV(product.codigo_barras || ''),
+      escapeCSV(product.ref_pub || ''),
       escapeCSV(product.nombre_comercial || ''),
       escapeCSV(product.pdt_descripcion || ''),
       escapeCSV(product.marca || ''),
       String(product.precio || ''),
       String(product.descuento_porcentaje || '0'),
+      String(product.precio_dist || ''),
       String(product.upp_existencia || '0'),
       product.pedido_en_camino ? 'SI' : 'NO',
       product.descontinuado ? 'SI' : 'NO',

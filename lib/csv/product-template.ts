@@ -5,16 +5,16 @@
 export interface ProductCSVRow {
   // Campos de identificación (ERP)
   Ref: string; // Código único del ERP (obligatorio)
-  Ref_Pub: string; // Referencia pública/comercial
-  Cod_Barra: string;
+  SKU: string; // Referencia pública/comercial
   Producto: string; // Nombre comercial (obligatorio)
   Estado: string; // ACTIVO/INACTIVO - visibilidad en marketplace (obligatorio)
   Descripcion: string;
   Marca: string;
   
   // Precios y ofertas
-  Precio_COP: string; // Obligatorio
-  Descuento: string; // Porcentaje (0-100)
+  Precio_COP: string; // Obligatorio - Precio público
+  Descuento: string; // Porcentaje (0-100) - Aplica solo al catálogo público
+  Precio_Dist: string; // Precio base para distribuidores
   
   // Inventario (sincronizable con ERP)
   Existencia_inv: string;
@@ -33,9 +33,6 @@ export interface ProductCSVRow {
   Categoria_2: string;
   Subcategoria_2: string;
   Tipo_producto_2: string;
-  Categoria_3: string;
-  Subcategoria_3: string;
-  Tipo_producto_3: string;
   
   // Características físicas
   Material: string;
@@ -85,14 +82,14 @@ export interface ProductCSVRow {
 
 export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Ref',
-  'Ref_Pub',
-  'Cod_Barra',
+  'SKU',
   'Producto',
   'Estado',
   'Descripcion',
   'Marca',
   'Precio_COP',
   'Descuento',
+  'Precio_Dist',
   'Existencia_inv',
   'Pedido_en_camino',
   'Descontinuado',
@@ -105,9 +102,6 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Categoria_2',
   'Subcategoria_2',
   'Tipo_producto_2',
-  'Categoria_3',
-  'Subcategoria_3',
-  'Tipo_producto_3',
   'Material',
   'Color',
   'Dimensiones',
@@ -143,14 +137,14 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
 
 export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Ref: 'Código de referencia único del ERP (obligatorio)',
-  Ref_Pub: 'Referencia pública/comercial visible para clientes',
-  Cod_Barra: 'Código de barras EAN/UPC',
+  SKU: 'Referencia pública/comercial visible para clientes (SKU)',
   Producto: 'Nombre comercial del producto (obligatorio)',
   Estado: 'ACTIVO/INACTIVO - Visibilidad en marketplace (obligatorio)',
   Descripcion: 'Descripción corta o subtítulo',
   Marca: 'Marca del producto',
-  Precio_COP: 'Precio base en pesos colombianos (obligatorio)',
-  Descuento: 'Porcentaje de descuento (0-100). Si > 0, aparece en ofertas',
+  Precio_COP: 'Precio público en pesos colombianos (obligatorio)',
+  Descuento: 'Porcentaje de descuento (0-100). Aplica solo al catálogo público. Si > 0, aparece en ofertas',
+  Precio_Dist: 'Precio base para distribuidores antes de aplicar su descuento',
   Existencia_inv: 'Cantidad en inventario (sincronizable con ERP)',
   Pedido_en_camino: 'SI/NO - Indica si hay pedido en tránsito',
   Descontinuado: 'SI/NO - El fabricante ya no produce este SKU',
@@ -163,9 +157,6 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Categoria_2: 'Segunda categoría (opcional)',
   Subcategoria_2: 'Subcategoría dentro de la categoría 2',
   Tipo_producto_2: 'Tipo específico de producto (3er nivel)',
-  Categoria_3: 'Tercera categoría (opcional)',
-  Subcategoria_3: 'Subcategoría dentro de la categoría 3',
-  Tipo_producto_3: 'Tipo específico de producto (3er nivel)',
   Material: 'Material principal del producto',
   Color: 'Color del producto',
   Dimensiones: 'Dimensiones del producto (ej: 30x20x10 cm)',
@@ -224,6 +215,7 @@ export type HoReCaValue = typeof HORECA_VALUES[number];
 export const NUMERIC_FIELDS: (keyof ProductCSVRow)[] = [
   'Precio_COP',
   'Descuento',
+  'Precio_Dist',
   'Existencia_inv',
   'Peso_kg',
   'Margen_Sugerido',
@@ -252,14 +244,14 @@ export function generateCSVWithDescriptions(): string {
 function generateExampleRow(): string {
   const example: Partial<ProductCSVRow> = {
     Ref: 'ABC-001',
-    Ref_Pub: 'MN-001',
-    Cod_Barra: '7701234567890',
+    SKU: 'MN-001',
     Producto: 'Tabla de Cortar Bambú Premium',
     Estado: 'ACTIVO',
     Descripcion: 'Tabla de cortar profesional en bambú ecológico',
     Marca: 'Mesa Nova',
     Precio_COP: '89900',
     Descuento: '15',
+    Precio_Dist: '67425',
     Existencia_inv: '150',
     Pedido_en_camino: 'NO',
     Descontinuado: 'NO',
@@ -272,9 +264,6 @@ function generateExampleRow(): string {
     Categoria_2: '',
     Subcategoria_2: '',
     Tipo_producto_2: '',
-    Categoria_3: '',
-    Subcategoria_3: '',
-    Tipo_producto_3: '',
     Material: 'Bambú',
     Color: 'Natural',
     Dimensiones: '40x30x2 cm',

@@ -199,11 +199,10 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     }
   }
   
-  // Validar categorías (1, 2, 3)
+  // Validar categorías (1, 2)
   const categoryFields: { cat: keyof ProductCSVRow; sub: keyof ProductCSVRow; type: keyof ProductCSVRow; required: boolean }[] = [
     { cat: 'Categoria_1', sub: 'Subcategoria_1', type: 'Tipo_producto_1', required: true },
     { cat: 'Categoria_2', sub: 'Subcategoria_2', type: 'Tipo_producto_2', required: false },
-    { cat: 'Categoria_3', sub: 'Subcategoria_3', type: 'Tipo_producto_3', required: false },
   ];
   
   for (const catSet of categoryFields) {
@@ -495,14 +494,14 @@ export function compareWithExisting(
       
       const fieldMappings: Record<keyof ProductCSVRow, string> = {
         Ref: 'pdt_codigo',
-        Ref_Pub: 'ref_pub',
-        Cod_Barra: 'codigo_barras',
+        SKU: 'ref_pub',
         Producto: 'nombre_comercial',
         Estado: 'is_active',
         Descripcion: 'pdt_descripcion',
         Marca: 'marca',
         Precio_COP: 'precio',
         Descuento: 'descuento_porcentaje',
+        Precio_Dist: 'precio_dist',
         Existencia_inv: 'upp_existencia',
         Pedido_en_camino: 'pedido_en_camino',
         Descontinuado: 'descontinuado',
@@ -515,9 +514,6 @@ export function compareWithExisting(
         Categoria_2: '_category_2',
         Subcategoria_2: '_subcategory_2',
         Tipo_producto_2: '_type_2',
-        Categoria_3: '_category_3',
-        Subcategoria_3: '_subcategory_3',
-        Tipo_producto_3: '_type_3',
         Material: 'material',
         Color: 'color',
         Dimensiones: 'dimensiones',
