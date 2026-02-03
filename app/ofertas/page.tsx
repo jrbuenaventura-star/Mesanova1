@@ -6,6 +6,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
 import { getImageKitUrl } from "@/lib/imagekit"
+import { calculateProductPricing, formatPrice } from "@/lib/pricing"
 
 export const metadata = {
   title: "Ofertas - Mesanova",
@@ -74,9 +75,14 @@ export default async function OfertasPage() {
                 const siloSlug = primaryCategory?.subcategory?.silo?.slug || "productos"
                 const categoryName = primaryCategory?.subcategory?.silo?.name || "Producto"
                 
-                const originalPrice = producto.precio || 0
-                const discountPercentage = producto.discount_percentage || 20
-                const discountPrice = originalPrice * (1 - discountPercentage / 100)
+                const pricing = calculateProductPricing(
+                  {
+                    precio: producto.precio,
+                    descuento_porcentaje: producto.descuento_porcentaje,
+                    precio_dist: producto.precio_dist,
+                  },
+                  null // Public catalog, no distributor
+                )
 
                 return (
                   <Card key={producto.id} className="overflow-hidden group">
@@ -93,9 +99,11 @@ export default async function OfertasPage() {
                           <Package className="h-12 w-12 text-muted-foreground" />
                         </div>
                       )}
-                      <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
-                        -{discountPercentage}%
-                      </Badge>
+                      {pricing.publicHasDiscount && (
+                        <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
+                          -{pricing.publicDiscount}%
+                        </Badge>
+                      )}
                     </div>
                     <CardHeader>
                       <div className="flex items-center gap-2 mb-2">
@@ -117,11 +125,13 @@ export default async function OfertasPage() {
                       <CardDescription>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-2xl font-bold text-foreground">
-                            ${discountPrice.toLocaleString("es-CO", { minimumFractionDigits: 2 })}
+                            {formatPrice(pricing.publicPrice)}
                           </span>
-                          <span className="text-sm line-through text-muted-foreground">
-                            ${originalPrice.toLocaleString("es-CO", { minimumFractionDigits: 2 })}
-                          </span>
+                          {pricing.publicOriginalPrice && (
+                            <span className="text-sm line-through text-muted-foreground">
+                              {formatPrice(pricing.publicOriginalPrice)}
+                            </span>
+                          )}
                         </div>
                       </CardDescription>
                     </CardHeader>

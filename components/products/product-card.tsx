@@ -7,18 +7,29 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { FavoriteButton } from "@/components/products/favorite-button"
 import { getImageKitUrl } from "@/lib/imagekit"
+import { calculateProductPricing, formatPrice } from "@/lib/pricing"
 
 interface ProductCardProps {
   product: Product
   showFavoriteButton?: boolean
   isFavorited?: boolean
+  distributor?: { discount_percentage: number } | null
 }
 
-export function ProductCard({ product, showFavoriteButton = true, isFavorited = false }: ProductCardProps) {
+export function ProductCard({ product, showFavoriteButton = true, isFavorited = false, distributor = null }: ProductCardProps) {
   const hasStock = product.upp_existencia > 0
   const imageUrl = product.imagen_principal_url
     ? getImageKitUrl(product.imagen_principal_url, { width: 600, height: 600, quality: 80, format: "auto" })
     : "/placeholder.svg?height=300&width=300"
+
+  const pricing = calculateProductPricing(
+    {
+      precio: product.precio ?? null,
+      descuento_porcentaje: product.descuento_porcentaje ?? null,
+      precio_dist: product.precio_dist ?? null,
+    },
+    distributor
+  )
 
   return (
     <Card className="group overflow-hidden h-full flex flex-col">
@@ -73,12 +84,29 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
           </h3>
         </Link>
         <p className="text-xs text-muted-foreground mb-2">Código: {product.pdt_codigo}</p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold">${product.precio?.toFixed(2)}</span>
-          {product.is_on_sale && (
-            <span className="text-sm text-muted-foreground line-through">${(product.precio! * 1.2).toFixed(2)}</span>
-          )}
-        </div>
+        
+        {/* Public pricing (no distributor) */}
+        {!distributor && (
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold">{formatPrice(pricing.publicPrice)}</span>
+            {pricing.publicHasDiscount && pricing.publicOriginalPrice && (
+              <span className="text-sm text-muted-foreground line-through">{formatPrice(pricing.publicOriginalPrice)}</span>
+            )}
+          </div>
+        )}
+
+        {/* Distributor pricing */}
+        {distributor && pricing.distributorNetPrice && (
+          <div className="space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold">{formatPrice(pricing.distributorNetPrice)}</span>
+              <span className="text-xs text-muted-foreground">Precio neto</span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Base: {formatPrice(pricing.distributorBasePrice)} • Sugerido: {formatPrice(pricing.distributorSuggestedPrice)}
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="p-4 pt-0">

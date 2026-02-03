@@ -34,6 +34,8 @@ export interface Product {
   valorinv?: number
   ubicacion?: string
   precio?: number
+  precio_dist?: number
+  ref_pub?: string
   nombre_comercial?: string
   descripcion_larga?: string
   caracteristicas?: string
@@ -66,7 +68,7 @@ export interface Product {
   is_new: boolean
   is_on_sale: boolean
   imagen_principal_url?: string
-  // Campos CSV adicionales (schema 016)
+  // Campos CSV adicionales (schema 016+)
   codigo_barras?: string
   descuento_porcentaje?: number
   precio_antes?: number
