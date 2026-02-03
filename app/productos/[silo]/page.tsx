@@ -9,6 +9,7 @@ import {
   getProductsBySubcategoryAndType,
   getAvailableProductTypesBySubcategory,
   getProductsForHoReCa,
+  getProductsBySilo,
 } from "@/lib/db/queries"
 import { ProductCard } from "@/components/products/product-card"
 import { ProductsWithFilters } from "@/components/products/products-with-filters"
@@ -71,6 +72,9 @@ export default async function SiloPage({
   } else if (selectedSubcategory) {
     availableTypes = await getAvailableProductTypesBySubcategory(selectedSubcategory.slug)
     products = await getProductsBySubcategoryAndType(selectedSubcategory.slug, search.tipo)
+  } else {
+    // Por defecto, mostrar todos los productos del silo
+    products = await getProductsBySilo(silo, 200)
   }
 
   return (
@@ -162,26 +166,19 @@ export default async function SiloPage({
       {/* Products Section */}
       <section className="py-12 px-4">
         <div className="container mx-auto">
-          {selectedSubcategory ? (
-            <>
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold">
-                  {search.tipo ? availableTypes.find((t) => t.slug === search.tipo)?.name : selectedSubcategory.name}
-                </h2>
-              </div>
-
-              <ProductsWithFilters
-                products={products}
-                subcategories={siloData.subcategories || []}
-                siloSlug={silo}
-              />
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold mb-4">Selecciona una subcategoría</h2>
-              <p className="text-muted-foreground">Elige una subcategoría arriba para ver los productos disponibles</p>
+          <>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold">
+                {selectedSubcategory
+                  ? search.tipo
+                    ? availableTypes.find((t) => t.slug === search.tipo)?.name
+                    : selectedSubcategory.name
+                  : `Todos los productos de ${siloData.name}`}
+              </h2>
             </div>
-          )}
+
+            <ProductsWithFilters products={products} subcategories={siloData.subcategories || []} siloSlug={silo} />
+          </>
         </div>
       </section>
     </main>

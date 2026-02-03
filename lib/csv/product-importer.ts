@@ -30,6 +30,15 @@ interface CategoryInfo {
   productTypeId?: string;
 }
 
+function normalizeKeyPart(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/\s+/g, ' ');
+}
+
 export async function importProducts(
   products: ParsedProduct[],
   diffs: ProductDiff[],
@@ -71,7 +80,7 @@ export async function importProducts(
   const importId = importRecord.id;
   
   // Pre-cargar categorías
-  const categoryCache = await loadCategoryCache(supabase);
+  const categoryCache = await buildCategoryCache(supabase);
   
   // Procesar cada producto
   for (let i = 0; i < products.length; i++) {
@@ -144,8 +153,10 @@ export async function importProducts(
   };
 }
 
-async function loadCategoryCache(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const cache: Map<string, CategoryInfo> = new Map();
+async function buildCategoryCache(
+  supabase: Awaited<ReturnType<typeof createClient>>
+): Promise<Map<string, CategoryInfo>> {
+  const cache = new Map<string, CategoryInfo>();
   
   // Cargar silos
   const { data: silos } = await supabase
@@ -167,23 +178,36 @@ async function loadCategoryCache(supabase: Awaited<ReturnType<typeof createClien
     for (const silo of silos) {
       const siloSubs = subcategories.filter(s => s.silo_id === silo.id);
       for (const sub of siloSubs) {
-        // Clave: "categoria|subcategoria"
-        const key = `${silo.name.toLowerCase()}|${sub.name.toLowerCase()}`;
-        cache.set(key, {
-          siloId: silo.id,
-          subcategoryId: sub.id,
-        });
-        
+        // Cache key para 2 niveles: silo|subcategoria
+        const subKey = `${normalizeKeyPart(silo.name)}|${normalizeKeyPart(sub.name)}`;
+        if (!cache.has(subKey)) {
+          cache.set(subKey, {
+            siloId: silo.id,
+            subcategoryId: sub.id,
+          });
+        }
+
+        // Cache key para 1 nivel: solo silo (fallback)
+        const siloKey = `${normalizeKeyPart(silo.name)}`;
+        if (!cache.has(siloKey)) {
+          cache.set(siloKey, {
+            siloId: silo.id,
+            subcategoryId: sub.id,
+          });
+        }
+
         // También agregar tipos si existen
         if (productTypes) {
           const subTypes = productTypes.filter(t => t.subcategory_id === sub.id);
           for (const type of subTypes) {
-            const typeKey = `${silo.name.toLowerCase()}|${sub.name.toLowerCase()}|${type.name.toLowerCase()}`;
-            cache.set(typeKey, {
-              siloId: silo.id,
-              subcategoryId: sub.id,
-              productTypeId: type.id,
-            });
+            const typeKey = `${normalizeKeyPart(silo.name)}|${normalizeKeyPart(sub.name)}|${normalizeKeyPart(type.name)}`;
+            if (!cache.has(typeKey)) {
+              cache.set(typeKey, {
+                siloId: silo.id,
+                subcategoryId: sub.id,
+                productTypeId: type.id,
+              });
+            }
           }
         }
       }
@@ -202,9 +226,9 @@ function getCategoryInfo(
   const subField = `Subcategoria_${index}` as keyof ProductCSVRow;
   const typeField = `Tipo_producto_${index}` as keyof ProductCSVRow;
   
-  const categoria = data[catField]?.toLowerCase().trim() || '';
-  const subcategoria = data[subField]?.toLowerCase().trim() || '';
-  const tipo = data[typeField]?.toLowerCase().trim() || '';
+  const categoria = normalizeKeyPart(data[catField] || '');
+  const subcategoria = normalizeKeyPart(data[subField] || '');
+  const tipo = normalizeKeyPart(data[typeField] || '');
   
   if (!categoria) return null;
   
@@ -221,6 +245,11 @@ function getCategoryInfo(
     const info = cache.get(key);
     if (info) return info;
   }
+
+  // Intentar con 1 nivel (solo silo)
+  const siloKey = `${categoria}`;
+  const siloInfo = cache.get(siloKey);
+  if (siloInfo) return siloInfo;
   
   return null;
 }

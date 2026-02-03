@@ -239,6 +239,7 @@ export interface Distributor {
   monthly_budget_cocina: number
   monthly_budget_mesa: number
   monthly_budget_cafe_te_bar: number
+  monthly_budget_termos_neveras: number
   monthly_budget_profesional: number
   credit_limit: number
   current_balance: number
@@ -359,6 +360,7 @@ export interface DistributorMonthlySales {
   sales_cocina: number
   sales_mesa: number
   sales_cafe_te_bar: number
+  sales_termos_neveras: number
   sales_profesional: number
   total_sales: number
   total_orders: number

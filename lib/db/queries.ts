@@ -24,6 +24,48 @@ export async function getSilosWithSubcategories() {
   return data
 }
 
+// Obtener productos por silo (usa las categorías para determinar pertenencia al silo)
+export async function getProductsBySilo(siloSlug: string, limit = 100, includeHorecaExclusive = false) {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from("products")
+    .select(
+      `
+      *,
+      categories:product_categories!inner (
+        *,
+        subcategory:subcategories!inner (
+          *,
+          silo:silos!inner (
+            slug
+          )
+        )
+      ),
+      warehouse_stock:product_warehouse_stock(
+        available_quantity,
+        warehouse:warehouses(show_in_frontend)
+      )
+    `
+    )
+    .eq("categories.subcategory.silo.slug", siloSlug)
+    .eq("is_active", true)
+
+  // Excluir productos EXCLUSIVO de HoReCa en secciones retail
+  if (!includeHorecaExclusive) {
+    query = query.or("horeca.is.null,horeca.neq.EXCLUSIVO")
+  }
+
+  const { data, error } = await query.order("pdt_descripcion").limit(limit)
+
+  if (error) {
+    console.log("[v0] Error fetching products by silo:", error)
+    return []
+  }
+
+  return data || []
+}
+
 // Obtener un producto por slug con todas sus relaciones
 export async function getProductBySlug(slug: string): Promise<ProductWithCategories | null> {
   const supabase = await createClient()
@@ -33,7 +75,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithCategor
     .select(`
       *,
       collection:collections(*),
-      product_categories (
+      categories:product_categories (
         *,
         subcategory:subcategories (
           *,

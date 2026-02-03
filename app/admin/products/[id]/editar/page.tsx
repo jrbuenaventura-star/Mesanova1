@@ -19,7 +19,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   // Verificar rol de superadmin
   const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", user.id).single()
 
-  if (profile?.role !== "superadmin") {
+  if (profile?.role !== "superadmin" && profile?.role !== "admin") {
     redirect("/")
   }
 
