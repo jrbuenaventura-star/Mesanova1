@@ -19,7 +19,18 @@ export default async function MisResenasPage() {
     .from("product_reviews")
     .select(`
       *,
-      product:products (id, slug, nombre_comercial, imagen_principal_url)
+      product:products (
+        id,
+        slug,
+        nombre_comercial,
+        imagen_principal_url,
+        categories:product_categories(
+          is_primary,
+          subcategory:subcategories(
+            silo:silos(slug)
+          )
+        )
+      )
     `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
@@ -69,6 +80,11 @@ export default async function MisResenasPage() {
           {reviews.map((review: any) => {
             const product = review.product
 
+            const primaryCategory = product?.categories?.find((c: any) => c.is_primary)
+            const siloRelation = primaryCategory?.subcategory?.silo
+            const siloSlug = Array.isArray(siloRelation) ? siloRelation[0]?.slug : siloRelation?.slug
+            const productHref = siloSlug && product?.slug ? `/productos/${siloSlug}/${product.slug}` : "/productos"
+
             return (
               <Card key={review.id}>
                 <CardContent className="p-6">
@@ -96,7 +112,7 @@ export default async function MisResenasPage() {
                         <div>
                           {product && (
                             <Link
-                              href={`/productos/${product.slug}`}
+                              href={productHref}
                               className="font-medium hover:text-primary transition-colors"
                             >
                               {product.nombre_comercial}

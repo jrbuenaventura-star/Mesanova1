@@ -62,10 +62,15 @@ export default async function VistosRecientementePage() {
             const product = item.product
             if (!product) return null
 
+            const primaryCategory = product.categories?.find((c: any) => c.is_primary)
+            const siloRelation = primaryCategory?.subcategory?.silo
+            const siloSlug = Array.isArray(siloRelation) ? siloRelation[0]?.slug : siloRelation?.slug
+            const productHref = siloSlug ? `/productos/${siloSlug}/${product.slug}` : "/productos"
+
             return (
               <Card key={product.id} className="group overflow-hidden">
                 <div className="relative aspect-square bg-muted">
-                  <Link href={`/productos/${product.slug}`}>
+                  <Link href={productHref}>
                     {product.imagen_principal_url ? (
                       <Image
                         src={getImageKitUrl(product.imagen_principal_url, { width: 700, height: 700, quality: 80, format: "auto" })}
@@ -87,7 +92,7 @@ export default async function VistosRecientementePage() {
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <Link href={`/productos/${product.slug}`}>
+                  <Link href={productHref}>
                     <h3 className="font-medium line-clamp-2 hover:text-primary transition-colors">
                       {product.nombre_comercial}
                     </h3>

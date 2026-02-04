@@ -10,7 +10,16 @@ import { getImageKitUrl } from "@/lib/imagekit"
 import { calculateProductPricing, formatPrice } from "@/lib/pricing"
 
 interface ProductCardProps {
-  product: Product
+  product: Product & {
+    categories?: Array<{
+      is_primary?: boolean
+      subcategory?: {
+        silo?: {
+          slug?: string
+        }
+      }
+    }>
+  }
   showFavoriteButton?: boolean
   isFavorited?: boolean
   distributor?: { discount_percentage: number } | null
@@ -18,6 +27,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, showFavoriteButton = true, isFavorited = false, distributor = null }: ProductCardProps) {
   const hasStock = product.upp_existencia > 0
+  const primaryCategory = product.categories?.find((c) => c.is_primary)
+  const siloSlug = primaryCategory?.subcategory?.silo?.slug
+  const productHref = siloSlug ? `/productos/${siloSlug}/${product.slug}` : "/productos"
   const imageUrl = product.imagen_principal_url
     ? getImageKitUrl(product.imagen_principal_url, { width: 600, height: 600, quality: 80, format: "auto" })
     : "/placeholder.svg?height=300&width=300"
@@ -34,7 +46,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
   return (
     <Card className="group overflow-hidden h-full flex flex-col">
       <div className="relative">
-        <Link href={`/productos/${product.slug}`} className="block">
+        <Link href={productHref} className="block">
           <div className="relative aspect-square overflow-hidden bg-muted">
             <Image
               src={imageUrl}
@@ -78,7 +90,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
       </div>
 
       <CardContent className="p-4 flex-1">
-        <Link href={`/productos/${product.slug}`}>
+        <Link href={productHref}>
           <h3 className="font-semibold text-sm mb-1 line-clamp-2 group-hover:text-primary transition-colors">
             {product.nombre_comercial || product.pdt_descripcion}
           </h3>

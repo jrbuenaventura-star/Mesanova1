@@ -15,7 +15,13 @@ export async function getUserFavorites(userId: string) {
       id,
       created_at,
       product:products (
-        id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+        id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia,
+        categories:product_categories(
+          is_primary,
+          subcategory:subcategories(
+            silo:silos(slug)
+          )
+        )
       )
     `)
     .eq("user_id", userId)
@@ -573,7 +579,13 @@ export async function getRecentlyViewed(userId: string, limit = 12) {
     .select(`
       viewed_at,
       product:products (
-        id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+        id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia,
+        categories:product_categories(
+          is_primary,
+          subcategory:subcategories(
+            silo:silos(slug)
+          )
+        )
       )
     `)
     .eq("user_id", userId)
