@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getProductBySlug } from "@/lib/db/queries"
+import { getProductBySlug, getRelatedProducts } from "@/lib/db/queries"
 import { createClient } from "@/lib/supabase/server"
 import { getProductReviews, getProductRatingStats, getUserWishlists, getUserGiftRegistries, isProductFavorited } from "@/lib/db/user-features"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +34,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Obtener usuario y datos relacionados
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  // Check if user is a distributor with allied user
+  let isDistributorWithAllied = false
+  if (user) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role, allied_user_id')
+      .eq('id', user.id)
+      .single()
+    
+    isDistributorWithAllied = profile?.role === 'distributor' && !!profile?.allied_user_id
+  }
 
   // Datos del usuario (favoritos, listas, etc.)
   let isFavorited = false
@@ -73,9 +85,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const totalStock = product.warehouse_stock?.reduce((sum, ws) => sum + ws.available_quantity, 0) || 0
   const hasStock = totalStock > 0
 
-  // Obtener productos similares
-  const similarProducts = product.similar_products || []
-  const complementProducts = product.complement_products || []
+  // Obtener productos relacionados automáticamente
+  const relatedProducts = await getRelatedProducts(product.id, 8)
 
   // Obtener categoría principal
   const primaryCategory = product.categories?.find((c) => c.is_primary)
@@ -365,12 +376,30 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <p className="text-muted-foreground whitespace-pre-line">{product.momentos_uso}</p>
               </div>
             )}
+            {isDistributorWithAllied && product.descripcion_distribuidor && (
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold mb-3">Información para Distribuidores</h4>
+                <p className="text-muted-foreground whitespace-pre-line">{product.descripcion_distribuidor}</p>
+              </div>
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="specs" className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Especificaciones Técnicas</h3>
           <div className="grid gap-2">
+            {isDistributorWithAllied && product.argumentos_venta && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Argumentos de Venta:</span>
+                <span className="text-muted-foreground">{product.argumentos_venta}</span>
+              </div>
+            )}
+            {isDistributorWithAllied && product.ubicacion_tienda && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Ubicación en Tienda:</span>
+                <span className="text-muted-foreground">{product.ubicacion_tienda}</span>
+              </div>
+            )}
             {product.dimensiones && (
               <div className="flex justify-between py-2 border-b">
                 <span className="font-medium">Dimensiones:</span>
@@ -491,24 +520,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </TabsContent>
       </Tabs>
 
-      {/* Productos similares */}
-      {similarProducts.length > 0 && (
+      {/* Productos relacionados */}
+      {relatedProducts.length > 0 && (
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Productos Similares</h2>
+          <h2 className="text-2xl font-bold mb-6">Productos Relacionados</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {similarProducts.slice(0, 4).map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Productos complementarios */}
-      {complementProducts.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">Productos Complementarios</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {complementProducts.slice(0, 4).map((p) => (
+            {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>

@@ -6,6 +6,7 @@ import type {
   DistributorWithProfile,
   OrderWithItems,
   DistributorMonthlySales,
+  Product,
 } from "./types"
 
 // Obtener todos los silos con sus subcategorías
@@ -1076,4 +1077,102 @@ export async function deleteBlogPost(postId: string) {
 
   if (error) throw error
   return true
+}
+
+// Get related products based on shared attributes (Material, Color, Brand, or Subcategory)
+export async function getRelatedProducts(productId: string, limit = 8): Promise<Product[]> {
+  const supabase = await createClient()
+
+  // Get the current product details
+  const { data: currentProduct } = await supabase
+    .from("products")
+    .select(`
+      id,
+      material,
+      color,
+      marca,
+      categories:product_categories (
+        subcategory_id
+      )
+    `)
+    .eq("id", productId)
+    .single()
+
+  if (!currentProduct) return []
+
+  const subcategoryIds = currentProduct.categories?.map((c: any) => c.subcategory_id) || []
+
+  // Build query to find related products
+  let query = supabase
+    .from("products")
+    .select(`
+      *,
+      warehouse_stock:product_warehouse_stock(
+        available_quantity,
+        warehouse:warehouses(show_in_frontend)
+      )
+    `)
+    .eq("is_active", true)
+    .neq("id", productId)
+
+  // Priority 1: Same material
+  if (currentProduct.material) {
+    const { data: materialMatches } = await query
+      .eq("material", currentProduct.material)
+      .limit(limit)
+
+    if (materialMatches && materialMatches.length >= limit) {
+      return materialMatches
+    }
+  }
+
+  // Priority 2: Same color
+  if (currentProduct.color) {
+    const { data: colorMatches } = await query
+      .eq("color", currentProduct.color)
+      .limit(limit)
+
+    if (colorMatches && colorMatches.length >= limit) {
+      return colorMatches
+    }
+  }
+
+  // Priority 3: Same brand
+  if (currentProduct.marca) {
+    const { data: brandMatches } = await query
+      .eq("marca", currentProduct.marca)
+      .limit(limit)
+
+    if (brandMatches && brandMatches.length >= limit) {
+      return brandMatches
+    }
+  }
+
+  // Priority 4: Same subcategory
+  if (subcategoryIds.length > 0) {
+    const { data: subcategoryProducts } = await supabase
+      .from("products")
+      .select(`
+        *,
+        categories:product_categories!inner (
+          subcategory_id
+        ),
+        warehouse_stock:product_warehouse_stock(
+          available_quantity,
+          warehouse:warehouses(show_in_frontend)
+        )
+      `)
+      .eq("is_active", true)
+      .neq("id", productId)
+      .in("categories.subcategory_id", subcategoryIds)
+      .limit(limit)
+
+    if (subcategoryProducts && subcategoryProducts.length > 0) {
+      return subcategoryProducts
+    }
+  }
+
+  // Fallback: Return any active products
+  const { data: fallbackProducts } = await query.limit(limit)
+  return fallbackProducts || []
 }
