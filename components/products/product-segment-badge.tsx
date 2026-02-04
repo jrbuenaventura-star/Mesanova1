@@ -36,13 +36,13 @@ export function ProductSegmentBadge({
     <Badge 
       variant="outline" 
       className={cn(
-        "font-semibold text-xs gap-1",
+        "font-semibold text-[10px] sm:text-xs gap-0.5 sm:gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1",
         variantClass,
         className
       )}
     >
-      {showIcon && <Icon className="h-3 w-3" />}
-      {label}
+      {showIcon && <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
+      <span className="whitespace-nowrap">{label}</span>
     </Badge>
   )
 }

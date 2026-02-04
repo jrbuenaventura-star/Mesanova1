@@ -58,20 +58,20 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
             />
 
             {/* Badges */}
-            <div className="absolute top-2 left-2 flex flex-col gap-1">
+            <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 flex flex-col gap-1">
               <ProductSegmentBadge segment={product.segment} />
               {product.is_new && (
-                <Badge variant="default" className="w-fit">
+                <Badge variant="default" className="w-fit text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                   Nuevo
                 </Badge>
               )}
               {product.is_on_sale && (
-                <Badge variant="destructive" className="w-fit">
+                <Badge variant="destructive" className="w-fit text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                   Oferta
                 </Badge>
               )}
               {!hasStock && (
-                <Badge variant="secondary" className="w-fit">
+                <Badge variant="secondary" className="w-fit text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2 sm:py-1">
                   Agotado
                 </Badge>
               )}
@@ -81,11 +81,11 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
         
         {/* Favorite Button */}
         {showFavoriteButton && (
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-10">
             <FavoriteButton 
               productId={product.id} 
               initialIsFavorite={isFavorited}
-              className="bg-background/80 backdrop-blur-sm hover:bg-background"
+              className="bg-background/80 backdrop-blur-sm hover:bg-background h-7 w-7 sm:h-8 sm:w-8"
             />
           </div>
         )}
