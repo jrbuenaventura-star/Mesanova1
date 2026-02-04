@@ -81,6 +81,7 @@ export interface Product {
   ubicacion_tienda?: string
   margen_sugerido?: number
   rotacion_esperada?: 'alta' | 'media' | 'baja'
+  segment?: 'core' | 'value' | 'premium'
   tags?: string[]
   video_url?: string
   ficha_tecnica_url?: string

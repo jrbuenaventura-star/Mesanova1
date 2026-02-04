@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { FavoriteButton } from "@/components/products/favorite-button"
+import { ProductSegmentBadge } from "@/components/products/product-segment-badge"
 import { getImageKitUrl } from "@/lib/imagekit"
 import { calculateProductPricing, formatPrice } from "@/lib/pricing"
 
@@ -58,6 +59,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
 
             {/* Badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
+              <ProductSegmentBadge segment={product.segment} />
               {product.is_new && (
                 <Badge variant="default" className="w-fit">
                   Nuevo
