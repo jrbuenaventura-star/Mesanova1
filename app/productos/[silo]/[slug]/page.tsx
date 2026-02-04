@@ -123,18 +123,32 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Información del producto */}
         <div className="space-y-6">
-          {/* Badges de estado */}
+          {/* Badges de estado - Order: tags, collection, subcategory */}
           <div className="flex flex-wrap gap-2">
             {product.is_new && <Badge variant="default">Nuevo</Badge>}
             {product.is_featured && <Badge variant="secondary">Destacado</Badge>}
             {product.is_on_sale && <Badge variant="destructive">En Oferta</Badge>}
-            {product.collection && <Badge variant="outline">Colección: {product.collection.name}</Badge>}
+            {product.descontinuado && <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Descontinuado</Badge>}
+            {product.tags && product.tags.length > 0 && product.tags.map((tag) => (
+              <Badge key={tag} variant="outline">{tag}</Badge>
+            ))}
+            {product.collection && (
+              <Link href={`/productos?coleccion=${encodeURIComponent(product.collection.slug || product.collection.name)}`}>
+                <Badge variant="outline" className="cursor-pointer hover:bg-muted">Colección: {product.collection.name}</Badge>
+              </Link>
+            )}
+            {primaryCategory?.subcategory && (
+              <Badge variant="outline">{primaryCategory.subcategory.name}</Badge>
+            )}
           </div>
 
           {/* Título y código */}
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.nombre_comercial || product.pdt_descripcion}</h1>
-            <p className="text-sm text-muted-foreground">Código: {product.pdt_codigo}</p>
+            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+              <span>Código: {product.pdt_codigo}</span>
+              {product.ref_pub && <span>SKU: {product.ref_pub}</span>}
+            </div>
           </div>
 
           {/* Precio */}
@@ -178,13 +192,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* Información de empaque */}
-          {(product.pdt_empaque || product.outer_pack) && (
-            <div className="flex gap-4 text-sm">
+          {/* Información de empaque y pedidos */}
+          {(product.pdt_empaque || product.outer_pack || (product.pedido_en_camino && product.pedido_en_camino > 0)) && (
+            <div className="flex flex-wrap gap-4 text-sm">
               {product.pdt_empaque && (
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4 text-muted-foreground" />
-                  <span>Inner Pack: {product.pdt_empaque}</span>
+                  <span>MOQ: {product.pdt_empaque}</span>
                 </div>
               )}
               {product.outer_pack && (
@@ -193,34 +207,64 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <span>Outer Pack: {product.outer_pack}</span>
                 </div>
               )}
+              {product.pedido_en_camino && product.pedido_en_camino > 0 && (
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-blue-600" />
+                  <span className="text-blue-600">En camino: {product.pedido_en_camino} unidades</span>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Información de material, color, marca si existen */}
-          {(product.material || product.color || product.marca || product.capacidad) && (
+          {/* Información de producto */}
+          {(product.material || product.color || product.marca || product.capacidad || product.dimensiones || product.peso || product.pais_origen) && (
             <div className="grid grid-cols-2 gap-2 text-sm border rounded-lg p-4 bg-muted/30">
               {product.marca && (
                 <div>
                   <span className="text-muted-foreground">Marca:</span>
-                  <span className="ml-2 font-medium">{product.marca}</span>
+                  <Link href={`/productos?marca=${encodeURIComponent(product.marca)}`} className="ml-2 font-medium hover:underline">
+                    {product.marca}
+                  </Link>
                 </div>
               )}
               {product.material && (
                 <div>
                   <span className="text-muted-foreground">Material:</span>
-                  <span className="ml-2 font-medium">{product.material}</span>
+                  <Link href={`/productos?material=${encodeURIComponent(product.material)}`} className="ml-2 font-medium hover:underline">
+                    {product.material}
+                  </Link>
                 </div>
               )}
               {product.color && (
                 <div>
                   <span className="text-muted-foreground">Color:</span>
-                  <span className="ml-2 font-medium">{product.color}</span>
+                  <Link href={`/productos?color=${encodeURIComponent(product.color)}`} className="ml-2 font-medium hover:underline">
+                    {product.color}
+                  </Link>
+                </div>
+              )}
+              {product.dimensiones && (
+                <div>
+                  <span className="text-muted-foreground">Dimensiones:</span>
+                  <span className="ml-2 font-medium">{product.dimensiones}</span>
+                </div>
+              )}
+              {product.peso && (
+                <div>
+                  <span className="text-muted-foreground">Peso:</span>
+                  <span className="ml-2 font-medium">{product.peso} kg</span>
                 </div>
               )}
               {product.capacidad && (
                 <div>
                   <span className="text-muted-foreground">Capacidad:</span>
                   <span className="ml-2 font-medium">{product.capacidad}</span>
+                </div>
+              )}
+              {product.pais_origen && (
+                <div>
+                  <span className="text-muted-foreground">País de Origen:</span>
+                  <span className="ml-2 font-medium">{product.pais_origen}</span>
                 </div>
               )}
             </div>
@@ -313,6 +357,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="mt-6">
                 <h4 className="text-lg font-semibold mb-3">Características</h4>
                 <p className="text-muted-foreground whitespace-pre-line">{product.caracteristicas}</p>
+              </div>
+            )}
+            {product.momentos_uso && (
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold mb-3">Momentos de Uso</h4>
+                <p className="text-muted-foreground whitespace-pre-line">{product.momentos_uso}</p>
               </div>
             )}
           </div>

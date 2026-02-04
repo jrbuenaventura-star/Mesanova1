@@ -12,20 +12,29 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 
 interface ProductFiltersProps {
   subcategories?: Array<{ id: string; name: string; slug: string }>
+  materials?: string[]
+  colors?: string[]
+  brands?: string[]
   priceRange?: { min: number; max: number }
   onFilterChange: (filters: FilterState) => void
 }
 
 export interface FilterState {
   subcategories: string[]
+  materials: string[]
+  colors: string[]
+  brands: string[]
   priceRange: [number, number]
   inStock: boolean
   onSale: boolean
 }
 
-export function ProductFilters({ subcategories = [], priceRange, onFilterChange }: ProductFiltersProps) {
+export function ProductFilters({ subcategories = [], materials = [], colors = [], brands = [], priceRange, onFilterChange }: ProductFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     subcategories: [],
+    materials: [],
+    colors: [],
+    brands: [],
     priceRange: [priceRange?.min || 0, priceRange?.max || 1000000],
     inStock: false,
     onSale: false,
@@ -53,9 +62,23 @@ export function ProductFilters({ subcategories = [], priceRange, onFilterChange 
     onFilterChange(newFilters)
   }
 
+  const handleFilterToggle = (key: 'materials' | 'colors' | 'brands', value: string) => {
+    const currentValues = filters[key]
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v) => v !== value)
+      : [...currentValues, value]
+
+    const newFilters = { ...filters, [key]: newValues }
+    setFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
   const clearFilters = () => {
     const defaultFilters: FilterState = {
       subcategories: [],
+      materials: [],
+      colors: [],
+      brands: [],
       priceRange: [priceRange?.min || 0, priceRange?.max || 1000000],
       inStock: false,
       onSale: false,
@@ -66,6 +89,9 @@ export function ProductFilters({ subcategories = [], priceRange, onFilterChange 
 
   const activeFiltersCount =
     filters.subcategories.length +
+    filters.materials.length +
+    filters.colors.length +
+    filters.brands.length +
     (filters.inStock ? 1 : 0) +
     (filters.onSale ? 1 : 0) +
     (filters.priceRange[0] !== (priceRange?.min || 0) || filters.priceRange[1] !== (priceRange?.max || 1000000)
@@ -87,6 +113,66 @@ export function ProductFilters({ subcategories = [], priceRange, onFilterChange 
                 />
                 <Label htmlFor={`subcat-${subcat.id}`} className="text-sm cursor-pointer">
                   {subcat.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {materials.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3">Material</h3>
+          <div className="space-y-2">
+            {materials.map((material) => (
+              <div key={material} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`material-${material}`}
+                  checked={filters.materials.includes(material)}
+                  onCheckedChange={() => handleFilterToggle('materials', material)}
+                />
+                <Label htmlFor={`material-${material}`} className="text-sm cursor-pointer">
+                  {material}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {colors.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3">Color</h3>
+          <div className="space-y-2">
+            {colors.map((color) => (
+              <div key={color} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`color-${color}`}
+                  checked={filters.colors.includes(color)}
+                  onCheckedChange={() => handleFilterToggle('colors', color)}
+                />
+                <Label htmlFor={`color-${color}`} className="text-sm cursor-pointer">
+                  {color}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {brands.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3">Marca</h3>
+          <div className="space-y-2">
+            {brands.map((brand) => (
+              <div key={brand} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`brand-${brand}`}
+                  checked={filters.brands.includes(brand)}
+                  onCheckedChange={() => handleFilterToggle('brands', brand)}
+                />
+                <Label htmlFor={`brand-${brand}`} className="text-sm cursor-pointer">
+                  {brand}
                 </Label>
               </div>
             ))}

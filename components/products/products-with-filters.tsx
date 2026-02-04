@@ -17,6 +17,9 @@ interface ProductsWithFiltersProps {
 export function ProductsWithFilters({ products, subcategories, siloSlug }: ProductsWithFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     subcategories: [],
+    materials: [],
+    colors: [],
+    brands: [],
     priceRange: [0, 1000000],
     inStock: false,
     onSale: false,
@@ -29,6 +32,25 @@ export function ProductsWithFilters({ products, subcategories, siloSlug }: Produ
     return {
       min: Math.floor(Math.min(...prices) / 1000) * 1000,
       max: Math.ceil(Math.max(...prices) / 1000) * 1000,
+    }
+  }, [products])
+
+  // Extraer valores únicos de Material, Color y Marca
+  const uniqueValues = useMemo(() => {
+    const materials = new Set<string>()
+    const colors = new Set<string>()
+    const brands = new Set<string>()
+
+    products.forEach((product) => {
+      if (product.material) materials.add(product.material)
+      if (product.color) colors.add(product.color)
+      if (product.marca) brands.add(product.marca)
+    })
+
+    return {
+      materials: Array.from(materials).sort(),
+      colors: Array.from(colors).sort(),
+      brands: Array.from(brands).sort(),
     }
   }, [products])
 
@@ -66,6 +88,27 @@ export function ProductsWithFilters({ products, subcategories, siloSlug }: Produ
         return false
       }
 
+      // Filtro por material
+      if (filters.materials.length > 0) {
+        if (!product.material || !filters.materials.includes(product.material)) {
+          return false
+        }
+      }
+
+      // Filtro por color
+      if (filters.colors.length > 0) {
+        if (!product.color || !filters.colors.includes(product.color)) {
+          return false
+        }
+      }
+
+      // Filtro por marca
+      if (filters.brands.length > 0) {
+        if (!product.marca || !filters.brands.includes(product.marca)) {
+          return false
+        }
+      }
+
       return true
     })
   }, [products, filters])
@@ -75,6 +118,9 @@ export function ProductsWithFilters({ products, subcategories, siloSlug }: Produ
       <div className="lg:col-span-1">
         <ProductFilters
           subcategories={subcategories}
+          materials={uniqueValues.materials}
+          colors={uniqueValues.colors}
+          brands={uniqueValues.brands}
           priceRange={priceRange}
           onFilterChange={setFilters}
         />

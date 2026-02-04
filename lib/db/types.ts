@@ -72,7 +72,7 @@ export interface Product {
   codigo_barras?: string
   descuento_porcentaje?: number
   precio_antes?: number
-  pedido_en_camino?: boolean
+  pedido_en_camino?: number
   descontinuado?: boolean
   product_type_id?: string
   momentos_uso?: string

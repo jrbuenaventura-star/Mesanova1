@@ -18,7 +18,7 @@ export interface ProductCSVRow {
   
   // Inventario (sincronizable con ERP)
   Existencia_inv: string;
-  Pedido_en_camino: string; // SI/NO
+  Pedido_en_camino: string; // Cantidad numérica de unidades en camino
   Descontinuado: string; // SI/NO - informativo, el fabricante ya no produce
   
   // Empaque
@@ -201,7 +201,6 @@ export const REQUIRED_FIELDS: (keyof ProductCSVRow)[] = [
 ];
 
 export const BOOLEAN_FIELDS: (keyof ProductCSVRow)[] = [
-  'Pedido_en_camino',
   'Descontinuado',
 ];
 
@@ -217,6 +216,7 @@ export const NUMERIC_FIELDS: (keyof ProductCSVRow)[] = [
   'Descuento',
   'Precio_Dist',
   'Existencia_inv',
+  'Pedido_en_camino',
   'Peso_kg',
   'Margen_Sugerido',
 ];
