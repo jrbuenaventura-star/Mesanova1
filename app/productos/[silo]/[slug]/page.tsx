@@ -17,14 +17,14 @@ import { ProductReviews } from "@/components/products/product-reviews"
 import { TrackProductView } from "@/components/products/track-product-view"
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     silo: string
     slug: string
-  }
+  }>
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params
+  const { slug, silo } = await params
   const product = await getProductBySlug(slug)
 
   if (!product) {

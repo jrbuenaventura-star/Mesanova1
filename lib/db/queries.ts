@@ -83,17 +83,7 @@ export async function getProductBySlug(slug: string): Promise<ProductWithCategor
           silo:silos (*)
         )
       ),
-      product_types:product_product_types (
-        *,
-        product_type:product_types (*)
-      ),
       product_media (*),
-      product_similar (
-        similar_product:products (*)
-      ),
-      product_complement (
-        complement_product:products (*)
-      ),
       warehouse_stock:product_warehouse_stock (
         *,
         warehouse:warehouses (*)
