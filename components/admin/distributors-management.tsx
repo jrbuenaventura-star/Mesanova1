@@ -29,18 +29,42 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Search, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
-import type { Distributor, UserProfile } from "@/lib/db/types"
+import { Search, MoreVertical, Pencil, Plus, Trash2, MapPin, X } from "lucide-react"
+import type { Distributor, UserProfile, ShippingAddress } from "@/lib/db/types"
+import { BUSINESS_TYPES, COLOMBIA_DEPARTMENTS, getCitiesByDepartment } from "@/lib/data/colombia-locations"
 
 interface DistributorWithProfile extends Distributor {
   profile?: UserProfile
   aliado?: { id: string; company_name: string } | null
+  shipping_addresses?: ShippingAddress[]
 }
 
 type AliadoOption = {
   id: string
   company_name: string
   is_active: boolean
+}
+
+interface NewAddress {
+  label: string
+  full_name: string
+  phone: string
+  address_line1: string
+  address_line2: string
+  state: string
+  city: string
+  is_default: boolean
+}
+
+const emptyAddress: NewAddress = {
+  label: "",
+  full_name: "",
+  phone: "",
+  address_line1: "",
+  address_line2: "",
+  state: "",
+  city: "",
+  is_default: false,
 }
 
 export function DistributorsManagement() {
@@ -54,6 +78,11 @@ export function DistributorsManagement() {
   const [selectedDistributor, setSelectedDistributor] = useState<DistributorWithProfile | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
+  // Shipping addresses state
+  const [existingAddresses, setExistingAddresses] = useState<ShippingAddress[]>([])
+  const [newAddresses, setNewAddresses] = useState<NewAddress[]>([])
+  const [addressesToDelete, setAddressesToDelete] = useState<string[]>([])
+
   // Form state
   const [formData, setFormData] = useState({
     email: "",
@@ -61,7 +90,7 @@ export function DistributorsManagement() {
     phone: "",
     company_name: "",
     company_rif: "",
-    business_type: "",
+    business_type: "" as string,
     discount_percentage: "0",
     credit_limit: "0",
     aliado_id: "",
@@ -70,12 +99,17 @@ export function DistributorsManagement() {
     notes: "",
     document_type: "CC",
     document_number: "",
-    shipping_address: "",
-    shipping_city: "",
-    shipping_state: "",
-    shipping_postal_code: "",
-    shipping_country: "Colombia",
+    // Legal representative (only when aliado is assigned)
+    legal_rep_name: "",
+    legal_rep_document: "",
+    // Main address (only when aliado is assigned)
+    main_address: "",
+    main_state: "",
+    main_city: "",
   })
+
+  const hasAliado = formData.aliado_id !== ""
+  const mainCities = getCitiesByDepartment(formData.main_state)
 
   useEffect(() => {
     loadDistributors()
@@ -117,9 +151,29 @@ export function DistributorsManagement() {
     }
   }
 
+  async function loadShippingAddresses(userId: string) {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("shipping_addresses")
+        .select("*")
+        .eq("user_id", userId)
+        .order("is_default", { ascending: false })
+        .order("created_at", { ascending: false })
+      if (error) throw error
+      setExistingAddresses(data || [])
+    } catch (error) {
+      console.error('Error loading addresses:', error)
+      setExistingAddresses([])
+    }
+  }
+
   function openCreateDialog() {
     setSelectedDistributor(null)
     setIsEditing(false)
+    setExistingAddresses([])
+    setNewAddresses([])
+    setAddressesToDelete([])
     setFormData({
       email: "",
       full_name: "",
@@ -135,11 +189,11 @@ export function DistributorsManagement() {
       notes: "",
       document_type: "CC",
       document_number: "",
-      shipping_address: "",
-      shipping_city: "",
-      shipping_state: "",
-      shipping_postal_code: "",
-      shipping_country: "Colombia",
+      legal_rep_name: "",
+      legal_rep_document: "",
+      main_address: "",
+      main_state: "",
+      main_city: "",
     })
     setShowDialog(true)
   }
@@ -147,8 +201,10 @@ export function DistributorsManagement() {
   function openEditDialog(distributor: DistributorWithProfile) {
     setSelectedDistributor(distributor)
     setIsEditing(true)
+    setNewAddresses([])
+    setAddressesToDelete([])
     setFormData({
-      email: "", // Can't change email
+      email: "",
       full_name: distributor.profile?.full_name || "",
       phone: distributor.profile?.phone || "",
       company_name: distributor.company_name,
@@ -157,51 +213,91 @@ export function DistributorsManagement() {
       discount_percentage: distributor.discount_percentage?.toString() || "0",
       credit_limit: distributor.credit_limit?.toString() || "0",
       aliado_id: distributor.aliado_id || "",
-      commercial_name: (distributor as any).commercial_name || "",
-      payment_terms: (distributor as any).payment_terms || "",
-      notes: (distributor as any).notes || "",
+      commercial_name: distributor.commercial_name || "",
+      payment_terms: distributor.payment_terms || "",
+      notes: distributor.notes || "",
       document_type: distributor.profile?.document_type || "CC",
       document_number: distributor.profile?.document_number || "",
-      shipping_address: distributor.profile?.shipping_address || "",
-      shipping_city: distributor.profile?.shipping_city || "",
-      shipping_state: distributor.profile?.shipping_state || "",
-      shipping_postal_code: distributor.profile?.shipping_postal_code || "",
-      shipping_country: distributor.profile?.shipping_country || "Colombia",
+      legal_rep_name: distributor.legal_rep_name || "",
+      legal_rep_document: distributor.legal_rep_document || "",
+      main_address: distributor.main_address || "",
+      main_state: distributor.main_state || "",
+      main_city: distributor.main_city || "",
     })
+    loadShippingAddresses(distributor.user_id)
     setShowDialog(true)
+  }
+
+  function addNewAddress() {
+    setNewAddresses([...newAddresses, { ...emptyAddress }])
+  }
+
+  function updateNewAddress(index: number, field: keyof NewAddress, value: string | boolean) {
+    const updated = [...newAddresses]
+    updated[index] = { ...updated[index], [field]: value }
+    if (field === "state") {
+      updated[index].city = ""
+    }
+    setNewAddresses(updated)
+  }
+
+  function removeNewAddress(index: number) {
+    setNewAddresses(newAddresses.filter((_, i) => i !== index))
+  }
+
+  function markAddressForDeletion(addressId: string) {
+    setAddressesToDelete([...addressesToDelete, addressId])
+    setExistingAddresses(existingAddresses.filter((a) => a.id !== addressId))
   }
 
   async function handleSaveDistributor() {
     try {
+      const payload = {
+        formData: {
+          ...formData,
+          // Clear commercial fields if no aliado
+          ...((!hasAliado) ? {
+            discount_percentage: "0",
+            credit_limit: "0",
+            payment_terms: "",
+            legal_rep_name: "",
+            legal_rep_document: "",
+            main_address: "",
+            main_state: "",
+            main_city: "",
+          } : {}),
+        },
+        newAddresses: newAddresses.filter((a) => a.address_line1.trim() !== ""),
+        addressesToDelete,
+      }
+
       if (isEditing && selectedDistributor) {
-        // Update existing distributor via API
         const response = await fetch('/api/admin/distributors', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             distributorId: selectedDistributor.id,
             userId: selectedDistributor.user_id,
-            formData,
+            ...payload,
           }),
         })
 
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || 'Error al actualizar distribuidor')
+          throw new Error(data.error || 'Error al actualizar cliente')
         }
       } else {
-        // Create new distributor via API
         const response = await fetch('/api/admin/distributors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData }),
+          body: JSON.stringify(payload),
         })
 
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || 'Error al crear distribuidor')
+          throw new Error(data.error || 'Error al crear cliente')
         }
       }
 
@@ -209,7 +305,7 @@ export function DistributorsManagement() {
       setShowDialog(false)
     } catch (error) {
       console.error("Error saving distributor:", error)
-      alert(error instanceof Error ? error.message : "Error al guardar el distribuidor")
+      alert(error instanceof Error ? error.message : "Error al guardar el cliente")
     }
   }
 
@@ -219,7 +315,6 @@ export function DistributorsManagement() {
     const supabase = createClient()
 
     try {
-      // Delete distributor (cascade will handle related records)
       const { error } = await supabase.from("distributors").delete().eq("id", selectedDistributor.id)
 
       if (error) throw error
@@ -229,7 +324,7 @@ export function DistributorsManagement() {
       setSelectedDistributor(null)
     } catch (error) {
       console.error("Error deleting distributor:", error)
-      alert("Error al eliminar el distribuidor")
+      alert("Error al eliminar el cliente")
     }
   }
 
@@ -275,10 +370,9 @@ export function DistributorsManagement() {
             <TableRow>
               <TableHead>Cliente</TableHead>
               <TableHead>Empresa</TableHead>
+              <TableHead>Tipo</TableHead>
               <TableHead>Contacto</TableHead>
-              <TableHead>Aliado Asignado</TableHead>
-              <TableHead>Descuento</TableHead>
-              <TableHead>Crédito</TableHead>
+              <TableHead>Aliado</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -289,9 +383,6 @@ export function DistributorsManagement() {
                 <TableCell className="font-medium">
                   <div>
                     <div>{distributor.profile?.full_name || "Sin nombre"}</div>
-                    {distributor.business_type && (
-                      <div className="text-sm text-muted-foreground">{distributor.business_type}</div>
-                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -303,22 +394,24 @@ export function DistributorsManagement() {
                   </div>
                 </TableCell>
                 <TableCell>
+                  {distributor.business_type && (
+                    <Badge variant="outline">{distributor.business_type}</Badge>
+                  )}
+                </TableCell>
+                <TableCell>
                   <div className="space-y-1 text-sm">
                     {distributor.profile?.phone && <div>{distributor.profile.phone}</div>}
-                    {distributor.profile?.id && <div className="text-muted-foreground">Email registrado</div>}
                   </div>
                 </TableCell>
                 <TableCell>
-                  {distributor.aliado?.company_name || "-"}
-                </TableCell>
-                <TableCell>{distributor.discount_percentage}%</TableCell>
-                <TableCell>
-                  <div>
-                    <div className="text-sm font-medium">${distributor.credit_limit?.toLocaleString() || "0"}</div>
-                    <div className="text-xs text-muted-foreground">
-                      Usado: ${distributor.current_balance?.toLocaleString() || "0"}
+                  {distributor.aliado ? (
+                    <div>
+                      <div className="text-sm">{distributor.aliado.company_name}</div>
+                      <div className="text-xs text-muted-foreground">{distributor.discount_percentage}% desc.</div>
                     </div>
-                  </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">Cliente final</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={distributor.is_active ? "default" : "secondary"}>
@@ -413,16 +506,20 @@ export function DistributorsManagement() {
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="document_type">Tipo de Documento</Label>
-                <select
-                  id="document_type"
+                <Select
                   value={formData.document_type}
-                  onChange={(e) => setFormData({ ...formData, document_type: e.target.value })}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onValueChange={(value) => setFormData({ ...formData, document_type: value })}
                 >
-                  <option value="CC">CC</option>
-                  <option value="CE">CE</option>
-                  <option value="Pasaporte">Pasaporte</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CC">CC</SelectItem>
+                    <SelectItem value="CE">CE</SelectItem>
+                    <SelectItem value="NIT">NIT</SelectItem>
+                    <SelectItem value="Pasaporte">Pasaporte</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="document_number">Número de Documento</Label>
@@ -437,15 +534,15 @@ export function DistributorsManagement() {
 
             {/* Company Info */}
             <div className="border-t pt-4">
-              <h4 className="text-sm font-semibold mb-4">Información de la Empresa</h4>
+              <h4 className="text-sm font-semibold mb-4">Información del Cliente</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_name">Razón Social *</Label>
+                  <Label htmlFor="company_name">Razón Social / Nombre *</Label>
                   <Input
                     id="company_name"
                     value={formData.company_name}
                     onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                    placeholder="Empresa S.A.S."
+                    placeholder="Empresa S.A.S. o Nombre Completo"
                     required
                   />
                 </div>
@@ -460,26 +557,36 @@ export function DistributorsManagement() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_rif">NIT/RIF</Label>
-                  <Input
-                    id="company_rif"
-                    value={formData.company_rif}
-                    onChange={(e) => setFormData({ ...formData, company_rif: e.target.value })}
-                    placeholder="900123456-7"
-                  />
+                  <Label htmlFor="business_type">Tipo de Negocio *</Label>
+                  <Select
+                    value={formData.business_type}
+                    onValueChange={(value) => setFormData({ ...formData, business_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar tipo..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BUSINESS_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="business_type">Tipo de Negocio</Label>
-                <Input
-                  id="business_type"
-                  value={formData.business_type}
-                  onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
-                  placeholder="Tienda, Restaurante, Hotel..."
-                />
+                {formData.business_type !== "Persona natural" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="company_rif">NIT</Label>
+                    <Input
+                      id="company_rif"
+                      value={formData.company_rif}
+                      onChange={(e) => setFormData({ ...formData, company_rif: e.target.value })}
+                      placeholder="900123456-7"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2 mt-4">
@@ -494,7 +601,7 @@ export function DistributorsManagement() {
                     <SelectValue placeholder="Selecciona un aliado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sin aliado</SelectItem>
+                    <SelectItem value="none">Sin aliado (cliente final)</SelectItem>
                     {aliados.map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.company_name}{a.is_active ? "" : " (Inactivo)"}
@@ -502,122 +609,318 @@ export function DistributorsManagement() {
                     ))}
                   </SelectContent>
                 </Select>
+                {!hasAliado && (
+                  <p className="text-xs text-muted-foreground">
+                    Sin aliado = cliente final (ve precios regulares)
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Commercial Config */}
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-semibold mb-4">Configuración Comercial</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="payment_terms">Términos de Pago</Label>
-                  <Select
-                    value={formData.payment_terms || ""}
-                    onValueChange={(value) => setFormData({ ...formData, payment_terms: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Contado">Contado</SelectItem>
-                      <SelectItem value="15 días">15 días</SelectItem>
-                      <SelectItem value="30 días">30 días</SelectItem>
-                      <SelectItem value="45 días">45 días</SelectItem>
-                      <SelectItem value="60 días">60 días</SelectItem>
-                      <SelectItem value="90 días">90 días</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discount_percentage">Descuento General (%)</Label>
-                  <Input
-                    id="discount_percentage"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={formData.discount_percentage}
-                    onChange={(e) => setFormData({ ...formData, discount_percentage: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="credit_limit">Límite de Crédito ($)</Label>
-                  <Input
-                    id="credit_limit"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.credit_limit}
-                    onChange={(e) => setFormData({ ...formData, credit_limit: e.target.value })}
-                  />
-                </div>
-              </div>
+            {/* Commercial Config - Only when aliado is assigned */}
+            {hasAliado && (
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-semibold mb-4">Configuración Comercial</h4>
 
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="notes">Notas</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Observaciones adicionales sobre el cliente..."
-                  rows={3}
-                />
-              </div>
-            </div>
+                {/* Legal Representative */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="legal_rep_name">Representante Legal</Label>
+                    <Input
+                      id="legal_rep_name"
+                      value={formData.legal_rep_name}
+                      onChange={(e) => setFormData({ ...formData, legal_rep_name: e.target.value })}
+                      placeholder="Nombre del representante legal"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="legal_rep_document">Cédula Representante Legal</Label>
+                    <Input
+                      id="legal_rep_document"
+                      value={formData.legal_rep_document}
+                      onChange={(e) => setFormData({ ...formData, legal_rep_document: e.target.value })}
+                      placeholder="Número de cédula"
+                    />
+                  </div>
+                </div>
 
-            {/* Address */}
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-semibold mb-4">Dirección de Envío</h4>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="shipping_address">Dirección</Label>
+                {/* Main Address */}
+                <div className="space-y-4 mb-4">
+                  <Label className="font-medium">Dirección Principal</Label>
+                  <div className="space-y-2">
+                    <Input
+                      value={formData.main_address}
+                      onChange={(e) => setFormData({ ...formData, main_address: e.target.value })}
+                      placeholder="Calle 123 # 45-67"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Departamento</Label>
+                      <Select
+                        value={formData.main_state}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, main_state: value, main_city: "" })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar departamento..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COLOMBIA_DEPARTMENTS.map((dept) => (
+                            <SelectItem key={dept.name} value={dept.name}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ciudad</Label>
+                      <Select
+                        value={formData.main_city}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, main_city: value })
+                        }
+                        disabled={!formData.main_state}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar ciudad..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mainCities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Commercial Terms */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_terms">Términos de Pago</Label>
+                    <Select
+                      value={formData.payment_terms || "none"}
+                      onValueChange={(value) => setFormData({ ...formData, payment_terms: value === "none" ? "" : value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Sin definir</SelectItem>
+                        <SelectItem value="Contado">Contado</SelectItem>
+                        <SelectItem value="15 días">15 días</SelectItem>
+                        <SelectItem value="30 días">30 días</SelectItem>
+                        <SelectItem value="45 días">45 días</SelectItem>
+                        <SelectItem value="60 días">60 días</SelectItem>
+                        <SelectItem value="90 días">90 días</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="discount_percentage">Descuento (%)</Label>
+                    <Input
+                      id="discount_percentage"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={formData.discount_percentage}
+                      onChange={(e) => setFormData({ ...formData, discount_percentage: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="credit_limit">Crédito ($)</Label>
+                    <Input
+                      id="credit_limit"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.credit_limit}
+                      onChange={(e) => setFormData({ ...formData, credit_limit: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="notes">Notas</Label>
                   <Textarea
-                    id="shipping_address"
-                    value={formData.shipping_address}
-                    onChange={(e) => setFormData({ ...formData, shipping_address: e.target.value })}
-                    placeholder="Calle 123 # 45-67"
-                    rows={2}
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    placeholder="Observaciones adicionales sobre el cliente..."
+                    rows={3}
                   />
                 </div>
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_city">Ciudad</Label>
-                    <Input
-                      id="shipping_city"
-                      value={formData.shipping_city}
-                      onChange={(e) => setFormData({ ...formData, shipping_city: e.target.value })}
-                      placeholder="Bogotá"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_state">Departamento</Label>
-                    <Input
-                      id="shipping_state"
-                      value={formData.shipping_state}
-                      onChange={(e) => setFormData({ ...formData, shipping_state: e.target.value })}
-                      placeholder="Cundinamarca"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_postal_code">Código Postal</Label>
-                    <Input
-                      id="shipping_postal_code"
-                      value={formData.shipping_postal_code}
-                      onChange={(e) => setFormData({ ...formData, shipping_postal_code: e.target.value })}
-                      placeholder="110111"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_country">País</Label>
-                    <Input
-                      id="shipping_country"
-                      value={formData.shipping_country}
-                      onChange={(e) => setFormData({ ...formData, shipping_country: e.target.value })}
-                      placeholder="Colombia"
-                    />
-                  </div>
-                </div>
               </div>
+            )}
+
+            {/* Shipping Addresses */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold">Direcciones de Envío</h4>
+                <Button type="button" variant="outline" size="sm" onClick={addNewAddress}>
+                  <Plus className="h-3 w-3 mr-1" />
+                  Agregar Dirección
+                </Button>
+              </div>
+
+              {/* Existing addresses (edit mode) */}
+              {existingAddresses.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {existingAddresses.map((addr) => (
+                    <div key={addr.id} className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30">
+                      <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                      <div className="flex-1 text-sm">
+                        <div className="font-medium">
+                          {addr.label}
+                          {addr.is_default && (
+                            <Badge variant="secondary" className="ml-2 text-xs">Principal</Badge>
+                          )}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {addr.address_line1}
+                          {addr.address_line2 && `, ${addr.address_line2}`}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {addr.city}, {addr.state}
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => markAddressForDeletion(addr.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* New addresses */}
+              {newAddresses.map((addr, index) => {
+                const addrCities = getCitiesByDepartment(addr.state)
+                return (
+                  <div key={index} className="p-4 rounded-lg border mb-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Nueva dirección {index + 1}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => removeNewAddress(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Etiqueta *</Label>
+                        <Input
+                          value={addr.label}
+                          onChange={(e) => updateNewAddress(index, "label", e.target.value)}
+                          placeholder="Ej: Bodega Principal"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Nombre Contacto *</Label>
+                        <Input
+                          value={addr.full_name}
+                          onChange={(e) => updateNewAddress(index, "full_name", e.target.value)}
+                          placeholder="Juan Pérez"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Teléfono</Label>
+                        <Input
+                          value={addr.phone}
+                          onChange={(e) => updateNewAddress(index, "phone", e.target.value)}
+                          placeholder="+57 300 123 4567"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">
+                          <input
+                            type="checkbox"
+                            checked={addr.is_default}
+                            onChange={(e) => updateNewAddress(index, "is_default", e.target.checked)}
+                            className="mr-1"
+                          />
+                          Dirección principal
+                        </Label>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Dirección *</Label>
+                      <Input
+                        value={addr.address_line1}
+                        onChange={(e) => updateNewAddress(index, "address_line1", e.target.value)}
+                        placeholder="Calle 123 # 45-67"
+                      />
+                    </div>
+                    <Input
+                      value={addr.address_line2}
+                      onChange={(e) => updateNewAddress(index, "address_line2", e.target.value)}
+                      placeholder="Apartamento, local, oficina (opcional)"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Departamento *</Label>
+                        <Select
+                          value={addr.state}
+                          onValueChange={(value) => updateNewAddress(index, "state", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Departamento..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COLOMBIA_DEPARTMENTS.map((dept) => (
+                              <SelectItem key={dept.name} value={dept.name}>
+                                {dept.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Ciudad *</Label>
+                        <Select
+                          value={addr.city}
+                          onValueChange={(value) => updateNewAddress(index, "city", value)}
+                          disabled={!addr.state}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Ciudad..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {addrCities.map((city) => (
+                              <SelectItem key={city} value={city}>
+                                {city}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+
+              {existingAddresses.length === 0 && newAddresses.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No hay direcciones de envío registradas
+                </p>
+              )}
             </div>
           </div>
 

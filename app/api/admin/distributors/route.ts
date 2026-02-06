@@ -93,14 +93,12 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient();
     
-    // Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
     
-    // Verificar rol de superadmin
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
@@ -112,7 +110,11 @@ export async function POST(request: Request) {
     }
     
     const body = await request.json();
-    const { formData } = body as { formData?: Record<string, unknown> };
+    const { formData, newAddresses, addressesToDelete } = body as {
+      formData?: Record<string, unknown>;
+      newAddresses?: any[];
+      addressesToDelete?: string[];
+    };
 
     if (!formData || typeof formData !== 'object') {
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
@@ -127,7 +129,6 @@ export async function POST(request: Request) {
     
     const admin = createAdminClient();
     
-    // Buscar usuario existente por email
     const { data: usersData, error: listUsersError } = await admin.auth.admin.listUsers();
     if (listUsersError) {
       return NextResponse.json({ error: listUsersError.message }, { status: 400 });
@@ -137,7 +138,6 @@ export async function POST(request: Request) {
     let userId: string;
     
     if (existingUser) {
-      // Usuario existe
       userId = existingUser.id;
       
       const { data: existingProfile } = await admin
@@ -147,17 +147,13 @@ export async function POST(request: Request) {
         .single();
       
       if (existingProfile) {
-        // Actualizar rol a distribuidor si es necesario
         if (existingProfile.role !== 'distributor') {
-          const { error: roleError } = await admin
+          await admin
             .from('user_profiles')
             .update({ role: 'distributor' })
             .eq('id', userId);
-          
-          if (roleError) throw roleError;
         }
         
-        // Actualizar datos del perfil
         const { error: profileError } = await admin
           .from('user_profiles')
           .update({
@@ -165,17 +161,11 @@ export async function POST(request: Request) {
             phone: formData.phone,
             document_type: formData.document_type,
             document_number: formData.document_number,
-            shipping_address: formData.shipping_address,
-            shipping_city: formData.shipping_city,
-            shipping_state: formData.shipping_state,
-            shipping_postal_code: formData.shipping_postal_code,
-            shipping_country: formData.shipping_country,
           })
           .eq('id', userId);
         
         if (profileError) throw profileError;
       } else {
-        // Usuario existe pero no tiene perfil, crearlo
         const { error: profileError } = await admin.from('user_profiles').insert({
           id: userId,
           role: 'distributor',
@@ -183,17 +173,11 @@ export async function POST(request: Request) {
           phone: formData.phone,
           document_type: formData.document_type,
           document_number: formData.document_number,
-          shipping_address: formData.shipping_address,
-          shipping_city: formData.shipping_city,
-          shipping_state: formData.shipping_state,
-          shipping_postal_code: formData.shipping_postal_code,
-          shipping_country: formData.shipping_country,
         });
         
         if (profileError) throw profileError;
       }
     } else {
-      // Usuario no existe: invitar por email (flujo sin password)
       const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
         data: {
           role: 'distributor',
@@ -212,7 +196,6 @@ export async function POST(request: Request) {
 
       userId = inviteData.user.id;
 
-      // Crear/actualizar perfil (upsert para evitar duplicados)
       const { error: profileError } = await admin.from('user_profiles').upsert({
         id: userId,
         role: 'distributor',
@@ -220,11 +203,6 @@ export async function POST(request: Request) {
         phone: (formData as any).phone || null,
         document_type: (formData as any).document_type || null,
         document_number: (formData as any).document_number || null,
-        shipping_address: (formData as any).shipping_address || null,
-        shipping_city: (formData as any).shipping_city || null,
-        shipping_state: (formData as any).shipping_state || null,
-        shipping_postal_code: (formData as any).shipping_postal_code || null,
-        shipping_country: (formData as any).shipping_country || null,
       });
 
       if (profileError) {
@@ -232,7 +210,7 @@ export async function POST(request: Request) {
       }
     }
     
-    // Crear registro de distribuidor
+    // Check for existing distributor
     const { data: existingDistributor } = await admin
       .from('distributors')
       .select('id')
@@ -241,13 +219,7 @@ export async function POST(request: Request) {
 
     if (existingDistributor?.id) {
       return NextResponse.json(
-        {
-          error: 'Este usuario ya tiene un distribuidor asociado',
-          debug: {
-            userId,
-            distributorId: existingDistributor.id,
-          },
-        },
+        { error: 'Este usuario ya tiene un cliente asociado' },
         { status: 400 }
       );
     }
@@ -260,27 +232,49 @@ export async function POST(request: Request) {
     const { error: distError } = await admin.from('distributors').insert({
       user_id: userId,
       company_name: (formData as any).company_name,
-      company_rif: (formData as any).company_rif,
+      company_rif: (formData as any).company_rif || null,
+      commercial_name: (formData as any).commercial_name || null,
       business_type: (formData as any).business_type,
       discount_percentage: Number.isFinite(discount) ? discount : 0,
       credit_limit: Number.isFinite(credit) ? credit : 0,
       aliado_id,
-      commercial_name: (formData as any).commercial_name || null,
       payment_terms: (formData as any).payment_terms || null,
       notes: (formData as any).notes || null,
+      legal_rep_name: (formData as any).legal_rep_name || null,
+      legal_rep_document: (formData as any).legal_rep_document || null,
+      main_address: (formData as any).main_address || null,
+      main_city: (formData as any).main_city || null,
+      main_state: (formData as any).main_state || null,
     });
     
     if (distError) throw distError;
+
+    // Create shipping addresses if provided
+    if (Array.isArray(newAddresses) && newAddresses.length > 0) {
+      const addressRows = newAddresses.map((a: any) => ({
+        user_id: userId,
+        label: a.label || 'Dirección',
+        full_name: a.full_name || (formData as any).full_name || '',
+        phone: a.phone || null,
+        address_line1: a.address_line1,
+        address_line2: a.address_line2 || null,
+        city: a.city,
+        state: a.state,
+        country: 'Colombia',
+        is_default: a.is_default || false,
+      }));
+
+      const { error: addrError } = await admin.from('shipping_addresses').insert(addressRows);
+      if (addrError) {
+        console.error('Error creating addresses:', addrError);
+      }
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error creating distributor:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Error al crear distribuidor';
-    console.error('Error details:', errorMessage);
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Error al crear cliente';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -288,14 +282,12 @@ export async function PUT(request: Request) {
   try {
     const supabase = await createClient();
     
-    // Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
     
-    // Verificar rol de superadmin
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
@@ -307,32 +299,37 @@ export async function PUT(request: Request) {
     }
     
     const body = await request.json();
-    const { distributorId, userId, formData } = body;
+    const { distributorId, userId, formData, newAddresses, addressesToDelete } = body;
     
     const admin = createAdminClient();
 
     const aliadoIdRaw = formData?.aliado_id;
     const aliado_id = typeof aliadoIdRaw === 'string' && aliadoIdRaw.length > 0 ? aliadoIdRaw : null;
     
-    // Actualizar distribuidor
+    // Update distributor with new fields
     const { error: distError } = await admin
       .from('distributors')
       .update({
         company_name: formData.company_name,
-        company_rif: formData.company_rif,
-        business_type: formData.business_type,
-        discount_percentage: parseFloat(formData.discount_percentage),
-        credit_limit: parseFloat(formData.credit_limit),
-        aliado_id,
+        company_rif: formData.company_rif || null,
         commercial_name: formData.commercial_name || null,
+        business_type: formData.business_type,
+        discount_percentage: parseFloat(formData.discount_percentage) || 0,
+        credit_limit: parseFloat(formData.credit_limit) || 0,
+        aliado_id,
         payment_terms: formData.payment_terms || null,
         notes: formData.notes || null,
+        legal_rep_name: formData.legal_rep_name || null,
+        legal_rep_document: formData.legal_rep_document || null,
+        main_address: formData.main_address || null,
+        main_city: formData.main_city || null,
+        main_state: formData.main_state || null,
       })
       .eq('id', distributorId);
     
     if (distError) throw distError;
     
-    // Actualizar perfil
+    // Update profile (no legacy shipping fields)
     const { error: profileError } = await admin
       .from('user_profiles')
       .update({
@@ -340,21 +337,44 @@ export async function PUT(request: Request) {
         phone: formData.phone,
         document_type: formData.document_type,
         document_number: formData.document_number,
-        shipping_address: formData.shipping_address,
-        shipping_city: formData.shipping_city,
-        shipping_state: formData.shipping_state,
-        shipping_postal_code: formData.shipping_postal_code,
-        shipping_country: formData.shipping_country,
       })
       .eq('id', userId);
     
     if (profileError) throw profileError;
+
+    // Delete marked addresses
+    if (Array.isArray(addressesToDelete) && addressesToDelete.length > 0) {
+      const { error: delError } = await admin
+        .from('shipping_addresses')
+        .delete()
+        .in('id', addressesToDelete);
+      if (delError) console.error('Error deleting addresses:', delError);
+    }
+
+    // Create new addresses
+    if (Array.isArray(newAddresses) && newAddresses.length > 0) {
+      const addressRows = newAddresses.map((a: any) => ({
+        user_id: userId,
+        label: a.label || 'Dirección',
+        full_name: a.full_name || formData.full_name || '',
+        phone: a.phone || null,
+        address_line1: a.address_line1,
+        address_line2: a.address_line2 || null,
+        city: a.city,
+        state: a.state,
+        country: 'Colombia',
+        is_default: a.is_default || false,
+      }));
+
+      const { error: addrError } = await admin.from('shipping_addresses').insert(addressRows);
+      if (addrError) console.error('Error creating addresses:', addrError);
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error updating distributor:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error al actualizar distribuidor' },
+      { error: error instanceof Error ? error.message : 'Error al actualizar cliente' },
       { status: 500 }
     );
   }

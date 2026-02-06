@@ -234,6 +234,7 @@ export interface Distributor {
   aliado_id?: string
   company_name: string
   company_rif?: string
+  commercial_name?: string
   business_type?: string
   discount_percentage: number
   has_custom_pricing: boolean
@@ -248,6 +249,30 @@ export interface Distributor {
   requires_approval: boolean
   approved_at?: string
   approved_by?: string
+  legal_rep_name?: string
+  legal_rep_document?: string
+  main_address?: string
+  main_city?: string
+  main_state?: string
+  payment_terms?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ShippingAddress {
+  id: string
+  user_id: string
+  label: string
+  full_name: string
+  phone?: string
+  address_line1: string
+  address_line2?: string
+  city: string
+  state: string
+  postal_code?: string
+  country: string
+  is_default: boolean
   created_at: string
   updated_at: string
 }

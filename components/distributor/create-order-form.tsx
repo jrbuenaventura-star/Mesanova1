@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -10,9 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2, Save } from "lucide-react"
+import { Trash2, Save, MapPin, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import type { Company } from "@/lib/db/types"
+import type { Company, ShippingAddress } from "@/lib/db/types"
 import { getImageKitUrl } from "@/lib/imagekit"
 
 interface Product {
@@ -42,11 +44,31 @@ interface CreateOrderFormProps {
 
 export default function CreateOrderForm({ distributorId, companies, products, userId }: CreateOrderFormProps) {
   const router = useRouter()
+  const supabase = createClient()
   const [selectedCompanyId, setSelectedCompanyId] = useState("")
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [notes, setNotes] = useState("")
-  const [shippingAddress, setShippingAddress] = useState("")
+  const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    async function loadAddresses() {
+      const { data, error } = await supabase
+        .from("shipping_addresses")
+        .select("*")
+        .eq("user_id", userId)
+        .order("is_default", { ascending: false })
+        .order("created_at", { ascending: false })
+      if (!error && data) {
+        setShippingAddresses(data)
+        const defaultAddr = data.find((a: ShippingAddress) => a.is_default)
+        if (defaultAddr) setSelectedAddressId(defaultAddr.id)
+        else if (data.length > 0) setSelectedAddressId(data[0].id)
+      }
+    }
+    loadAddresses()
+  }, [userId])
 
   const IVA_PORCENTAJE = 19
 
@@ -133,7 +155,10 @@ export default function CreateOrderForm({ distributorId, companies, products, us
           iva_porcentaje: IVA_PORCENTAJE,
           shipping_cost: 0,
           total,
-          shipping_address: shippingAddress || null,
+          shipping_address: (() => {
+            const addr = shippingAddresses.find(a => a.id === selectedAddressId)
+            return addr ? `${addr.address_line1}${addr.address_line2 ? `, ${addr.address_line2}` : ''}, ${addr.city}, ${addr.state}` : null
+          })(),
           notes: notes || null,
         })
         .select()
@@ -193,12 +218,39 @@ export default function CreateOrderForm({ distributorId, companies, products, us
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Dirección de Envío</Label>
-            <Input
-              id="address"
-              value={shippingAddress}
-              onChange={(e) => setShippingAddress(e.target.value)}
-              placeholder="Ingresa la dirección de envío"
-            />
+            {shippingAddresses.length > 0 ? (
+              <>
+                <Select value={selectedAddressId} onValueChange={setSelectedAddressId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una dirección de envío" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shippingAddresses.map((addr) => (
+                      <SelectItem key={addr.id} value={addr.id}>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3 w-3" />
+                          <span>{addr.label} - {addr.address_line1}, {addr.city}</span>
+                          {addr.is_default && <Badge variant="secondary" className="text-xs ml-1">Principal</Badge>}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedAddressId && (() => {
+                  const addr = shippingAddresses.find(a => a.id === selectedAddressId)
+                  return addr ? (
+                    <p className="text-xs text-muted-foreground">
+                      {addr.address_line1}{addr.address_line2 ? `, ${addr.address_line2}` : ''} — {addr.city}, {addr.state}
+                    </p>
+                  ) : null
+                })()}
+              </>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>No tienes direcciones de envío registradas. Agrega una desde tu perfil.</AlertDescription>
+              </Alert>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="notes">Notas e Instrucciones Especiales</Label>

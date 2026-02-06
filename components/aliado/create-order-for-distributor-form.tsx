@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plus, Trash2, ShoppingCart, AlertCircle, Loader2 } from "lucide-react"
+import { Plus, Trash2, ShoppingCart, AlertCircle, Loader2, MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import type { ShippingAddress } from "@/lib/db/types"
 
 type Distributor = {
   id: string
@@ -59,8 +60,41 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
   const [isSearching, setIsSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("")
 
   const selectedDistributor = distributors.find(d => d.id === selectedDistributorId)
+  const selectedAddress = shippingAddresses.find(a => a.id === selectedAddressId)
+
+  const loadShippingAddresses = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("shipping_addresses")
+        .select("*")
+        .eq("user_id", userId)
+        .order("is_default", { ascending: false })
+        .order("created_at", { ascending: false })
+      if (error) throw error
+      setShippingAddresses(data || [])
+      const defaultAddr = data?.find((a: ShippingAddress) => a.is_default)
+      if (defaultAddr) setSelectedAddressId(defaultAddr.id)
+      else if (data && data.length > 0) setSelectedAddressId(data[0].id)
+    } catch (err) {
+      console.error("Error loading shipping addresses:", err)
+      setShippingAddresses([])
+    }
+  }
+
+  const handleDistributorChange = (distId: string) => {
+    setSelectedDistributorId(distId)
+    setSelectedAddressId("")
+    setShippingAddresses([])
+    setOrderItems([])
+    const dist = distributors.find(d => d.id === distId)
+    if (dist) {
+      loadShippingAddresses(dist.user_id)
+    }
+  }
 
   const searchProducts = async (term: string) => {
     if (term.length < 2) {
@@ -169,6 +203,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
           distributor_contact_email: distributor.contact_email || "",
           distributor_contact_phone: distributor.contact_phone || "",
           discount_percentage: distributor.discount_percentage,
+          shipping_address_id: selectedAddressId || null,
           notes,
           items: orderItems,
         }),
@@ -231,7 +266,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       <div className="space-y-4">
         <div>
           <Label htmlFor="distributor">Distribuidor</Label>
-          <Select value={selectedDistributorId} onValueChange={setSelectedDistributorId}>
+          <Select value={selectedDistributorId} onValueChange={handleDistributorChange}>
             <SelectTrigger id="distributor">
               <SelectValue placeholder="Selecciona un distribuidor" />
             </SelectTrigger>
@@ -257,6 +292,40 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {selectedDistributor && shippingAddresses.length > 0 && (
+          <div>
+            <Label htmlFor="shipping-address">Dirección de Envío</Label>
+            <Select value={selectedAddressId} onValueChange={setSelectedAddressId}>
+              <SelectTrigger id="shipping-address">
+                <SelectValue placeholder="Selecciona una dirección de envío" />
+              </SelectTrigger>
+              <SelectContent>
+                {shippingAddresses.map((addr) => (
+                  <SelectItem key={addr.id} value={addr.id}>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-3 w-3" />
+                      <span>{addr.label} - {addr.address_line1}, {addr.city}</span>
+                      {addr.is_default && <Badge variant="secondary" className="text-xs ml-1">Principal</Badge>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedAddress && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedAddress.address_line1}{selectedAddress.address_line2 ? `, ${selectedAddress.address_line2}` : ''} — {selectedAddress.city}, {selectedAddress.state}
+              </p>
+            )}
+          </div>
+        )}
+
+        {selectedDistributor && shippingAddresses.length === 0 && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Este cliente no tiene direcciones de envío registradas.</AlertDescription>
+          </Alert>
         )}
 
         <div>

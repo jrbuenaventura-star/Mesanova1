@@ -21,6 +21,7 @@ type CreateAliadoOrderBody = {
   distributor_contact_email?: string
   distributor_contact_phone?: string
   discount_percentage: number
+  shipping_address_id?: string | null
   notes?: string
   items: OrderItem[]
 }
@@ -57,6 +58,25 @@ export async function POST(request: Request) {
 
     const total = body.items.reduce((sum, i) => sum + Number(i.subtotal || 0), 0)
 
+    // Look up shipping address if provided
+    let shippingAddress = "Por definir"
+    let shippingCity = "Por definir"
+    let shippingState: string | null = null
+
+    if (body.shipping_address_id) {
+      const { data: addr } = await admin
+        .from("shipping_addresses")
+        .select("address_line1, address_line2, city, state")
+        .eq("id", body.shipping_address_id)
+        .single()
+
+      if (addr) {
+        shippingAddress = addr.address_line1 + (addr.address_line2 ? `, ${addr.address_line2}` : "")
+        shippingCity = addr.city
+        shippingState = addr.state
+      }
+    }
+
     const { data: order, error: orderError } = await admin
       .from("orders")
       .insert({
@@ -72,8 +92,9 @@ export async function POST(request: Request) {
         customer_name: body.distributor_company_name,
         customer_email: body.distributor_contact_email || "",
         customer_phone: body.distributor_contact_phone || "",
-        shipping_address: "Por definir",
-        shipping_city: "Por definir",
+        shipping_address: shippingAddress,
+        shipping_city: shippingCity,
+        shipping_state: shippingState,
         payment_method: "Por definir",
         shipping_method: "Por definir",
         items: body.items,

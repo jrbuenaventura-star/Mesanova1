@@ -6,6 +6,7 @@ import {
   BOOLEAN_FIELDS,
   NUMERIC_FIELDS,
   VALID_DOCUMENT_TYPES,
+  VALID_BUSINESS_TYPES,
 } from './distributor-template';
 
 export interface ParsedDistributor {
@@ -179,6 +180,17 @@ function validateRow(
     }
   }
   
+  // Validar tipo de negocio
+  if (row.business_type && row.business_type.trim() !== '') {
+    if (!VALID_BUSINESS_TYPES.some(t => t.toLowerCase() === row.business_type.trim().toLowerCase())) {
+      errors.push({
+        field: 'business_type',
+        message: `Tipo de negocio "${row.business_type}" no válido. Opciones: ${VALID_BUSINESS_TYPES.join(', ')}`,
+        value: row.business_type,
+      });
+    }
+  }
+  
   // Warning si no hay teléfono
   if (!row.phone || row.phone.trim() === '') {
     warnings.push({
@@ -311,6 +323,7 @@ export function compareWithExisting(
       const fieldMappings: Record<keyof DistributorCSVRow, string> = {
         company_rif: 'company_rif',
         company_name: 'company_name',
+        commercial_name: 'commercial_name',
         business_type: 'business_type',
         email: '_email', // No se actualiza
         full_name: '_full_name', // Se actualiza en user_profiles
@@ -320,6 +333,11 @@ export function compareWithExisting(
         discount_percentage: 'discount_percentage',
         credit_limit: 'credit_limit',
         is_active: 'is_active',
+        legal_rep_name: 'legal_rep_name',
+        legal_rep_document: 'legal_rep_document',
+        main_address: 'main_address',
+        main_state: 'main_state',
+        main_city: 'main_city',
       };
       
       for (const [csvField, dbField] of Object.entries(fieldMappings)) {

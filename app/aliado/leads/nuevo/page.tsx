@@ -12,17 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Loader2, UserPlus } from "lucide-react"
 import Link from "next/link"
-
-const BUSINESS_TYPES = [
-  "Tienda de hogar",
-  "Restaurante",
-  "Hotel",
-  "Catering",
-  "Mayorista",
-  "Minorista",
-  "Institucional",
-  "Otro"
-]
+import { BUSINESS_TYPES } from "@/lib/data/colombia-locations"
 
 export default function NuevoLeadPage() {
   const router = useRouter()

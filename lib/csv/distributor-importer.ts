@@ -186,11 +186,17 @@ async function createDistributor(
     .insert({
       user_id: userId,
       company_name: data.company_name,
-      company_rif: data.company_rif,
+      company_rif: data.company_rif || null,
+      commercial_name: data.commercial_name || null,
       business_type: data.business_type || null,
       discount_percentage: parseNumericValue(data.discount_percentage) || 0,
       credit_limit: parseNumericValue(data.credit_limit) || 0,
       is_active: parseBooleanValue(data.is_active),
+      legal_rep_name: data.legal_rep_name || null,
+      legal_rep_document: data.legal_rep_document || null,
+      main_address: data.main_address || null,
+      main_city: data.main_city || null,
+      main_state: data.main_state || null,
     });
   
   if (distError) {
@@ -210,10 +216,16 @@ async function updateDistributor(
     .from('distributors')
     .update({
       company_name: data.company_name,
+      commercial_name: data.commercial_name || null,
       business_type: data.business_type || null,
       discount_percentage: parseNumericValue(data.discount_percentage) || 0,
       credit_limit: parseNumericValue(data.credit_limit) || 0,
       is_active: parseBooleanValue(data.is_active),
+      legal_rep_name: data.legal_rep_name || null,
+      legal_rep_document: data.legal_rep_document || null,
+      main_address: data.main_address || null,
+      main_city: data.main_city || null,
+      main_state: data.main_state || null,
       updated_at: new Date().toISOString(),
     })
     .eq('company_rif', data.company_rif.trim());
