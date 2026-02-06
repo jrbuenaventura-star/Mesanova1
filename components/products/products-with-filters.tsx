@@ -11,12 +11,14 @@ import Link from "next/link"
 interface ProductsWithFiltersProps {
   products: any[]
   subcategories: Array<{ id: string; name: string; slug: string }>
+  productTypes?: Array<{ id: string; name: string; slug: string; subcategory_id: string }>
   siloSlug: string
 }
 
-export function ProductsWithFilters({ products, subcategories, siloSlug }: ProductsWithFiltersProps) {
+export function ProductsWithFilters({ products, subcategories, productTypes = [], siloSlug }: ProductsWithFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     subcategories: [],
+    productTypes: [],
     materials: [],
     colors: [],
     brands: [],
@@ -66,6 +68,17 @@ export function ProductsWithFilters({ products, subcategories, siloSlug }: Produ
           productSubcategories?.includes(subId)
         )
         if (!hasMatchingSubcategory) return false
+      }
+
+      // Filtro por tipos de producto
+      if (filters.productTypes.length > 0) {
+        const productTypeIds = product.product_product_types
+          ?.map((pt: any) => pt.product_type?.id || pt.product_type_id)
+          .filter(Boolean) || []
+        const hasMatchingType = filters.productTypes.some((typeId) =>
+          productTypeIds.includes(typeId)
+        )
+        if (!hasMatchingType) return false
       }
 
       // Filtro por rango de precio
@@ -118,6 +131,7 @@ export function ProductsWithFilters({ products, subcategories, siloSlug }: Produ
       <div className="lg:col-span-1">
         <ProductFilters
           subcategories={subcategories}
+          productTypes={productTypes}
           materials={uniqueValues.materials}
           colors={uniqueValues.colors}
           brands={uniqueValues.brands}

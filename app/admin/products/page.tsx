@@ -21,19 +21,23 @@ export default async function ProductsAdminPage() {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("*")
+    .select(`
+      *,
+      product_categories(subcategory_id),
+      product_product_types(product_type_id)
+    `)
     .order("created_at", { ascending: false })
 
   if (productsError) {
     console.error("[v0] Error loading products:", productsError)
   }
 
-  // Obtener silos y subcategorías para los selectores
-  const { data: silos } = await supabase.from("silos").select("*").order("order_index")
-
-  const { data: subcategories } = await supabase.from("subcategories").select("*, silo:silos(*)").order("order_index")
-
-  const { data: collections } = await supabase.from("collections").select("*").eq("is_active", true).order("name")
+  const [{ data: silos }, { data: subcategories }, { data: collections }, { data: productTypes }] = await Promise.all([
+    supabase.from("silos").select("*").order("order_index"),
+    supabase.from("subcategories").select("*, silo:silos(*)").order("order_index"),
+    supabase.from("collections").select("*").eq("is_active", true).order("name"),
+    supabase.from("product_types").select("*").order("order_index"),
+  ])
 
   return (
     <div className="flex-1 space-y-4 p-8">
@@ -51,6 +55,7 @@ export default async function ProductsAdminPage() {
         silos={silos || []}
         subcategories={subcategories || []}
         collections={collections || []}
+        productTypes={productTypes || []}
       />
     </div>
   )

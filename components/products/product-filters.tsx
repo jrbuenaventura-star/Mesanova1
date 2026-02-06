@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 
 interface ProductFiltersProps {
   subcategories?: Array<{ id: string; name: string; slug: string }>
+  productTypes?: Array<{ id: string; name: string; slug: string; subcategory_id: string }>
   materials?: string[]
   colors?: string[]
   brands?: string[]
@@ -21,6 +22,7 @@ interface ProductFiltersProps {
 
 export interface FilterState {
   subcategories: string[]
+  productTypes: string[]
   materials: string[]
   colors: string[]
   brands: string[]
@@ -29,9 +31,10 @@ export interface FilterState {
   onSale: boolean
 }
 
-export function ProductFilters({ subcategories = [], materials = [], colors = [], brands = [], priceRange, onFilterChange }: ProductFiltersProps) {
+export function ProductFilters({ subcategories = [], productTypes = [], materials = [], colors = [], brands = [], priceRange, onFilterChange }: ProductFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     subcategories: [],
+    productTypes: [],
     materials: [],
     colors: [],
     brands: [],
@@ -40,12 +43,32 @@ export function ProductFilters({ subcategories = [], materials = [], colors = []
     onSale: false,
   })
 
+  // Product types available for selected subcategories
+  const availableProductTypes = useMemo(() => {
+    if (filters.subcategories.length === 0) return []
+    return productTypes.filter(pt => filters.subcategories.includes(pt.subcategory_id))
+  }, [filters.subcategories, productTypes])
+
   const handleSubcategoryToggle = (subcategoryId: string) => {
     const newSubcategories = filters.subcategories.includes(subcategoryId)
       ? filters.subcategories.filter((id) => id !== subcategoryId)
       : [...filters.subcategories, subcategoryId]
 
-    const newFilters = { ...filters, subcategories: newSubcategories }
+    // Clear product types that no longer belong to selected subcategories
+    const validTypeIds = productTypes.filter(pt => newSubcategories.includes(pt.subcategory_id)).map(pt => pt.id)
+    const newProductTypes = filters.productTypes.filter(id => validTypeIds.includes(id))
+
+    const newFilters = { ...filters, subcategories: newSubcategories, productTypes: newProductTypes }
+    setFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
+  const handleProductTypeToggle = (typeId: string) => {
+    const newTypes = filters.productTypes.includes(typeId)
+      ? filters.productTypes.filter((id) => id !== typeId)
+      : [...filters.productTypes, typeId]
+
+    const newFilters = { ...filters, productTypes: newTypes }
     setFilters(newFilters)
     onFilterChange(newFilters)
   }
@@ -76,6 +99,7 @@ export function ProductFilters({ subcategories = [], materials = [], colors = []
   const clearFilters = () => {
     const defaultFilters: FilterState = {
       subcategories: [],
+      productTypes: [],
       materials: [],
       colors: [],
       brands: [],
@@ -89,6 +113,7 @@ export function ProductFilters({ subcategories = [], materials = [], colors = []
 
   const activeFiltersCount =
     filters.subcategories.length +
+    filters.productTypes.length +
     filters.materials.length +
     filters.colors.length +
     filters.brands.length +
@@ -102,7 +127,7 @@ export function ProductFilters({ subcategories = [], materials = [], colors = []
     <div className="space-y-6">
       {subcategories.length > 0 && (
         <div>
-          <h3 className="font-semibold mb-3">Subcategorías</h3>
+          <h3 className="font-semibold mb-3">Subcategories</h3>
           <div className="space-y-2">
             {subcategories.map((subcat) => (
               <div key={subcat.id} className="flex items-center space-x-2">
@@ -113,6 +138,26 @@ export function ProductFilters({ subcategories = [], materials = [], colors = []
                 />
                 <Label htmlFor={`subcat-${subcat.id}`} className="text-sm cursor-pointer">
                   {subcat.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {availableProductTypes.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3">Product Type</h3>
+          <div className="space-y-2">
+            {availableProductTypes.map((type) => (
+              <div key={type.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`type-${type.id}`}
+                  checked={filters.productTypes.includes(type.id)}
+                  onCheckedChange={() => handleProductTypeToggle(type.id)}
+                />
+                <Label htmlFor={`type-${type.id}`} className="text-sm cursor-pointer">
+                  {type.name}
                 </Label>
               </div>
             ))}
