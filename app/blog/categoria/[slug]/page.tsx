@@ -5,9 +5,10 @@ import { CalendarDays, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { notFound } from "next/navigation"
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const categories = await getBlogCategories()
-  const category = categories.find((c) => c.slug === params.slug)
+  const category = categories.find((c) => c.slug === slug)
 
   if (!category) {
     return {
@@ -21,10 +22,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function BlogCategoryPage({ params }: { params: { slug: string } }) {
-  const posts = await getBlogPostsByCategory(params.slug)
+export default async function BlogCategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const posts = await getBlogPostsByCategory(slug)
   const categories = await getBlogCategories()
-  const currentCategory = categories.find((c) => c.slug === params.slug)
+  const currentCategory = categories.find((c) => c.slug === slug)
 
   if (!currentCategory) {
     notFound()

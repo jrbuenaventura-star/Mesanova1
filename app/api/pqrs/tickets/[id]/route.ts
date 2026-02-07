@@ -4,9 +4,10 @@ import { sendPQRSNotification, getTicketStatusChangeEmail } from '@/lib/email/pq
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
@@ -26,7 +27,7 @@ export async function GET(
         comentarios:pqrs_comments(*, usuario:user_profiles(id, full_name, email)),
         archivos:pqrs_attachments(*)
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -44,7 +45,7 @@ export async function GET(
             comentarios:pqrs_comments(*),
             archivos:pqrs_attachments(*)
           `)
-          .eq('id', params.id)
+          .eq('id', id)
           .single()
         ticket = fallbackResult.data
         error = fallbackResult.error
@@ -79,9 +80,10 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
@@ -105,7 +107,7 @@ export async function PATCH(
     const { data: ticketActual, error: fetchError } = await supabase
       .from('pqrs_tickets')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (fetchError || !ticketActual) {
@@ -118,7 +120,7 @@ export async function PATCH(
     if (estado && estado !== ticketActual.estado) {
       updates.estado = estado
       comentarios.push({
-        ticket_id: params.id,
+        ticket_id: id,
         usuario_id: user.id,
         usuario_nombre: profile.full_name,
         usuario_rol: profile.role,
@@ -132,7 +134,7 @@ export async function PATCH(
       if (estado === 'resuelto' && resolucion) {
         updates.resolucion = resolucion
         comentarios.push({
-          ticket_id: params.id,
+          ticket_id: id,
           usuario_id: user.id,
           usuario_nombre: profile.full_name,
           usuario_rol: profile.role,
@@ -146,7 +148,7 @@ export async function PATCH(
     if (prioridad && prioridad !== ticketActual.prioridad) {
       updates.prioridad = prioridad
       comentarios.push({
-        ticket_id: params.id,
+        ticket_id: id,
         usuario_id: user.id,
         usuario_nombre: profile.full_name,
         usuario_rol: profile.role,
@@ -164,7 +166,7 @@ export async function PATCH(
         ? `Ticket asignado a un administrador`
         : `Ticket desasignado`
       comentarios.push({
-        ticket_id: params.id,
+        ticket_id: id,
         usuario_id: user.id,
         usuario_nombre: profile.full_name,
         usuario_rol: profile.role,
@@ -185,7 +187,7 @@ export async function PATCH(
     const { data: ticket, error } = await supabase
       .from('pqrs_tickets')
       .update(updates)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 

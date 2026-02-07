@@ -23,10 +23,13 @@ const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200"
 const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
 
 export const metadata: Metadata = {
-  title: "Mesanova - Vajillas, Copas, Vasos y Platos | Artículos para Mesa y Cocina",
+  metadataBase: new URL("https://mesanova.co"),
+  title: {
+    default: "Mesanova - Vajillas, Copas, Vasos y Platos | Artículos para Mesa y Cocina",
+    template: "%s | Mesanova",
+  },
   description:
     "Especialistas en artículos para mesa y cocina. Descubre nuestra selección de vajillas, copas, vasos, platos y utensilios de cocina. Calidad premium desde 1995.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -35,6 +38,23 @@ export const metadata: Metadata = {
       },
     ],
     apple: "/favicon.svg",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    url: "https://mesanova.co",
+    siteName: "Mesanova",
+    title: "Mesanova - Vajillas, Copas, Vasos y Platos",
+    description: "Especialistas en artículos para mesa y cocina. Vajillas, copas, vasos, platos y utensilios de cocina de calidad premium.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mesanova - Artículos para Mesa y Cocina",
+    description: "Especialistas en artículos para mesa y cocina. Calidad premium desde 1995.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 

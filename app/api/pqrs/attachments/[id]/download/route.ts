@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
@@ -16,7 +17,7 @@ export async function GET(
     const { data: attachment, error: attachmentError } = await supabase
       .from('pqrs_attachments')
       .select('*, ticket:pqrs_tickets(creado_por)')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (attachmentError || !attachment) {

@@ -28,27 +28,27 @@ interface OrdersManagementProps {
   distributorId?: string
 }
 
-const statusLabels = {
-  draft: "Borrador",
-  pending_approval: "Por Aprobar",
-  approved: "Aprobada",
-  in_preparation: "En Preparación",
-  shipped: "Enviada",
-  delivered: "Entregada",
-  cancelled: "Cancelada",
-  returned: "Devuelta/Rechazada",
+const statusLabels: Record<string, string> = {
+  borrador: "Borrador",
+  por_aprobar: "Por Aprobar",
+  aprobada: "Aprobada",
+  en_preparacion: "En Preparación",
+  enviada: "Enviada",
+  entregada: "Entregada",
+  cancelada: "Cancelada",
+  devuelta_rechazada: "Devuelta/Rechazada",
 }
 
-const statusColors = {
-  draft: "secondary",
-  pending_approval: "default",
-  approved: "default",
-  in_preparation: "default",
-  shipped: "default",
-  delivered: "default",
-  cancelled: "destructive",
-  returned: "destructive",
-} as const
+const statusColors: Record<string, "secondary" | "default" | "destructive" | "outline"> = {
+  borrador: "secondary",
+  por_aprobar: "outline",
+  aprobada: "default",
+  en_preparacion: "default",
+  enviada: "default",
+  entregada: "default",
+  cancelada: "destructive",
+  devuelta_rechazada: "destructive",
+}
 
 export default function OrdersManagement({ userRole, userId, distributorId }: OrdersManagementProps) {
   const router = useRouter()
@@ -307,7 +307,7 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
                       <Button variant="ghost" size="sm" onClick={() => handleViewDetails(order)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {userRole === "superadmin" && order.status === "pending_approval" && (
+                      {userRole === "superadmin" && order.status === "por_aprobar" && (
                         <>
                           <Button
                             variant="ghost"
@@ -321,17 +321,17 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
                           </Button>
                         </>
                       )}
-                      {userRole === "superadmin" && order.status === "approved" && (
+                      {userRole === "superadmin" && order.status === "aprobada" && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleUpdateStatus(order.id, "in_preparation")}
+                          onClick={() => handleUpdateStatus(order.id, "en_preparacion")}
                         >
                           <Package className="h-4 w-4" />
                         </Button>
                       )}
-                      {userRole === "superadmin" && order.status === "in_preparation" && (
-                        <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, "shipped")}>
+                      {userRole === "superadmin" && order.status === "en_preparacion" && (
+                        <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, "enviada")}>
                           <Truck className="h-4 w-4" />
                         </Button>
                       )}

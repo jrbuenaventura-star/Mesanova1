@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart, Minus, Plus, Check } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "sonner"
-import type { Product } from "@/lib/db/types"
+import type { ProductWithCategories } from "@/lib/db/types"
 import { trackAddToCart } from "@/components/clientify/clientify-tracking"
 
 interface AddToCartButtonProps {
-  product: Product
+  product: ProductWithCategories
   disabled?: boolean
 }
 
@@ -55,7 +55,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         quantity,
         imageUrl: product.imagen_principal_url || undefined,
         maxStock: totalStock,
-        slug: product.slug,
+        slug: product.slug || product.pdt_codigo,
         silo: siloSlug,
       })
 
