@@ -12,6 +12,10 @@ type UpdatePostBody = {
   featured_image_url?: string | null
   category_id?: string | null
   published_at?: string | null
+  meta_title?: string | null
+  meta_description?: string | null
+  focus_keyword?: string | null
+  canonical_url?: string | null
 }
 
 async function requireSuperadmin() {
@@ -66,6 +70,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         status: body.status,
         featured_image_url: body.featured_image_url || null,
         published_at: nextPublishedAt,
+        meta_title: body.meta_title || null,
+        meta_description: body.meta_description || null,
+        focus_keyword: body.focus_keyword || null,
+        canonical_url: body.canonical_url || null,
       })
       .eq("id", id)
 

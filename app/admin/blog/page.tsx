@@ -66,12 +66,12 @@ export default function AdminBlogPage() {
       .eq("id", deleteDialog.postId)
 
     if (error) {
-      toast.error("Error al eliminar", {
-        description: "No se pudo eliminar el post. Intenta nuevamente."
+      toast.error("Error deleting", {
+        description: "Could not delete the post. Please try again."
       })
     } else {
-      toast.success("Post eliminado", {
-        description: "El post ha sido eliminado exitosamente"
+      toast.success("Post deleted", {
+        description: "The post has been successfully deleted"
       })
       loadPosts()
     }
@@ -80,20 +80,20 @@ export default function AdminBlogPage() {
   }
 
   if (isLoading) {
-    return <div className="container mx-auto py-10">Cargando...</div>
+    return <div className="container mx-auto py-10">Loading...</div>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gestión del Blog</h1>
-          <p className="text-muted-foreground mt-1">Administra posts de "Nuestra Mesa"</p>
+          <h1 className="text-3xl font-bold">Blog Management</h1>
+          <p className="text-muted-foreground mt-1">Manage "Our Table" blog posts</p>
         </div>
         <Button asChild>
           <Link href="/admin/blog/nuevo">
             <Plus className="h-4 w-4 mr-2" />
-            Nuevo Post
+            New Post
           </Link>
         </Button>
       </div>
@@ -108,14 +108,14 @@ export default function AdminBlogPage() {
                   <CardDescription className="line-clamp-2">{post.excerpt}</CardDescription>
                 </div>
                 <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                  {post.status === "published" ? "Publicado" : "Borrador"}
+                  {post.status === "published" ? "Published" : "Draft"}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Por {post.author?.full_name || "Autor desconocido"} •{" "}
+                  By {post.author?.full_name || "Unknown author"} •{" "}
                   {new Date(post.created_at).toLocaleDateString("es-CO")}
                 </div>
                 <div className="flex gap-2">
@@ -151,8 +151,8 @@ export default function AdminBlogPage() {
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
         onConfirm={handleDelete}
-        title="¿Eliminar post del blog?"
-        description="Esta acción no se puede deshacer. El post será eliminado permanentemente."
+        title="Delete blog post?"
+        description="This action cannot be undone. The post will be permanently deleted."
         itemName={deleteDialog.postTitle}
       />
     </div>

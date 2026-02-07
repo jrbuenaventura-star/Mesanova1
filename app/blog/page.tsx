@@ -6,8 +6,15 @@ import Image from "next/image"
 import { CalendarDays } from "lucide-react"
 
 export const metadata = {
-  title: "Nuestra Mesa - Blog de Mesanova",
-  description: "Artículos, tendencias y consejos sobre decoración de mesa y hogar",
+  title: "Our Table - Mesanova Blog",
+  description: "Articles, trends and tips on tableware, table decoration and the art of entertaining",
+  openGraph: {
+    title: "Our Table - Mesanova Blog",
+    description: "Articles, trends and tips on tableware, table decoration and the art of entertaining",
+    siteName: "Mesanova",
+    type: "website",
+    url: "https://mesanova.co/blog",
+  },
 }
 
 export default async function BlogPage() {
@@ -19,9 +26,9 @@ export default async function BlogPage() {
       {/* Header */}
       <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Nuestra Mesa</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Table</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Historias, tendencias y consejos sobre decoración de mesa, productos para el hogar y el arte de recibir
+            Stories, trends and tips on tableware, kitchen products and the art of entertaining
           </p>
         </div>
       </section>
@@ -62,7 +69,7 @@ export default async function BlogPage() {
                       <CardDescription className="line-clamp-3">{post.excerpt}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <span className="text-sm text-primary font-medium">Leer más →</span>
+                      <span className="text-sm text-primary font-medium">Read more →</span>
                     </CardContent>
                   </Card>
                 </Link>
@@ -75,7 +82,7 @@ export default async function BlogPage() {
             <div className="sticky top-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Categorías</CardTitle>
+                  <CardTitle>Categories</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2">

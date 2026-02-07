@@ -104,6 +104,9 @@ importers:
       '@tiptap/extension-image':
         specifier: 3.14.0
         version: 3.14.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))
+      '@tiptap/extension-link':
+        specifier: ^3.19.0
+        version: 3.19.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)
       '@tiptap/extension-text-align':
         specifier: 3.14.0
         version: 3.14.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))
@@ -182,6 +185,9 @@ importers:
       resend:
         specifier: ^4.0.0
         version: 4.8.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
       sonner:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1711,11 +1717,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.18.0
 
-  '@tiptap/extension-link@3.18.0':
-    resolution: {integrity: sha512-1J28C4+fKAMQi7q/UsTjAmgmKTnzjExXY98hEBneiVzFDxqF69n7+Vb7nVTNAIhmmJkZMA0DEcMhSiQC/1/u4A==}
+  '@tiptap/extension-link@3.19.0':
+    resolution: {integrity: sha512-HEGDJnnCPfr7KWu7Dsq+eRRe/mBCsv6DuI+7fhOCLDJjjKzNgrX2abbo/zG3D/4lCVFaVb+qawgJubgqXR/Smw==}
     peerDependencies:
-      '@tiptap/core': ^3.18.0
-      '@tiptap/pm': ^3.18.0
+      '@tiptap/core': ^3.19.0
+      '@tiptap/pm': ^3.19.0
 
   '@tiptap/extension-list-item@3.18.0':
     resolution: {integrity: sha512-auTSt+NXoUnT0xofzFa+FnXsrW1TPdT1OB3U1OqQCIWkumZqL45A8OK9kpvyQsWj/xJ8fy1iZwFlKXPtxjLd2w==}
@@ -4059,8 +4065,7 @@ snapshots:
     dependencies:
       react-hook-form: 7.71.1(react@19.2.0)
 
-  '@img/colour@1.0.0':
-    optional: true
+  '@img/colour@1.0.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -5357,7 +5362,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.18.0(@tiptap/pm@3.18.0)
 
-  '@tiptap/extension-link@3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)':
+  '@tiptap/extension-link@3.19.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)':
     dependencies:
       '@tiptap/core': 3.18.0(@tiptap/pm@3.18.0)
       '@tiptap/pm': 3.18.0
@@ -5458,7 +5463,7 @@ snapshots:
       '@tiptap/extension-heading': 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))
       '@tiptap/extension-horizontal-rule': 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)
       '@tiptap/extension-italic': 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))
-      '@tiptap/extension-link': 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)
+      '@tiptap/extension-link': 3.19.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)
       '@tiptap/extension-list': 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0)
       '@tiptap/extension-list-item': 3.18.0(@tiptap/extension-list@3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0))
       '@tiptap/extension-list-keymap': 3.18.0(@tiptap/extension-list@3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))(@tiptap/pm@3.18.0))
@@ -7317,7 +7322,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:

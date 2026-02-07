@@ -1,26 +1,65 @@
 import { getBlogPostBySlug, getRelatedBlogPosts } from "@/lib/db/queries"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { CalendarDays, Eye, ArrowLeft, User } from "lucide-react"
+import { CalendarDays, Eye, ArrowLeft, User, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { Metadata } from "next"
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+function estimateReadingTime(html: string): number {
+  const text = html.replace(/<[^>]*>/g, "")
+  const words = text.split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.ceil(words / 200))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const post = await getBlogPostBySlug(slug)
 
   if (!post) {
-    return {
-      title: "Post no encontrado",
-    }
+    return { title: "Post not found" }
   }
 
+  const seoTitle = post.meta_title || `${post.title} - Mesanova Blog`
+  const seoDescription = post.meta_description || post.excerpt || `Read ${post.title} on the Mesanova blog`
+  const postUrl = `https://mesanova.co/blog/${post.slug}`
+
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: seoTitle,
+    description: seoDescription,
+    keywords: post.focus_keyword ? [post.focus_keyword] : undefined,
+    alternates: {
+      canonical: post.canonical_url || postUrl,
+    },
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      url: postUrl,
+      siteName: "Mesanova",
+      type: "article",
+      publishedTime: post.published_at || undefined,
+      modifiedTime: post.updated_at || undefined,
+      authors: post.author?.full_name ? [post.author.full_name] : undefined,
+      images: post.featured_image_url
+        ? [
+            {
+              url: post.featured_image_url,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoTitle,
+      description: seoDescription,
+      images: post.featured_image_url ? [post.featured_image_url] : undefined,
+    },
   }
 }
 
@@ -33,15 +72,49 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   const relatedPosts = await getRelatedBlogPosts(post.id, 3)
+  const readingTime = estimateReadingTime(post.content || "")
+
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.meta_description || post.excerpt || "",
+    image: post.featured_image_url || undefined,
+    datePublished: post.published_at || post.created_at,
+    dateModified: post.updated_at || post.published_at || post.created_at,
+    author: post.author
+      ? {
+          "@type": "Person",
+          name: post.author.full_name,
+        }
+      : undefined,
+    publisher: {
+      "@type": "Organization",
+      name: "Mesanova",
+      url: "https://mesanova.co",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://mesanova.co/blog/${post.slug}`,
+    },
+    wordCount: (post.content || "").replace(/<[^>]*>/g, "").split(/\s+/).filter(Boolean).length,
+  }
 
   return (
     <div className="min-h-screen bg-background">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <div className="container mx-auto py-8 px-6 md:px-8 max-w-4xl">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/blog">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al blog
+            Back to blog
           </Link>
         </Button>
 
@@ -83,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
               <time dateTime={post.published_at}>
-                {new Date(post.published_at!).toLocaleDateString("es-ES", {
+                {new Date(post.published_at!).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -91,8 +164,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </time>
             </div>
             <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span>{readingTime} min read</span>
+            </div>
+            <div className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
-              <span>{post.views_count || 0} vistas</span>
+              <span>{post.views_count || 0} views</span>
             </div>
           </div>
 
@@ -100,23 +177,25 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {post.blog_post_categories && post.blog_post_categories.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {post.blog_post_categories.map((pc: any) => (
-                <Badge key={pc.category.id} variant="secondary">
-                  {pc.category.name}
-                </Badge>
+                <Link key={pc.category.id} href={`/blog/categoria/${pc.category.slug}`}>
+                  <Badge variant="secondary" className="hover:bg-primary/10 cursor-pointer">
+                    {pc.category.name}
+                  </Badge>
+                </Link>
               ))}
             </div>
           )}
         </header>
 
         {/* Post Content */}
-        <article className="prose prose-lg dark:prose-invert max-w-none mb-12">
+        <article className="prose prose-lg dark:prose-invert max-w-none mb-12 prose-img:rounded-lg prose-img:max-w-full prose-a:text-primary">
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         </article>
 
         {/* Related Posts */}
         {relatedPosts && relatedPosts.length > 0 && (
           <section className="mt-16 pt-8 border-t">
-            <h2 className="text-2xl font-bold mb-6">Artículos relacionados</h2>
+            <h2 className="text-2xl font-bold mb-6">Related articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPosts.map((relatedPost) => (
                 <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
