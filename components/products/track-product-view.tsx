@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { trackProductViewed } from "@/components/clientify/clientify-tracking"
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 
 interface TrackProductViewProps {
   productId: string
@@ -9,6 +10,9 @@ interface TrackProductViewProps {
   price?: number
   category?: string
   userId?: string
+  slug?: string
+  siloSlug?: string
+  imageUrl?: string
 }
 
 export function TrackProductView({ 
@@ -16,9 +20,26 @@ export function TrackProductView({
   productName,
   price,
   category,
-  userId 
+  userId,
+  slug,
+  siloSlug,
+  imageUrl,
 }: TrackProductViewProps) {
+  const { addItem } = useRecentlyViewed()
+
   useEffect(() => {
+    // Guardar en productos vistos recientemente (localStorage)
+    if (productName && slug && siloSlug) {
+      addItem({
+        id: productId,
+        slug,
+        siloSlug,
+        name: productName,
+        price: price || 0,
+        imageUrl,
+      })
+    }
+
     // Rastrear vista de producto en Clientify (siempre, incluso sin login)
     if (productName) {
       trackProductViewed({

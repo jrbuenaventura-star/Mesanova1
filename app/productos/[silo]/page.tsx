@@ -84,7 +84,7 @@ export default async function SiloPage({
         <div className="container mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-bold">
-              All {siloData.name} products
+              Todos los productos de {siloData.name}
             </h2>
           </div>
 

@@ -15,6 +15,8 @@ import { FavoriteButton } from "@/components/products/favorite-button"
 import { AddToListButton } from "@/components/products/add-to-list-button"
 import { ProductReviews } from "@/components/products/product-reviews"
 import { TrackProductView } from "@/components/products/track-product-view"
+import { RecentlyViewedProducts } from "@/components/products/recently-viewed-products"
+import { NotifyStockButton } from "@/components/products/notify-stock-button"
 
 interface ProductPageProps {
   params: Promise<{
@@ -94,7 +96,74 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Track product view */}
-      <TrackProductView productId={product.id} userId={user?.id} />
+      <TrackProductView 
+        productId={product.id} 
+        userId={user?.id}
+        productName={product.nombre_comercial || product.pdt_descripcion}
+        price={product.precio}
+        slug={slug}
+        siloSlug={silo}
+        imageUrl={product.imagen_principal_url || undefined}
+        category={primaryCategory?.subcategory?.name}
+      />
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.nombre_comercial || product.pdt_descripcion,
+            description: product.descripcion_larga || product.pdt_descripcion,
+            image: product.imagen_principal_url || undefined,
+            sku: product.pdt_codigo,
+            brand: product.marca ? { "@type": "Brand", name: product.marca } : undefined,
+            color: product.color || undefined,
+            material: product.material || undefined,
+            weight: product.peso ? { "@type": "QuantitativeValue", value: product.peso, unitCode: "KGM" } : undefined,
+            offers: {
+              "@type": "Offer",
+              url: `https://mesanova.co/productos/${silo}/${slug}`,
+              priceCurrency: "COP",
+              price: product.precio || 0,
+              availability: hasStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              seller: { "@type": "Organization", name: "Mesanova" },
+            },
+            ...(ratingStats.total > 0 ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: ratingStats.average,
+                reviewCount: ratingStats.total,
+              },
+            } : {}),
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Inicio", item: "https://mesanova.co" },
+              { "@type": "ListItem", position: 2, name: "Productos", item: "https://mesanova.co/productos" },
+              ...(primaryCategory?.subcategory?.silo ? [{
+                "@type": "ListItem",
+                position: 3,
+                name: primaryCategory.subcategory.silo.name,
+                item: `https://mesanova.co/productos/${primaryCategory.subcategory.silo.slug}`,
+              }] : []),
+              {
+                "@type": "ListItem",
+                position: primaryCategory?.subcategory?.silo ? 4 : 3,
+                name: product.nombre_comercial || product.pdt_descripcion,
+              },
+            ],
+          }),
+        }}
+      />
 
       {/* Breadcrumb */}
       <nav className="mb-6 text-sm">
@@ -284,6 +353,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Botones de acción */}
           <div className="space-y-3">
             <AddToCartButton product={product} disabled={!hasStock} />
+            {!hasStock && (
+              <NotifyStockButton
+                productId={product.id}
+                productName={product.nombre_comercial || product.pdt_descripcion}
+                userEmail={user?.email || undefined}
+              />
+            )}
             <div className="flex gap-2">
               <FavoriteButton 
                 productId={product.id} 
@@ -531,12 +607,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </section>
       )}
+
+      {/* Productos vistos recientemente */}
+      <RecentlyViewedProducts excludeProductId={product.id} />
     </div>
   )
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const { slug } = await params
+  const { slug, silo } = await params
   const product = await getProductBySlug(slug)
 
   if (!product) {
@@ -545,14 +624,31 @@ export async function generateMetadata({ params }: ProductPageProps) {
     }
   }
 
+  const title = product.seo_title || product.nombre_comercial || product.pdt_descripcion
+  const description = product.seo_description || product.descripcion_larga || product.pdt_descripcion
+  const imageUrl = product.imagen_principal_url || undefined
+
   return {
-    title: product.seo_title || product.nombre_comercial || product.pdt_descripcion,
-    description: product.seo_description || product.descripcion_larga || product.pdt_descripcion,
+    title,
+    description,
     keywords: product.seo_keywords?.join(", "),
     openGraph: {
-      title: product.nombre_comercial || product.pdt_descripcion,
-      description: product.descripcion_larga || product.pdt_descripcion,
-      images: product.imagen_principal_url ? [product.imagen_principal_url] : [],
+      title,
+      description,
+      type: "website",
+      url: `https://mesanova.co/productos/${silo}/${slug}`,
+      images: imageUrl ? [{ url: imageUrl, alt: title }] : [],
+      siteName: "Mesanova",
+      locale: "es_CO",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+    alternates: {
+      canonical: `https://mesanova.co/productos/${silo}/${slug}`,
     },
   }
 }
