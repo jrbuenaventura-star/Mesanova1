@@ -66,6 +66,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         heading: {
           levels: [1, 2, 3],
         },
+        // Disable built-in Link/Underline — we import them separately with custom config
+        link: false,
+        underline: false,
       }),
       Image.configure({
         inline: false,
@@ -97,11 +100,18 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     },
   })
 
-  if (!editor) {
-    return null
-  }
+  // All hooks and callbacks MUST be before any early return
+  const setLink = useCallback(() => {
+    if (!editor) return
+    if (linkUrl) {
+      editor.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run()
+    }
+    setLinkUrl("")
+    setLinkDialogOpen(false)
+  }, [editor, linkUrl])
 
-  const handleFileUpload = async (file: File, type: "image" | "video") => {
+  const handleFileUpload = useCallback(async (file: File, type: "image" | "video") => {
+    if (!editor) return
     setUploading(true)
     try {
       const formData = new FormData()
@@ -146,18 +156,20 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     } finally {
       setUploading(false)
     }
-  }
+  }, [editor, imageAlt, toast])
 
-  const addImage = () => {
+  const addImage = useCallback(() => {
+    if (!editor) return
     if (imageUrl) {
       editor.chain().focus().setImage({ src: imageUrl, alt: imageAlt || "" }).run()
       setImageUrl("")
       setImageAlt("")
       setImageDialogOpen(false)
     }
-  }
+  }, [editor, imageUrl, imageAlt])
 
-  const addVideo = () => {
+  const addVideo = useCallback(() => {
+    if (!editor) return
     if (videoUrl) {
       editor
         .chain()
@@ -169,20 +181,17 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       setVideoUrl("")
       setVideoDialogOpen(false)
     }
-  }
+  }, [editor, videoUrl])
 
-  const setLink = useCallback(() => {
-    if (linkUrl) {
-      editor.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run()
-    }
-    setLinkUrl("")
-    setLinkDialogOpen(false)
-  }, [editor, linkUrl])
-
-  const openLinkDialog = () => {
+  const openLinkDialog = useCallback(() => {
+    if (!editor) return
     const previousUrl = editor.getAttributes("link").href || ""
     setLinkUrl(previousUrl)
     setLinkDialogOpen(true)
+  }, [editor])
+
+  if (!editor) {
+    return null
   }
 
   return (
