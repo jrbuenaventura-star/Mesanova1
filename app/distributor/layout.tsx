@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Home, Package, Users, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, DollarSign } from "lucide-react"
-import { MobileSidebar, type SidebarNavItem } from "@/components/layout/mobile-sidebar"
+import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
 export default async function DistributorLayout({
   children,
@@ -43,17 +43,6 @@ export default async function DistributorLayout({
   const companyName = distributor?.company_name || aliado?.company_name
   const panelTitle = profile.role === 'aliado' ? 'Panel Aliado' : 'Panel Distribuidor'
 
-  const navItems: SidebarNavItem[] = [
-    { href: "/distributor", label: "Inicio", icon: Home },
-    { href: "/distributor/orders", label: "Mis Órdenes", icon: ShoppingCart },
-    { href: "/distributor/invoices", label: "Facturas", icon: FileText },
-    { href: "/distributor/clients", label: "Mis Clientes", icon: Users },
-    { href: "/productos", label: "Catálogo", icon: Package },
-    { href: "/distributor/precios", label: "Mi Lista de Precios", icon: DollarSign },
-    { href: "/distributor/pqrs", label: "Soporte / PQRs", icon: MessageSquare },
-    { href: "/distributor/profile", label: "Perfil y Documentos", icon: UserCog, separator: true },
-  ]
-
   const setupAlert = showSetupAlert ? (
     <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
       <div className="flex items-start gap-2">
@@ -64,12 +53,29 @@ export default async function DistributorLayout({
         </div>
       </div>
     </div>
-  ) : undefined
+  ) : null
+
+  const navLinks = (
+    <>
+      {setupAlert && <div className="mb-2">{setupAlert}</div>}
+      <NavLink href="/distributor" icon={<Home className="h-4 w-4" />} label="Inicio" />
+      <NavLink href="/distributor/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Mis Órdenes" />
+      <NavLink href="/distributor/invoices" icon={<FileText className="h-4 w-4" />} label="Facturas" />
+      <NavLink href="/distributor/clients" icon={<Users className="h-4 w-4" />} label="Mis Clientes" />
+      <NavLink href="/productos" icon={<Package className="h-4 w-4" />} label="Catálogo" />
+      <NavLink href="/distributor/precios" icon={<DollarSign className="h-4 w-4" />} label="Mi Lista de Precios" />
+      <NavLink href="/distributor/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Soporte / PQRs" />
+      <div className="my-3 border-t" />
+      <NavLink href="/distributor/profile" icon={<UserCog className="h-4 w-4" />} label="Perfil y Documentos" />
+    </>
+  )
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Mobile sidebar */}
-      <MobileSidebar title={panelTitle} subtitle={companyName || undefined} items={navItems} alertContent={setupAlert} />
+      <MobileSidebar title={panelTitle} subtitle={companyName || undefined}>
+        {navLinks}
+      </MobileSidebar>
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-64 border-r bg-muted/40 shrink-0">
@@ -79,27 +85,23 @@ export default async function DistributorLayout({
             <p className="text-sm text-muted-foreground truncate">{companyName}</p>
           )}
         </div>
-        
-        {showSetupAlert && (
-          <div className="mx-4 mb-4">{setupAlert}</div>
-        )}
-        
         <nav className="space-y-1 px-4">
-          {navItems.map((item) => (
-            <div key={item.href}>
-              {item.separator && <div className="my-3 border-t" />}
-              <Link
-                href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            </div>
-          ))}
+          {navLinks}
         </nav>
       </aside>
       <main className="flex-1 min-w-0">{children}</main>
     </div>
+  )
+}
+
+function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
+    >
+      {icon}
+      {label}
+    </Link>
   )
 }

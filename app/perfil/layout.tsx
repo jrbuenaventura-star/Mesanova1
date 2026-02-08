@@ -15,21 +15,19 @@ import {
   Clock,
   Settings,
 } from "lucide-react"
-import { MobileSidebar, type SidebarNavItem } from "@/components/layout/mobile-sidebar"
+import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
-const menuItems: SidebarNavItem[] = [
-  { href: "/perfil", label: "Mi Perfil", icon: User },
-  { href: "/perfil/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/perfil/wishlists", label: "Listas de Deseos", icon: ListChecks },
-  { href: "/perfil/listas-regalo", label: "Listas de Regalo", icon: Gift },
-  { href: "/perfil/direcciones", label: "Direcciones", icon: MapPin },
-  { href: "/perfil/ordenes", label: "Mis Órdenes", icon: ShoppingBag },
-  { href: "/perfil/resenas", label: "Mis Reseñas", icon: Star },
-  { href: "/perfil/puntos", label: "Mis Puntos", icon: Award },
-  { href: "/perfil/vistos", label: "Vistos Recientemente", icon: Clock },
-  { href: "/perfil/notificaciones", label: "Notificaciones", icon: Bell },
-  { href: "/perfil/configuracion", label: "Configuración", icon: Settings, separator: true },
-]
+function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors"
+    >
+      {icon}
+      {label}
+    </Link>
+  )
+}
 
 export default async function PerfilLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -39,10 +37,29 @@ export default async function PerfilLayout({ children }: { children: React.React
     redirect("/auth/login")
   }
 
+  const navLinks = (
+    <>
+      <NavLink href="/perfil" icon={<User className="h-4 w-4 text-muted-foreground" />} label="Mi Perfil" />
+      <NavLink href="/perfil/favoritos" icon={<Heart className="h-4 w-4 text-muted-foreground" />} label="Favoritos" />
+      <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4 text-muted-foreground" />} label="Listas de Deseos" />
+      <NavLink href="/perfil/listas-regalo" icon={<Gift className="h-4 w-4 text-muted-foreground" />} label="Listas de Regalo" />
+      <NavLink href="/perfil/direcciones" icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Direcciones" />
+      <NavLink href="/perfil/ordenes" icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />} label="Mis Órdenes" />
+      <NavLink href="/perfil/resenas" icon={<Star className="h-4 w-4 text-muted-foreground" />} label="Mis Reseñas" />
+      <NavLink href="/perfil/puntos" icon={<Award className="h-4 w-4 text-muted-foreground" />} label="Mis Puntos" />
+      <NavLink href="/perfil/vistos" icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Vistos Recientemente" />
+      <NavLink href="/perfil/notificaciones" icon={<Bell className="h-4 w-4 text-muted-foreground" />} label="Notificaciones" />
+      <div className="my-2 border-t" />
+      <NavLink href="/perfil/configuracion" icon={<Settings className="h-4 w-4 text-muted-foreground" />} label="Configuración" />
+    </>
+  )
+
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Mobile sidebar */}
-      <MobileSidebar title="Mi Cuenta" items={menuItems} />
+      <MobileSidebar title="Mi Cuenta">
+        {navLinks}
+      </MobileSidebar>
 
       <div className="container py-6 px-4">
         <div className="flex flex-col lg:flex-row gap-6">
@@ -52,16 +69,7 @@ export default async function PerfilLayout({ children }: { children: React.React
               <div className="px-3 py-2 mb-2">
                 <h2 className="font-semibold text-lg">Mi Cuenta</h2>
               </div>
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors"
-                >
-                  <item.icon className="h-4 w-4 text-muted-foreground" />
-                  {item.label}
-                </Link>
-              ))}
+              {navLinks}
             </nav>
           </aside>
 
