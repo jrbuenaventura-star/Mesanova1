@@ -96,7 +96,7 @@ export default function InstitucionalPage() {
               </CardHeader>
               <CardContent className="text-sm leading-relaxed">
                 <p>
-                  Con más de 40 años en el mercado, hemos equipado más de 200 proyectos institucionales incluyendo
+                  Con 33 años en el mercado, hemos equipado más de 200 proyectos institucionales incluyendo
                   cadenas hoteleras, restaurantes de alto nivel, servicios de catering corporativo y comedores
                   institucionales. Nuestro compromiso es entregar soluciones duraderas y confiables.
                 </p>
