@@ -18,6 +18,24 @@ import { ProductCard } from "@/components/products/product-card"
 import { createClient } from "@/lib/supabase/server"
 import { getFeaturedProducts, getBlogPosts } from "@/lib/db/queries"
 
+export const metadata = {
+  title: "Mesa y cocina bien pensadas",
+  description: "Diseño, funcionalidad y calidad para usar todos los días.",
+  openGraph: {
+    title: "Mesa y cocina bien pensadas",
+    description: "Diseño, funcionalidad y calidad para usar todos los días.",
+    url: "https://mesanova.co/",
+    siteName: "Mesanova",
+    type: "website",
+    locale: "es_CO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mesa y cocina bien pensadas",
+    description: "Diseño, funcionalidad y calidad para usar todos los días.",
+  },
+}
+
 async function getBannerSlides() {
   const supabase = await createClient()
   const { data } = await supabase
@@ -82,16 +100,41 @@ export default async function HomePage() {
           BLOQUE 1 – HERO
       ═══════════════════════════════════════════ */}
       {slides.length > 0 ? (
-        <HeroCarousel slides={slides} />
+        <section className="relative">
+          <HeroCarousel slides={slides} hideContent />
+          <div className="absolute inset-0 z-20">
+            <div className="h-full container mx-auto px-4 flex items-center">
+              <div className="max-w-2xl space-y-6 text-white">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
+                  Mesa y cocina bien pensadas
+                </h1>
+                <p className="text-lg md:text-xl opacity-90 max-w-lg">
+                  Diseño, funcionalidad y calidad para usar todos los días.
+                </p>
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <Button asChild size="lg" className="text-base">
+                    <Link href="/productos">
+                      Comprar ahora
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="text-base bg-transparent text-white border-white/40 hover:bg-white/10">
+                    <Link href="#categorias">
+                      Ver categorías
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       ) : (
         <section className="relative py-24 md:py-36 px-4 bg-gradient-to-br from-stone-100 via-background to-stone-50 overflow-hidden">
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
           <div className="container mx-auto relative">
             <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-                Mesa y cocina
-                <br />
-                <span className="text-primary">bien pensadas</span>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
+                Mesa y cocina bien pensadas
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
                 Diseño, funcionalidad y calidad para usar todos los días.

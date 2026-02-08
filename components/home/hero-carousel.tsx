@@ -21,9 +21,10 @@ interface BannerSlide {
 
 interface HeroCarouselProps {
   slides: BannerSlide[]
+  hideContent?: boolean
 }
 
-export function HeroCarousel({ slides }: HeroCarouselProps) {
+export function HeroCarousel({ slides, hideContent = false }: HeroCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
@@ -91,33 +92,34 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
               />
             </div>
 
-            {/* Contenido */}
-            <div className="relative h-full container mx-auto px-4 flex items-center">
-              <div className="max-w-3xl space-y-6" style={{ color: s.text_color || '#FFFFFF' }}>
-                {s.subtitle && (
-                  <Badge className="w-fit" variant="secondary">
-                    {s.subtitle}
-                  </Badge>
-                )}
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                  {s.title}
-                </h1>
-                {s.description && (
-                  <p className="text-lg md:text-xl opacity-90 max-w-2xl">
-                    {s.description}
-                  </p>
-                )}
-                {s.cta_text && s.cta_link && (
-                  <div className="pt-4">
-                    <Button size="lg" asChild className="text-lg">
-                      <Link href={s.cta_link}>
-                        {s.cta_text}
-                      </Link>
-                    </Button>
-                  </div>
-                )}
+            {!hideContent && (
+              <div className="relative h-full container mx-auto px-4 flex items-center">
+                <div className="max-w-3xl space-y-6" style={{ color: s.text_color || '#FFFFFF' }}>
+                  {s.subtitle && (
+                    <Badge className="w-fit" variant="secondary">
+                      {s.subtitle}
+                    </Badge>
+                  )}
+                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                    {s.title}
+                  </h1>
+                  {s.description && (
+                    <p className="text-lg md:text-xl opacity-90 max-w-2xl">
+                      {s.description}
+                    </p>
+                  )}
+                  {s.cta_text && s.cta_link && (
+                    <div className="pt-4">
+                      <Button size="lg" asChild className="text-lg">
+                        <Link href={s.cta_link}>
+                          {s.cta_text}
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
