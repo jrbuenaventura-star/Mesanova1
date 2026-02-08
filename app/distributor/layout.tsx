@@ -2,7 +2,7 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Home, Package, Users, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare } from "lucide-react"
+import { Home, Package, Users, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, DollarSign } from "lucide-react"
 
 export default async function DistributorLayout({
   children,
@@ -99,6 +99,13 @@ export default async function DistributorLayout({
           >
             <Package className="h-4 w-4" />
             Catálogo
+          </Link>
+          <Link
+            href="/distributor/precios"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
+          >
+            <DollarSign className="h-4 w-4" />
+            Mi Lista de Precios
           </Link>
           <Link
             href="/distributor/pqrs"
