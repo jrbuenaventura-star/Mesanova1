@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { MobileSidebar, type SidebarNavItem } from "@/components/layout/mobile-sidebar"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -42,137 +43,55 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const userRole = profile?.role
 
+  const navItems: SidebarNavItem[] = [
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/users", label: "Usuarios", icon: Users },
+    { href: "/admin/products", label: "Productos", icon: Package },
+    { href: "/admin/productos/csv", label: "Productos CSV", icon: FileSpreadsheet },
+    { href: "/admin/orders", label: "Órdenes", icon: ShoppingCart },
+    ...(userRole === "superadmin" ? [{ href: "/admin/orders/approval", label: "Aprobar Órdenes", icon: ShoppingCart }] : []),
+    { href: "/admin/distributors", label: "Clientes", icon: Truck },
+    { href: "/admin/distributors/csv", label: "Clientes CSV", icon: FileSpreadsheet },
+    ...(userRole === "superadmin" ? [{ href: "/admin/aliados", label: "Aliados", icon: Users }] : []),
+    { href: "/admin/gift-registries", label: "Listas de Regalo", icon: Gift },
+    { href: "/admin/blog", label: "Blog", icon: FileText },
+    { href: "/admin/analytics", label: "Analíticas", icon: BarChart3 },
+    { href: "/admin/pqrs", label: "Gestión de PQRs", icon: MessageSquare },
+    { href: "/admin/cupones", label: "Cupones", icon: Tag },
+    { href: "/admin/bonos", label: "Bonos de Regalo", icon: CreditCard },
+    { href: "/admin/reviews", label: "Reviews", icon: Star },
+    { href: "/admin/productos-destacados", label: "Productos Destacados", icon: Sparkles },
+    { href: "/admin/banner-home", label: "Banner del Home", icon: Image },
+    { href: "/admin/settings", label: "Configuración", icon: Settings, separator: true },
+  ]
+
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 border-r bg-muted/40">
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* Mobile sidebar */}
+      <MobileSidebar title="Panel de Control" items={navItems} />
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block w-64 border-r bg-muted/40 shrink-0">
         <div className="flex h-16 items-center border-b px-6">
           <h2 className="text-lg font-semibold">Panel de Control</h2>
         </div>
         <nav className="space-y-2 p-4">
-          <Link href="/admin">
-            <Button variant="ghost" className="w-full justify-start">
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </Link>
-          <Link href="/admin/users">
-            <Button variant="ghost" className="w-full justify-start">
-              <Users className="mr-2 h-4 w-4" />
-              Usuarios
-            </Button>
-          </Link>
-          <Link href="/admin/products">
-            <Button variant="ghost" className="w-full justify-start">
-              <Package className="mr-2 h-4 w-4" />
-              Productos
-            </Button>
-          </Link>
-          <Link href="/admin/productos/csv">
-            <Button variant="ghost" className="w-full justify-start">
-              <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Productos CSV
-            </Button>
-          </Link>
-          <Link href="/admin/orders">
-            <Button variant="ghost" className="w-full justify-start">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Órdenes
-            </Button>
-          </Link>
-          {userRole === "superadmin" && (
-            <Link href="/admin/orders/approval">
-              <Button variant="ghost" className="w-full justify-start">
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Aprobar Órdenes
-              </Button>
-            </Link>
-          )}
-          <Link href="/admin/distributors">
-            <Button variant="ghost" className="w-full justify-start">
-              <Truck className="mr-2 h-4 w-4" />
-              Clientes
-            </Button>
-          </Link>
-          <Link href="/admin/distributors/csv">
-            <Button variant="ghost" className="w-full justify-start">
-              <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Clientes CSV
-            </Button>
-          </Link>
-          {userRole === "superadmin" && (
-            <Link href="/admin/aliados">
-              <Button variant="ghost" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                Aliados
-              </Button>
-            </Link>
-          )}
-          <Link href="/admin/gift-registries">
-            <Button variant="ghost" className="w-full justify-start">
-              <Gift className="mr-2 h-4 w-4" />
-              Listas de Regalo
-            </Button>
-          </Link>
-          <Link href="/admin/blog">
-            <Button variant="ghost" className="w-full justify-start">
-              <FileText className="mr-2 h-4 w-4" />
-              Blog
-            </Button>
-          </Link>
-          <Link href="/admin/analytics">
-            <Button variant="ghost" className="w-full justify-start">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Analíticas
-            </Button>
-          </Link>
-          <Link href="/admin/pqrs">
-            <Button variant="ghost" className="w-full justify-start">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Gestión de PQRs
-            </Button>
-          </Link>
-          <Link href="/admin/cupones">
-            <Button variant="ghost" className="w-full justify-start">
-              <Tag className="mr-2 h-4 w-4" />
-              Cupones
-            </Button>
-          </Link>
-          <Link href="/admin/bonos">
-            <Button variant="ghost" className="w-full justify-start">
-              <CreditCard className="mr-2 h-4 w-4" />
-              Bonos de Regalo
-            </Button>
-          </Link>
-          <Link href="/admin/reviews">
-            <Button variant="ghost" className="w-full justify-start">
-              <Star className="mr-2 h-4 w-4" />
-              Reviews
-            </Button>
-          </Link>
-          <Link href="/admin/productos-destacados">
-            <Button variant="ghost" className="w-full justify-start">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Productos Destacados
-            </Button>
-          </Link>
-          <Link href="/admin/banner-home">
-            <Button variant="ghost" className="w-full justify-start">
-              <Image className="mr-2 h-4 w-4" />
-              Banner del Home
-            </Button>
-          </Link>
-          <Link href="/admin/settings">
-            <Button variant="ghost" className="w-full justify-start">
-              <Settings className="mr-2 h-4 w-4" />
-              Configuración
-            </Button>
-          </Link>
+          {navItems.map((item) => (
+            <div key={item.href}>
+              {item.separator && <div className="my-2 border-t" />}
+              <Link href={item.href}>
+                <Button variant="ghost" className="w-full justify-start">
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.label}
+                </Button>
+              </Link>
+            </div>
+          ))}
         </nav>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 min-w-0">{children}</main>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Home, Package, Users, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, DollarSign } from "lucide-react"
+import { MobileSidebar, type SidebarNavItem } from "@/components/layout/mobile-sidebar"
 
 export default async function DistributorLayout({
   children,
@@ -42,9 +43,36 @@ export default async function DistributorLayout({
   const companyName = distributor?.company_name || aliado?.company_name
   const panelTitle = profile.role === 'aliado' ? 'Panel Aliado' : 'Panel Distribuidor'
 
+  const navItems: SidebarNavItem[] = [
+    { href: "/distributor", label: "Inicio", icon: Home },
+    { href: "/distributor/orders", label: "Mis Órdenes", icon: ShoppingCart },
+    { href: "/distributor/invoices", label: "Facturas", icon: FileText },
+    { href: "/distributor/clients", label: "Mis Clientes", icon: Users },
+    { href: "/productos", label: "Catálogo", icon: Package },
+    { href: "/distributor/precios", label: "Mi Lista de Precios", icon: DollarSign },
+    { href: "/distributor/pqrs", label: "Soporte / PQRs", icon: MessageSquare },
+    { href: "/distributor/profile", label: "Perfil y Documentos", icon: UserCog, separator: true },
+  ]
+
+  const setupAlert = showSetupAlert ? (
+    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="flex items-start gap-2">
+        <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+        <div className="text-xs text-amber-800">
+          <p className="font-medium">Perfil incompleto</p>
+          <p>Completa tu perfil para activar tu cuenta</p>
+        </div>
+      </div>
+    </div>
+  ) : undefined
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 border-r bg-muted/40">
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* Mobile sidebar */}
+      <MobileSidebar title={panelTitle} subtitle={companyName || undefined} items={navItems} alertContent={setupAlert} />
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block w-64 border-r bg-muted/40 shrink-0">
         <div className="p-6">
           <h2 className="text-lg font-semibold">{panelTitle}</h2>
           {companyName && (
@@ -53,80 +81,25 @@ export default async function DistributorLayout({
         </div>
         
         {showSetupAlert && (
-          <div className="mx-4 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
-              <div className="text-xs text-amber-800">
-                <p className="font-medium">Perfil incompleto</p>
-                <p>Completa tu perfil para activar tu cuenta</p>
-              </div>
-            </div>
-          </div>
+          <div className="mx-4 mb-4">{setupAlert}</div>
         )}
         
         <nav className="space-y-1 px-4">
-          <Link
-            href="/distributor"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <Home className="h-4 w-4" />
-            Inicio
-          </Link>
-          <Link
-            href="/distributor/orders"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Mis Órdenes
-          </Link>
-          <Link
-            href="/distributor/invoices"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <FileText className="h-4 w-4" />
-            Facturas
-          </Link>
-          <Link
-            href="/distributor/clients"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <Users className="h-4 w-4" />
-            Mis Clientes
-          </Link>
-          <Link
-            href="/productos"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <Package className="h-4 w-4" />
-            Catálogo
-          </Link>
-          <Link
-            href="/distributor/precios"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <DollarSign className="h-4 w-4" />
-            Mi Lista de Precios
-          </Link>
-          <Link
-            href="/distributor/pqrs"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Soporte / PQRs
-          </Link>
-          
-          <div className="pt-4 mt-4 border-t">
-            <Link
-              href="/distributor/profile"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-            >
-              <UserCog className="h-4 w-4" />
-              Perfil y Documentos
-            </Link>
-          </div>
+          {navItems.map((item) => (
+            <div key={item.href}>
+              {item.separator && <div className="my-3 border-t" />}
+              <Link
+                href={item.href}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            </div>
+          ))}
         </nav>
       </aside>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 min-w-0">{children}</main>
     </div>
   )
 }

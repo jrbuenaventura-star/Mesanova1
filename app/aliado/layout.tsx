@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Home, Users, UserPlus, ShoppingCart, BarChart3, UserCog, MessageSquare } from "lucide-react"
+import { MobileSidebar, type SidebarNavItem } from "@/components/layout/mobile-sidebar"
 
 export default async function AliadoLayout({
   children,
@@ -32,9 +33,23 @@ export default async function AliadoLayout({
     .eq("user_id", user.id)
     .single()
 
+  const navItems: SidebarNavItem[] = [
+    { href: "/aliado", label: "Inicio", icon: Home },
+    { href: "/aliado/distributors", label: "Mis Clientes", icon: Users },
+    { href: "/aliado/leads", label: "CRM / Leads", icon: UserPlus },
+    { href: "/aliado/orders", label: "Crear Pedido", icon: ShoppingCart },
+    { href: "/aliado/stats", label: "Estadísticas", icon: BarChart3 },
+    { href: "/distributor/pqrs", label: "Soporte / PQRs", icon: MessageSquare },
+    { href: "/aliado/profile", label: "Mi Perfil", icon: UserCog, separator: true },
+  ]
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 border-r bg-muted/40">
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* Mobile sidebar */}
+      <MobileSidebar title="Panel Aliado" subtitle={aliado?.company_name || undefined} items={navItems} />
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:block w-64 border-r bg-muted/40 shrink-0">
         <div className="p-6">
           <h2 className="text-lg font-semibold">Panel Aliado</h2>
           {aliado && (
@@ -43,61 +58,21 @@ export default async function AliadoLayout({
         </div>
         
         <nav className="space-y-1 px-4">
-          <Link
-            href="/aliado"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <Home className="h-4 w-4" />
-            Inicio
-          </Link>
-          <Link
-            href="/aliado/distributors"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <Users className="h-4 w-4" />
-            Mis Clientes
-          </Link>
-          <Link
-            href="/aliado/leads"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <UserPlus className="h-4 w-4" />
-            CRM / Leads
-          </Link>
-          <Link
-            href="/aliado/orders"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Crear Pedido
-          </Link>
-          <Link
-            href="/aliado/stats"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <BarChart3 className="h-4 w-4" />
-            Estadísticas
-          </Link>
-          <Link
-            href="/distributor/pqrs"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Soporte / PQRs
-          </Link>
-          
-          <div className="pt-4 mt-4 border-t">
-            <Link
-              href="/aliado/profile"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
-            >
-              <UserCog className="h-4 w-4" />
-              Mi Perfil
-            </Link>
-          </div>
+          {navItems.map((item) => (
+            <div key={item.href}>
+              {item.separator && <div className="my-3 border-t" />}
+              <Link
+                href={item.href}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            </div>
+          ))}
         </nav>
       </aside>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 min-w-0">{children}</main>
     </div>
   )
 }
