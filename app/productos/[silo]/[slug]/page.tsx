@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Share2, Package, Truck, CheckCircle, AlertCircle } from "lucide-react"
+import { Share2, Package, Truck, CheckCircle, AlertCircle, Percent } from "lucide-react"
 import { ProductImageGallery } from "@/components/products/product-image-gallery"
 import { ProductCard } from "@/components/products/product-card"
 import { AddToCartButton } from "@/components/products/add-to-cart-button"
@@ -17,6 +17,7 @@ import { ProductReviews } from "@/components/products/product-reviews"
 import { TrackProductView } from "@/components/products/track-product-view"
 import { RecentlyViewedProducts } from "@/components/products/recently-viewed-products"
 import { NotifyStockButton } from "@/components/products/notify-stock-button"
+import { calculateProductPricing, formatPrice, isQualifiedDistributor } from "@/lib/pricing"
 
 interface ProductPageProps {
   params: Promise<{
@@ -37,17 +38,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Check if user is a distributor with allied user
-  let isDistributorWithAllied = false
+  // Check if user is a qualified distributor
+  let distributorForPricing: { discount_percentage: number } | null = null
   if (user) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role, allied_user_id')
-      .eq('id', user.id)
+    const { data: distRecord } = await supabase
+      .from('distributors')
+      .select('aliado_id, business_type, commercial_name, is_active, discount_percentage')
+      .eq('user_id', user.id)
       .single()
     
-    isDistributorWithAllied = profile?.role === 'distributor' && !!profile?.allied_user_id
+    if (isQualifiedDistributor(distRecord)) {
+      distributorForPricing = { discount_percentage: distRecord!.discount_percentage }
+    }
   }
+
+  const pricing = calculateProductPricing(
+    {
+      precio: product.precio ?? null,
+      descuento_porcentaje: product.descuento_porcentaje ?? null,
+      precio_dist: product.precio_dist ?? null,
+      desc_dist: product.desc_dist ?? null,
+    },
+    distributorForPricing
+  )
 
   // Datos del usuario (favoritos, listas, etc.)
   let isFavorited = false
@@ -232,12 +245,35 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Precio */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold">${product.precio?.toFixed(2)}</span>
-            {product.is_on_sale && (
-              <span className="text-2xl text-muted-foreground line-through">${(product.precio! * 1.2).toFixed(2)}</span>
-            )}
-          </div>
+          {!distributorForPricing ? (
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold">{formatPrice(pricing.publicPrice)}</span>
+              {pricing.publicHasDiscount && pricing.publicOriginalPrice && (
+                <span className="text-2xl text-muted-foreground line-through">{formatPrice(pricing.publicOriginalPrice)}</span>
+              )}
+              {pricing.publicHasDiscount && (
+                <Badge variant="destructive">-{pricing.publicDiscount}%</Badge>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold">{formatPrice(pricing.distributorNetPrice)}</span>
+                <span className="text-sm text-muted-foreground">Tu precio neto</span>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-0.5">
+                <div>Precio base dist: {formatPrice(pricing.distributorBasePrice)}</div>
+                <div className="flex items-center gap-1">
+                  <Percent className="h-3 w-3" />
+                  Tu descuento: {pricing.distributorDiscount}%
+                  {(pricing.distributorProductDiscount ?? 0) > 0 && (
+                    <span> + {pricing.distributorProductDiscount}% desc. producto</span>
+                  )}
+                </div>
+                <div>PVP sugerido: {formatPrice(pricing.distributorSuggestedPrice)}</div>
+              </div>
+            </div>
+          )}
 
           {/* Disponibilidad */}
           <div className="space-y-2">
@@ -452,7 +488,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <p className="text-muted-foreground whitespace-pre-line">{product.momentos_uso}</p>
               </div>
             )}
-            {isDistributorWithAllied && product.descripcion_distribuidor && (
+            {!!distributorForPricing && product.descripcion_distribuidor && (
               <div className="mt-6">
                 <h4 className="text-lg font-semibold mb-3">Información para Distribuidores</h4>
                 <p className="text-muted-foreground whitespace-pre-line">{product.descripcion_distribuidor}</p>
@@ -464,13 +500,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <TabsContent value="specs" className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Especificaciones Técnicas</h3>
           <div className="grid gap-2">
-            {isDistributorWithAllied && product.argumentos_venta && (
+            {!!distributorForPricing && product.argumentos_venta && (
               <div className="flex justify-between py-2 border-b">
                 <span className="font-medium">Argumentos de Venta:</span>
                 <span className="text-muted-foreground">{product.argumentos_venta}</span>
               </div>
             )}
-            {isDistributorWithAllied && product.ubicacion_tienda && (
+            {!!distributorForPricing && product.ubicacion_tienda && (
               <div className="flex justify-between py-2 border-b">
                 <span className="font-medium">Ubicación en Tienda:</span>
                 <span className="text-muted-foreground">{product.ubicacion_tienda}</span>
