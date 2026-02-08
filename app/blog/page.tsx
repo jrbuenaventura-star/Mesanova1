@@ -6,14 +6,15 @@ import Image from "next/image"
 import { CalendarDays } from "lucide-react"
 
 export const metadata = {
-  title: "Our Table - Mesanova Blog",
-  description: "Articles, trends and tips on tableware, table decoration and the art of entertaining",
+  title: "A mesa puesta - Blog de Mesanova",
+  description: "Artículos, tendencias y consejos sobre vajilla, decoración de mesa y el arte de recibir",
   openGraph: {
-    title: "Our Table - Mesanova Blog",
-    description: "Articles, trends and tips on tableware, table decoration and the art of entertaining",
+    title: "A mesa puesta - Blog de Mesanova",
+    description: "Artículos, tendencias y consejos sobre vajilla, decoración de mesa y el arte de recibir",
     siteName: "Mesanova",
     type: "website",
     url: "https://mesanova.co/blog",
+    locale: "es_CO",
   },
 }
 
@@ -26,9 +27,9 @@ export default async function BlogPage() {
       {/* Header */}
       <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Table</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">A mesa puesta</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Stories, trends and tips on tableware, kitchen products and the art of entertaining
+            Artículos, tendencias y consejos sobre vajilla, productos de cocina y el arte de recibir
           </p>
         </div>
       </section>
@@ -69,7 +70,7 @@ export default async function BlogPage() {
                       <CardDescription className="line-clamp-3">{post.excerpt}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <span className="text-sm text-primary font-medium">Read more →</span>
+                      <span className="text-sm text-primary font-medium">Leer más →</span>
                     </CardContent>
                   </Card>
                 </Link>
@@ -82,7 +83,7 @@ export default async function BlogPage() {
             <div className="sticky top-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Categories</CardTitle>
+                  <CardTitle>Categorías</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2">

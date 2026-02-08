@@ -52,18 +52,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
   }
 
   if (slides.length === 0) {
-    return (
-      <section className="relative py-20 md:py-32 px-4 bg-gradient-to-br from-primary/10 via-background to-primary/5">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Artículos para Cocina y Mesa
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Calidad premium desde 1995
-          </p>
-        </div>
-      </section>
-    )
+    return null
   }
 
   const slide = slides[currentSlide]
