@@ -266,6 +266,18 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     }
   }
   
+  // Validar Desc_Dist (0-100)
+  if (row.Desc_Dist && row.Desc_Dist.trim() !== '') {
+    const descDist = parseFloat(row.Desc_Dist);
+    if (!isNaN(descDist) && (descDist < 0 || descDist > 100)) {
+      errors.push({
+        field: 'Desc_Dist',
+        message: 'El descuento distribuidor debe estar entre 0 y 100',
+        value: row.Desc_Dist,
+      });
+    }
+  }
+  
   // Validar margen sugerido (0-100)
   if (row.Margen_Sugerido && row.Margen_Sugerido.trim() !== '') {
     const margen = parseFloat(row.Margen_Sugerido);
@@ -502,6 +514,7 @@ export function compareWithExisting(
         Precio_COP: 'precio',
         Descuento: 'descuento_porcentaje',
         Precio_Dist: 'precio_dist',
+        Desc_Dist: 'desc_dist',
         Existencia_inv: 'upp_existencia',
         Pedido_en_camino: 'pedido_en_camino',
         Descontinuado: 'descontinuado',

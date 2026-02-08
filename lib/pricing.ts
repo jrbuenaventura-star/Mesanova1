@@ -7,6 +7,7 @@ export interface Product {
   precio: number | null
   descuento_porcentaje: number | null
   precio_dist: number | null
+  desc_dist: number | null
 }
 
 export interface Distributor {
@@ -25,6 +26,7 @@ export interface PricingResult {
   distributorBasePrice: number | null
   distributorNetPrice: number | null
   distributorDiscount: number | null
+  distributorProductDiscount: number | null
 }
 
 /**
@@ -51,12 +53,16 @@ export function calculateProductPricing(
   let distributorBasePrice: number | null = null
   let distributorNetPrice: number | null = null
   let distributorDiscount: number | null = null
+  let distributorProductDiscount: number | null = null
 
   if (distributor && precioDistribuidor) {
+    const descDist = product.desc_dist || 0
     distributorSuggestedPrice = precio // Precio sugerido al público
     distributorBasePrice = precioDistribuidor // Precio base para distribuidores
     distributorDiscount = distributor.discount_percentage
-    distributorNetPrice = precioDistribuidor * (1 - distributorDiscount / 100)
+    distributorProductDiscount = descDist
+    // Multiplicative: precio_dist × (1 - distributor%) × (1 - desc_dist%)
+    distributorNetPrice = precioDistribuidor * (1 - distributorDiscount / 100) * (1 - descDist / 100)
   }
 
   return {
@@ -68,7 +74,33 @@ export function calculateProductPricing(
     distributorBasePrice,
     distributorNetPrice,
     distributorDiscount,
+    distributorProductDiscount,
   }
+}
+
+/**
+ * Full distributor record for qualification check
+ */
+export interface DistributorFull {
+  aliado_id?: string | null
+  business_type?: string | null
+  commercial_name?: string | null
+  is_active: boolean
+  discount_percentage: number
+}
+
+/**
+ * Check if a distributor record qualifies for distributor pricing.
+ * Qualified = has aliado assigned AND (business_type "Tienda" OR
+ * business_type "Persona natural" with a commercial_name).
+ */
+export function isQualifiedDistributor(d: DistributorFull | null | undefined): boolean {
+  if (!d || !d.is_active) return false
+  if (!d.aliado_id) return false
+  const bt = (d.business_type || '').trim()
+  if (bt.toLowerCase() === 'tienda') return true
+  if (bt.toLowerCase() === 'persona natural' && d.commercial_name?.trim()) return true
+  return false
 }
 
 /**

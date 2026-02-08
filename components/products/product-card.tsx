@@ -40,6 +40,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
       precio: product.precio ?? null,
       descuento_porcentaje: product.descuento_porcentaje ?? null,
       precio_dist: product.precio_dist ?? null,
+      desc_dist: product.desc_dist ?? null,
     },
     distributor
   )

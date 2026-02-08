@@ -201,6 +201,8 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
         pdt_descripcion: product.pdt_descripcion,
         nombre_comercial: product.nombre_comercial,
         precio: product.precio,
+        precio_dist: product.precio_dist || null,
+        desc_dist: product.desc_dist || 0,
         descripcion_larga: product.descripcion_larga,
         material: product.material,
         color: product.color,
@@ -308,7 +310,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                   <Input id="codigo" value={product.pdt_codigo} disabled className="bg-muted" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="precio">Precio</Label>
+                  <Label htmlFor="precio">Precio Público</Label>
                   <Input
                     id="precio"
                     type="number"
@@ -316,6 +318,34 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                     value={product.precio || ""}
                     onChange={(e) => setProduct({ ...product, precio: Number.parseFloat(e.target.value) || undefined })}
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="precio-dist">Precio Distribuidor</Label>
+                  <Input
+                    id="precio-dist"
+                    type="number"
+                    step="0.01"
+                    value={product.precio_dist || ""}
+                    onChange={(e) => setProduct({ ...product, precio_dist: Number.parseFloat(e.target.value) || undefined })}
+                    placeholder="Precio base para distribuidores"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="desc-dist">Desc. Distribuidor por Producto (%)</Label>
+                  <Input
+                    id="desc-dist"
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="100"
+                    value={product.desc_dist || ""}
+                    onChange={(e) => setProduct({ ...product, desc_dist: Number.parseFloat(e.target.value) || undefined })}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-muted-foreground">Aplica a todos los distribuidores después de su descuento %</p>
                 </div>
               </div>
 

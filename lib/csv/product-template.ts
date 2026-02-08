@@ -15,6 +15,7 @@ export interface ProductCSVRow {
   Precio_COP: string; // Obligatorio - Precio público
   Descuento: string; // Porcentaje (0-100) - Aplica solo al catálogo público
   Precio_Dist: string; // Precio base para distribuidores
+  Desc_Dist: string; // Descuento distribuidor por producto (0-100%)
   
   // Inventario (sincronizable con ERP)
   Existencia_inv: string;
@@ -90,6 +91,7 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Precio_COP',
   'Descuento',
   'Precio_Dist',
+  'Desc_Dist',
   'Existencia_inv',
   'Pedido_en_camino',
   'Descontinuado',
@@ -145,6 +147,7 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Precio_COP: 'Precio público en pesos colombianos (obligatorio)',
   Descuento: 'Porcentaje de descuento (0-100). Aplica solo al catálogo público. Si > 0, aparece en ofertas',
   Precio_Dist: 'Precio base para distribuidores antes de aplicar su descuento',
+  Desc_Dist: 'Descuento por producto para distribuidores (0-100%). Aplica a todos los distribuidores sobre Precio_Dist',
   Existencia_inv: 'Cantidad en inventario (sincronizable con ERP)',
   Pedido_en_camino: 'SI/NO - Indica si hay pedido en tránsito',
   Descontinuado: 'SI/NO - El fabricante ya no produce este SKU',
@@ -215,6 +218,7 @@ export const NUMERIC_FIELDS: (keyof ProductCSVRow)[] = [
   'Precio_COP',
   'Descuento',
   'Precio_Dist',
+  'Desc_Dist',
   'Existencia_inv',
   'Pedido_en_camino',
   'Peso_kg',
@@ -252,6 +256,7 @@ function generateExampleRow(): string {
     Precio_COP: '89900',
     Descuento: '15',
     Precio_Dist: '67425',
+    Desc_Dist: '5',
     Existencia_inv: '150',
     Pedido_en_camino: 'NO',
     Descontinuado: 'NO',

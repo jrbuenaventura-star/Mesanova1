@@ -35,6 +35,7 @@ export interface Product {
   ubicacion?: string
   precio?: number
   precio_dist?: number
+  desc_dist?: number
   ref_pub?: string
   nombre_comercial?: string
   descripcion_larga?: string

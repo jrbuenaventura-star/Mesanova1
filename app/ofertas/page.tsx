@@ -80,6 +80,7 @@ export default async function OfertasPage() {
                     precio: producto.precio,
                     descuento_porcentaje: producto.descuento_porcentaje,
                     precio_dist: producto.precio_dist,
+                    desc_dist: producto.desc_dist ?? null,
                   },
                   null // Public catalog, no distributor
                 )

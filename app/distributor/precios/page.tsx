@@ -55,7 +55,7 @@ export default async function DistributorPricingPage() {
   // Obtener productos activos con precios (para mostrar el descuento general)
   const { data: products } = await supabase
     .from("products")
-    .select("id, pdt_codigo, nombre_comercial, pdt_descripcion, precio, precio_dist, imagen_principal_url, marca")
+    .select("id, pdt_codigo, nombre_comercial, pdt_descripcion, precio, precio_dist, desc_dist, imagen_principal_url, marca")
     .eq("is_active", true)
     .not("precio", "is", null)
     .order("nombre_comercial")
@@ -193,11 +193,16 @@ export default async function DistributorPricingPage() {
                 {(products || []).map((product) => {
                   const customPrice = customPriceMap.get(product.id)
                   const listPrice = product.precio || 0
-                  const yourPrice = customPrice 
-                    ? customPrice.custom_price 
-                    : product.precio_dist 
-                      ? product.precio_dist
-                      : listPrice * (1 - (distributor.discount_percentage / 100))
+                  const descDist = product.desc_dist || 0
+                  let yourPrice: number
+                  if (customPrice) {
+                    yourPrice = customPrice.custom_price
+                  } else if (product.precio_dist) {
+                    // Multiplicative: precio_dist × (1 - distributor%) × (1 - desc_dist%)
+                    yourPrice = product.precio_dist * (1 - distributor.discount_percentage / 100) * (1 - descDist / 100)
+                  } else {
+                    yourPrice = listPrice * (1 - (distributor.discount_percentage / 100))
+                  }
                   const savings = listPrice - yourPrice
                   const savingsPercent = listPrice > 0 ? (savings / listPrice) * 100 : 0
 

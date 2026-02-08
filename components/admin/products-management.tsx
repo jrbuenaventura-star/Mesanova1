@@ -62,6 +62,8 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
   const [priceDialogOpen, setPriceDialogOpen] = useState(false)
   const [editPrice, setEditPrice] = useState("")
   const [editDiscount, setEditDiscount] = useState("0")
+  const [editPrecioDist, setEditPrecioDist] = useState("")
+  const [editDescDist, setEditDescDist] = useState("0")
   const [isLoading, setIsLoading] = useState(false)
 
   // Extraer marcas únicas
@@ -141,6 +143,8 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
     setEditingProduct(product)
     setEditPrice(product.precio?.toString() || "0")
     setEditDiscount(product.descuento_porcentaje?.toString() || "0")
+    setEditPrecioDist(product.precio_dist?.toString() || "")
+    setEditDescDist(product.desc_dist?.toString() || "0")
     setPriceDialogOpen(true)
   }
 
@@ -153,6 +157,8 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
 
     const precio = Number.parseFloat(editPrice)
     const descuento = Number.parseFloat(editDiscount)
+    const precioDist = editPrecioDist ? Number.parseFloat(editPrecioDist) : null
+    const descDist = Number.parseFloat(editDescDist) || 0
     const isOnSale = descuento > 0
 
     const { error } = await supabase
@@ -160,6 +166,8 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
       .update({
         precio,
         descuento_porcentaje: descuento,
+        precio_dist: precioDist,
+        desc_dist: descDist,
         is_on_sale: isOnSale,
         updated_at: new Date().toISOString(),
       })
@@ -170,7 +178,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
       alert("Error al actualizar el precio")
     } else {
       // Actualizar el estado local
-      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? { ...p, precio, descuento_porcentaje: descuento, is_on_sale: isOnSale } : p)))
+      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? { ...p, precio, descuento_porcentaje: descuento, precio_dist: precioDist, desc_dist: descDist, is_on_sale: isOnSale } : p)))
       setPriceDialogOpen(false)
       setEditingProduct(null)
     }
@@ -486,6 +494,37 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                 </div>
               </div>
             )}
+
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-medium mb-3">Distributor Pricing</p>
+              <div className="space-y-2">
+                <Label htmlFor="precio-dist">Distributor Price ($)</Label>
+                <Input
+                  id="precio-dist"
+                  type="number"
+                  step="0.01"
+                  value={editPrecioDist}
+                  onChange={(e) => setEditPrecioDist(e.target.value)}
+                  placeholder="Leave empty if N/A"
+                />
+              </div>
+              <div className="space-y-2 mt-2">
+                <Label htmlFor="desc-dist">Product Distributor Discount (%)</Label>
+                <Input
+                  id="desc-dist"
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="100"
+                  value={editDescDist}
+                  onChange={(e) => setEditDescDist(e.target.value)}
+                  placeholder="0"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Applies to ALL distributors on this product, after their own discount %
+                </p>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPriceDialogOpen(false)} disabled={isLoading}>
