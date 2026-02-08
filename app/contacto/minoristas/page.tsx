@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Store, ShoppingBag, Headphones, Award } from "lucide-react"
+import { Store, Package, TrendingUp, Truck, Building2 } from "lucide-react"
 import { ContactForm } from "@/components/forms/contact-form"
 
 export const metadata = {
@@ -9,24 +9,24 @@ export const metadata = {
 
 const beneficios = [
   {
-    icon: ShoppingBag,
-    title: "Pedidos Accesibles",
-    description: "Cantidades mínimas adaptadas para tiendas pequeñas y medianas",
+    icon: TrendingUp,
+    title: "Descuentos por Volumen",
+    description: "Precios especiales según volumen de compra con descuentos progresivos",
   },
   {
-    icon: Award,
-    title: "Productos Exclusivos",
-    description: "Acceso a líneas especiales y productos de temporada",
+    icon: Package,
+    title: "Pedidos Mínimos Flexibles",
+    description: "Condiciones adaptadas a tus necesidades de stock y rotación",
   },
   {
-    icon: Headphones,
-    title: "Soporte Comercial",
-    description: "Asesoría en selección de productos y tendencias del mercado",
+    icon: Truck,
+    title: "Logística Dedicada",
+    description: "Entregas programadas y servicio de distribución prioritario",
   },
   {
-    icon: Store,
-    title: "Material de Punto de Venta",
-    description: "Displays, catálogos y material promocional para tu tienda",
+    icon: Building2,
+    title: "Asesoría Comercial",
+    description: "Equipo comercial dedicado para optimizar tu inventario.",
   },
 ]
 
@@ -70,19 +70,19 @@ export default function MinoristasPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm leading-relaxed">
                 <p>
-                  <strong>Pedidos mínimos:</strong> Desde $500 para tu primera orden
+                  <strong>Pedidos mínimos:</strong> Desde $5 millones para tu primera orden
                 </p>
                 <p>
                   <strong>Plazos de pago:</strong> Condiciones flexibles según tu historial comercial
                 </p>
                 <p>
-                  <strong>Entregas:</strong> Servicio de entrega programada con 2-3 días hábiles
+                  <strong>Entregas:</strong> Servicio de entrega programada con 5-10 días hábiles
                 </p>
                 <p>
-                  <strong>Devoluciones:</strong> Política de devolución flexible para productos defectuosos
+                  <strong>Devoluciones:</strong> Política de devolución/reposición flexible para productos defectuosos
                 </p>
                 <p>
-                  <strong>Catálogos:</strong> Actualizaciones mensuales de catálogo digital y físico sin costo
+                  <strong>Catálogos:</strong> Actualizaciones frecuentes de catálogo virtual y físico
                 </p>
               </CardContent>
             </Card>

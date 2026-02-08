@@ -133,14 +133,6 @@ export function SiteFooter() {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
-                  href="/contacto/mayoristas"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Mayoristas del hogar
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/contacto/minoristas"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >

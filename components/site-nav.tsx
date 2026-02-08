@@ -47,7 +47,6 @@ const silos = [
 ]
 
 const contactLinks = [
-  { name: "Mayoristas del hogar", href: "/contacto/mayoristas" },
   { name: "Minoristas del hogar", href: "/contacto/minoristas" },
   { name: "Institucional", href: "/contacto/institucional" },
   { name: "Cliente final", href: "/contacto/cliente-final" },
