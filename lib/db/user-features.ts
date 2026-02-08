@@ -820,7 +820,7 @@ export async function getActiveOrders(userId: string) {
       order_tracking_history (status, status_description, location, occurred_at)
     `)
     .eq("user_id", userId)
-    .in("status", ["pending", "confirmed", "processing", "shipped"])
+    .in("status", ["borrador", "por_aprobar", "aprobada", "en_preparacion", "enviada"])
     .order("created_at", { ascending: false })
 
   if (error) throw error
