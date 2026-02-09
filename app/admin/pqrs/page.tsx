@@ -21,10 +21,10 @@ export default async function AdminPQRSPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Gestión de PQRs</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground">
           Administra todos los tickets de soporte del sistema
         </p>
       </div>

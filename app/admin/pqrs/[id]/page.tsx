@@ -28,7 +28,7 @@ export default async function AdminTicketManagementPage({
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/pqrs">
           <Button variant="ghost" size="sm">

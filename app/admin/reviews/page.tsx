@@ -49,7 +49,7 @@ export default async function ReviewsAdminPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Moderación de Reviews</h1>
         <p className="text-muted-foreground">Gestiona las reseñas de productos</p>

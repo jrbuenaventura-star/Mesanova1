@@ -36,16 +36,16 @@ export default async function AdminUsersPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Gestión de Usuarios</h1>
+        <p className="text-muted-foreground">
+          Gestiona usuarios superadmin. Los clientes se gestionan desde "Clientes" o "Clientes CSV", y los aliados desde "Aliados".
+        </p>
+      </div>
+
       <Card>
-        <CardHeader>
-          <CardTitle>Gestión de Usuarios</CardTitle>
-          <CardDescription>
-            Gestiona usuarios superadmin. Los clientes se gestionan desde "Clientes" o "Clientes CSV", 
-            y los aliados desde "Aliados".
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <InviteUserForm />
           <UserManagementTable users={users || []} />
         </CardContent>

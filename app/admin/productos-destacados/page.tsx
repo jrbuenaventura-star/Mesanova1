@@ -165,7 +165,7 @@ export default function ProductosDestacadosPage() {
   const Icon = currentSilo?.icon || ChefHat
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Productos Destacados por Categoría</h1>
         <p className="text-muted-foreground">

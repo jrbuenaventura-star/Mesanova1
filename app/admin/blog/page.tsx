@@ -84,11 +84,11 @@ export default function AdminBlogPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Blog Management</h1>
-          <p className="text-muted-foreground mt-1">Manage "Our Table" blog posts</p>
+          <h1 className="text-3xl font-bold">Gestión del Blog</h1>
+          <p className="text-muted-foreground">Administra las publicaciones de "A mesa puesta"</p>
         </div>
         <Button asChild>
           <Link href="/admin/blog/nuevo">
