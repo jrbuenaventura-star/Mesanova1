@@ -95,7 +95,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: "prose prose-lg max-w-none focus:outline-none min-h-[400px] p-6 bg-background",
+        class: "panel-typography max-w-none focus:outline-none min-h-[400px] p-6 bg-background",
       },
     },
   })

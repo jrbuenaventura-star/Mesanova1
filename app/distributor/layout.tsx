@@ -89,7 +89,7 @@ export default async function DistributorLayout({
           {navLinks}
         </nav>
       </aside>
-      <main className="flex-1 min-w-0">{children}</main>
+      <main className="flex-1 min-w-0 panel-typography">{children}</main>
     </div>
   )
 }

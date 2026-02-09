@@ -74,7 +74,7 @@ export default async function PerfilLayout({ children }: { children: React.React
           </aside>
 
           {/* Main content */}
-          <main className="flex-1 min-w-0">{children}</main>
+          <main className="flex-1 min-w-0 panel-typography">{children}</main>
         </div>
       </div>
     </div>
