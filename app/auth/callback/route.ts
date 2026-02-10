@@ -38,6 +38,14 @@ export async function GET(request: Request) {
         }
       }
 
+      // Update last_login_at
+      if (data.user?.id) {
+        await supabase
+          .from("user_profiles")
+          .update({ last_login_at: new Date().toISOString() })
+          .eq("id", data.user.id)
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 200))
 
       const redirectUrl = `${origin}${next}`

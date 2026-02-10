@@ -22,17 +22,19 @@ export default async function AdminUsersPage() {
     redirect("/")
   }
 
-  // Obtener todos los usuarios
+  // Obtener solo usuarios superadmin
   const { data: users } = await supabase
     .from("user_profiles")
     .select(`
       id,
       full_name,
+      phone,
       role,
       is_active,
       created_at,
       last_login_at
     `)
+    .eq("role", "superadmin")
     .order("created_at", { ascending: false })
 
   return (

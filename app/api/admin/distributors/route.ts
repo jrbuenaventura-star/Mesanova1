@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { syncClientToClientify } from '@/lib/clientify/sync';
 
 export async function GET() {
   try {
@@ -270,6 +271,19 @@ export async function POST(request: Request) {
       }
     }
     
+    // Auto-sync to Clientify (fire-and-forget)
+    syncClientToClientify({
+      email: email,
+      fullName: (formData as any).full_name || undefined,
+      phone: (formData as any).phone || undefined,
+      companyName: (formData as any).company_name,
+      businessType: (formData as any).business_type || undefined,
+      city: (formData as any).main_city || undefined,
+      state: (formData as any).main_state || undefined,
+      isDistributor: !!aliado_id,
+      segment: 'Nuevo',
+    }).catch((err) => console.error('Clientify sync error (create):', err));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error creating distributor:', error);
@@ -370,6 +384,23 @@ export async function PUT(request: Request) {
       if (addrError) console.error('Error creating addresses:', addrError);
     }
     
+    // Auto-sync to Clientify (fire-and-forget)
+    admin.auth.admin.listUsers().then(({ data: authUsersData }) => {
+      const email = authUsersData?.users?.find((u) => u.id === userId)?.email;
+      if (email) {
+        syncClientToClientify({
+          email,
+          fullName: formData.full_name || undefined,
+          phone: formData.phone || undefined,
+          companyName: formData.company_name,
+          businessType: formData.business_type || undefined,
+          city: formData.main_city || undefined,
+          state: formData.main_state || undefined,
+          isDistributor: !!aliado_id,
+        }).catch((err) => console.error('Clientify sync error (update):', err));
+      }
+    }).catch((err) => console.error('Clientify sync: failed to list users:', err));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error updating distributor:', error);

@@ -31,6 +31,7 @@ import { Pencil, Trash2 } from "lucide-react"
 type User = {
   id: string
   full_name: string | null
+  phone: string | null
   role: "superadmin" | "distributor" | "end_user" | "aliado"
   is_active: boolean
   created_at: string
@@ -42,16 +43,13 @@ export function UserManagementTable({ users }: { users: User[] }) {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [editFormData, setEditFormData] = useState({ full_name: "" })
+  const [editFormData, setEditFormData] = useState({ full_name: "", phone: "" })
   const router = useRouter()
   const supabase = createClient()
 
-  // Filtrar solo clientes y superadmin
-  const filteredUsers = users.filter(u => u.role === "end_user" || u.role === "superadmin")
-
   const openEditDialog = (user: User) => {
     setSelectedUser(user)
-    setEditFormData({ full_name: user.full_name || "" })
+    setEditFormData({ full_name: user.full_name || "", phone: user.phone || "" })
     setShowEditDialog(true)
   }
 
@@ -67,7 +65,7 @@ export function UserManagementTable({ users }: { users: User[] }) {
     try {
       const { error } = await supabase
         .from("user_profiles")
-        .update({ full_name: editFormData.full_name })
+        .update({ full_name: editFormData.full_name, phone: editFormData.phone })
         .eq("id", selectedUser.id)
 
       if (error) throw error
@@ -110,45 +108,29 @@ export function UserManagementTable({ users }: { users: User[] }) {
   }
 
 
-  const getRoleBadge = (role: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
-      superadmin: "destructive",
-      distributor: "default",
-      end_user: "secondary",
-      aliado: "default",
-    }
-
-    const labels: Record<string, string> = {
-      superadmin: "Superadmin",
-      distributor: "Distribuidor",
-      end_user: "Cliente",
-      aliado: "Aliado",
-    }
-
-    return <Badge variant={variants[role] || "secondary"}>{labels[role] || role}</Badge>
-  }
-
   return (
     <>
       <div className="space-y-4">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Usuario</TableHead>
-              <TableHead>Rol</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Teléfono</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Último Login</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="font-medium">{user.full_name || "Sin nombre"}</div>
-                  <div className="text-sm text-muted-foreground">{user.id}</div>
+                  <div className="text-xs text-muted-foreground">{user.id.slice(0, 8)}…</div>
                 </TableCell>
-                <TableCell>{getRoleBadge(user.role)}</TableCell>
+                <TableCell className="text-sm">
+                  {user.phone || <span className="text-muted-foreground">—</span>}
+                </TableCell>
                 <TableCell>
                   <Badge variant={user.is_active ? "default" : "secondary"}>
                     {user.is_active ? "Activo" : "Inactivo"}
@@ -198,8 +180,17 @@ export function UserManagementTable({ users }: { users: User[] }) {
               <Input
                 id="full_name"
                 value={editFormData.full_name}
-                onChange={(e) => setEditFormData({ full_name: e.target.value })}
+                onChange={(e) => setEditFormData({ ...editFormData, full_name: e.target.value })}
                 placeholder="Nombre completo"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                value={editFormData.phone}
+                onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                placeholder="+57 300 123 4567"
               />
             </div>
           </div>

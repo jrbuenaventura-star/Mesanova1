@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ClientsDashboard } from "@/components/admin/clients-dashboard"
 import { DistributorsManagement } from "@/components/admin/distributors-management"
 
 export default async function DistributorsPage() {
@@ -13,14 +15,25 @@ export default async function DistributorsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
+    <div className="container mx-auto py-8 px-4 space-y-6">
+      <div>
         <h1 className="text-3xl font-bold">Clientes</h1>
-        <p className="text-muted-foreground mt-2">
-          Gestiona los clientes, sus datos de contacto y aliados asignados
+        <p className="text-muted-foreground">
+          Gestiona clientes, estadísticas de compra y segmentación
         </p>
       </div>
-      <DistributorsManagement />
+      <Tabs defaultValue="stats" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="stats">Estadísticas y Filtros</TabsTrigger>
+          <TabsTrigger value="manage">Gestionar Clientes</TabsTrigger>
+        </TabsList>
+        <TabsContent value="stats">
+          <ClientsDashboard />
+        </TabsContent>
+        <TabsContent value="manage">
+          <DistributorsManagement />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
