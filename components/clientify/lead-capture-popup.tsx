@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { X, Gift, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { identifyUser, trackClientifyEvent } from "./clientify-tracking"
+import { createClient } from "@/lib/supabase/client"
 
 interface LeadCapturePopupProps {
   delaySeconds?: number
@@ -26,16 +28,42 @@ export function LeadCapturePopup({
   offer = "10% de descuento en tu primera compra",
   disabled = false,
 }: LeadCapturePopupProps) {
+  const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasTriggered, setHasTriggered] = useState(false)
+  const [isSuppressed, setIsSuppressed] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     name: "",
   })
 
+  // Hide popup on panel routes and for aliado/distributor users
   useEffect(() => {
-    if (disabled) return
+    const panelPaths = ["/aliado", "/distributor", "/admin"]
+    if (panelPaths.some((p) => pathname.startsWith(p))) {
+      setIsSuppressed(true)
+      return
+    }
+
+    const checkUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single()
+      if (profile?.role === "aliado" || profile?.role === "distributor") {
+        setIsSuppressed(true)
+      }
+    }
+    checkUserRole()
+  }, [pathname])
+
+  useEffect(() => {
+    if (disabled || isSuppressed) return
 
     // Check if already dismissed recently
     const dismissedAt = localStorage.getItem(STORAGE_KEY)
@@ -79,7 +107,7 @@ export function LeadCapturePopup({
       window.removeEventListener("scroll", handleScroll)
       document.removeEventListener("mouseleave", handleMouseLeave)
     }
-  }, [delaySeconds, scrollPercentage, showOnExitIntent, hasTriggered, disabled])
+  }, [delaySeconds, scrollPercentage, showOnExitIntent, hasTriggered, disabled, isSuppressed])
 
   const showPopup = (trigger: string) => {
     setHasTriggered(true)
