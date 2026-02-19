@@ -1,0 +1,320 @@
+[
+  {
+    "path": "/",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/",
+    "redirects": 0
+  },
+  {
+    "path": "/admin",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/aliados",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/aliados/nuevo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/blog",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/blog/nuevo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/cupones",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/cupones/estadisticas",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/cupones/nuevo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/distributors",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/orders",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/pqrs",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/products",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/admin/products/nuevo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/aliado",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/aliado/distributors",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/aliado/leads",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/aliado/leads/nuevo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/aliado/orders",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/auth/forgot-password",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/forgot-password",
+    "redirects": 0
+  },
+  {
+    "path": "/auth/login",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 0
+  },
+  {
+    "path": "/auth/signup",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/signup",
+    "redirects": 0
+  },
+  {
+    "path": "/auth/verify-email",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/verify-email",
+    "redirects": 0
+  },
+  {
+    "path": "/blog",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/blog",
+    "redirects": 0
+  },
+  {
+    "path": "/bonos/comprar",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/bonos/comprar",
+    "redirects": 0
+  },
+  {
+    "path": "/bonos/confirmacion",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/bonos/confirmacion",
+    "redirects": 0
+  },
+  {
+    "path": "/buscar",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/buscar",
+    "redirects": 0
+  },
+  {
+    "path": "/carrito",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/carrito",
+    "redirects": 0
+  },
+  {
+    "path": "/checkout",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/checkout",
+    "redirects": 0
+  },
+  {
+    "path": "/checkout/confirmacion",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/checkout/confirmacion",
+    "redirects": 0
+  },
+  {
+    "path": "/contacto/cliente-final",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/contacto/cliente-final",
+    "redirects": 0
+  },
+  {
+    "path": "/contacto/institucional",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/contacto/institucional",
+    "redirects": 0
+  },
+  {
+    "path": "/contacto/minoristas",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/contacto/minoristas",
+    "redirects": 0
+  },
+  {
+    "path": "/distributor",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/distributor/invoices",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/distributor/orders",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/distributor/orders/nueva",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/distributor/pqrs",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/listas",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/listas",
+    "redirects": 0
+  },
+  {
+    "path": "/nosotros",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/nosotros/sobre-mesanova",
+    "redirects": 1
+  },
+  {
+    "path": "/nosotros/por-que-elegirnos",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/nosotros/por-que-elegirnos",
+    "redirects": 0
+  },
+  {
+    "path": "/nosotros/sobre-mesanova",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/nosotros/sobre-mesanova",
+    "redirects": 0
+  },
+  {
+    "path": "/ofertas",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/ofertas",
+    "redirects": 0
+  },
+  {
+    "path": "/perfil/configuracion",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/perfil/listas-regalo",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/perfil/listas-regalo/nueva",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/perfil/ordenes",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/perfil/wishlists",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/auth/login",
+    "redirects": 1
+  },
+  {
+    "path": "/productos",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/productos",
+    "redirects": 0
+  },
+  {
+    "path": "/productos/cafe-te-bar",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/productos/cafe-te-bar",
+    "redirects": 0
+  },
+  {
+    "path": "/productos/cocina",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/productos/cocina",
+    "redirects": 0
+  },
+  {
+    "path": "/productos/mesa",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/productos/mesa",
+    "redirects": 0
+  },
+  {
+    "path": "/productos/profesional",
+    "finalStatus": 200,
+    "finalUrl": "http://127.0.0.1:3000/productos/profesional",
+    "redirects": 0
+  }
+]

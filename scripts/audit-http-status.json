@@ -1,0 +1,214 @@
+[
+  {
+    "path": "/",
+    "status": 200
+  },
+  {
+    "path": "/admin",
+    "status": 307
+  },
+  {
+    "path": "/admin/aliados",
+    "status": 307
+  },
+  {
+    "path": "/admin/aliados/nuevo",
+    "status": 307
+  },
+  {
+    "path": "/admin/blog",
+    "status": 307
+  },
+  {
+    "path": "/admin/blog/nuevo",
+    "status": 307
+  },
+  {
+    "path": "/admin/cupones",
+    "status": 307
+  },
+  {
+    "path": "/admin/cupones/estadisticas",
+    "status": 307
+  },
+  {
+    "path": "/admin/cupones/nuevo",
+    "status": 307
+  },
+  {
+    "path": "/admin/distributors",
+    "status": 307
+  },
+  {
+    "path": "/admin/orders",
+    "status": 307
+  },
+  {
+    "path": "/admin/pqrs",
+    "status": 307
+  },
+  {
+    "path": "/admin/products",
+    "status": 307
+  },
+  {
+    "path": "/admin/products/nuevo",
+    "status": 307
+  },
+  {
+    "path": "/aliado",
+    "status": 307
+  },
+  {
+    "path": "/aliado/distributors",
+    "status": 307
+  },
+  {
+    "path": "/aliado/leads",
+    "status": 307
+  },
+  {
+    "path": "/aliado/leads/nuevo",
+    "status": 307
+  },
+  {
+    "path": "/aliado/orders",
+    "status": 307
+  },
+  {
+    "path": "/auth/forgot-password",
+    "status": 200
+  },
+  {
+    "path": "/auth/login",
+    "status": 200
+  },
+  {
+    "path": "/auth/signup",
+    "status": 200
+  },
+  {
+    "path": "/auth/verify-email",
+    "status": 200
+  },
+  {
+    "path": "/blog",
+    "status": 200
+  },
+  {
+    "path": "/bonos/comprar",
+    "status": 200
+  },
+  {
+    "path": "/bonos/confirmacion",
+    "status": 200
+  },
+  {
+    "path": "/buscar",
+    "status": 200
+  },
+  {
+    "path": "/carrito",
+    "status": 200
+  },
+  {
+    "path": "/checkout",
+    "status": 200
+  },
+  {
+    "path": "/checkout/confirmacion",
+    "status": 200
+  },
+  {
+    "path": "/contacto/cliente-final",
+    "status": 200
+  },
+  {
+    "path": "/contacto/institucional",
+    "status": 200
+  },
+  {
+    "path": "/contacto/minoristas",
+    "status": 200
+  },
+  {
+    "path": "/distributor",
+    "status": 307
+  },
+  {
+    "path": "/distributor/invoices",
+    "status": 307
+  },
+  {
+    "path": "/distributor/orders",
+    "status": 307
+  },
+  {
+    "path": "/distributor/orders/nueva",
+    "status": 307
+  },
+  {
+    "path": "/distributor/pqrs",
+    "status": 307
+  },
+  {
+    "path": "/listas",
+    "status": 200
+  },
+  {
+    "path": "/nosotros",
+    "status": 307
+  },
+  {
+    "path": "/nosotros/por-que-elegirnos",
+    "status": 200
+  },
+  {
+    "path": "/nosotros/sobre-mesanova",
+    "status": 200
+  },
+  {
+    "path": "/ofertas",
+    "status": 200
+  },
+  {
+    "path": "/perfil/configuracion",
+    "status": 307
+  },
+  {
+    "path": "/perfil/listas-regalo",
+    "status": 307
+  },
+  {
+    "path": "/perfil/listas-regalo/nueva",
+    "status": 307
+  },
+  {
+    "path": "/perfil/ordenes",
+    "status": 307
+  },
+  {
+    "path": "/perfil/wishlists",
+    "status": 307
+  },
+  {
+    "path": "/productos",
+    "status": 200
+  },
+  {
+    "path": "/productos/cafe-te-bar",
+    "status": 200
+  },
+  {
+    "path": "/productos/cocina",
+    "status": 200
+  },
+  {
+    "path": "/productos/mesa",
+    "status": 200
+  },
+  {
+    "path": "/productos/profesional",
+    "status": 200
+  }
+]

@@ -57,8 +57,14 @@ export default function ClienteFinalPage() {
               <CardContent className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Chat en tiempo real</p>
                 <p className="text-sm text-muted-foreground mb-2">Horario de oficina</p>
-                <Button variant="outline" size="sm">
-                  Iniciar Chat
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href="https://wa.me/573001234567?text=Hola%20Mesanova%2C%20necesito%20ayuda%20con%20un%20pedido."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Iniciar Chat
+                  </a>
                 </Button>
               </CardContent>
             </Card>

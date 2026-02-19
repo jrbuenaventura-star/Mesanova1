@@ -63,7 +63,7 @@ export default async function OfertasPage() {
                   Actualmente no tenemos productos en oferta. Vuelve pronto para ver nuestras promociones.
                 </p>
                 <Button asChild variant="outline">
-                  <Link href="/productos">Ver todos los productos</Link>
+                  <Link href="/productos">Ver productos</Link>
                 </Button>
               </div>
             </Card>
@@ -138,7 +138,7 @@ export default async function OfertasPage() {
                     </CardHeader>
                     <CardFooter>
                       <Button className="w-full" asChild>
-                        <Link href={`/productos/${siloSlug}/${producto.slug}`}>Ver Detalles</Link>
+                        <Link href={`/productos/${siloSlug}/${producto.slug}`}>Ver producto</Link>
                       </Button>
                     </CardFooter>
                   </Card>
@@ -158,7 +158,7 @@ export default async function OfertasPage() {
             ver tus precios personalizados.
           </p>
           <Button size="lg" asChild>
-            <Link href="/auth/login">Iniciar Sesión como Distribuidor</Link>
+            <Link href="/auth/login">Iniciar sesión</Link>
           </Button>
         </div>
       </section>

@@ -146,7 +146,7 @@ export function UserManagementTable({ users }: { users: User[] }) {
                       size="sm"
                       onClick={() => openEditDialog(user)}
                       disabled={isUpdating === user.id}
-                    >
+                     aria-label="Editar">
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
@@ -154,7 +154,7 @@ export function UserManagementTable({ users }: { users: User[] }) {
                       size="sm"
                       onClick={() => openDeleteDialog(user)}
                       disabled={isUpdating === user.id}
-                    >
+                     aria-label="Eliminar">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

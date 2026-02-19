@@ -106,7 +106,7 @@ export default function NuevoCuponPage() {
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-6">
-        <Button variant="ghost" onClick={() => router.back()}>
+        <Button variant="ghost" onClick={() => router.back()} aria-label="Volver">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver
         </Button>
@@ -356,7 +356,7 @@ export default function NuevoCuponPage() {
                 type="submit"
                 disabled={isSubmitting}
                 className="flex-1"
-              >
+               aria-label="Enviar">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -369,7 +369,7 @@ export default function NuevoCuponPage() {
                   </>
                 )}
               </Button>
-              <Button
+              <Button aria-label="Volver"
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}

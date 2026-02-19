@@ -199,55 +199,55 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       {/* Toolbar */}
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
         {/* Text Formatting */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-muted" : ""} title="Bold">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-muted" : ""} title="Bold" aria-label="Acción">
           <Bold className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-muted" : ""} title="Italic">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-muted" : ""} title="Italic" aria-label="Acción">
           <Italic className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive("underline") ? "bg-muted" : ""} title="Underline">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive("underline") ? "bg-muted" : ""} title="Underline" aria-label="Acción">
           <UnderlineIcon className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Headings */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""} title="Heading 1">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""} title="Heading 1" aria-label="Acción">
           <Heading1 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""} title="Heading 2">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""} title="Heading 2" aria-label="Acción">
           <Heading2 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive("heading", { level: 3 }) ? "bg-muted" : ""} title="Heading 3">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive("heading", { level: 3 }) ? "bg-muted" : ""} title="Heading 3" aria-label="Acción">
           <Heading3 className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Lists */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-muted" : ""} title="Bullet List">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-muted" : ""} title="Bullet List" aria-label="Acción">
           <List className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-muted" : ""} title="Ordered List">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-muted" : ""} title="Ordered List" aria-label="Acción">
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive("blockquote") ? "bg-muted" : ""} title="Blockquote">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive("blockquote") ? "bg-muted" : ""} title="Blockquote" aria-label="Acción">
           <Quote className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule" aria-label="Quitar">
           <Minus className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Alignment */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={editor.isActive({ textAlign: "left" }) ? "bg-muted" : ""} title="Align Left">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={editor.isActive({ textAlign: "left" }) ? "bg-muted" : ""} title="Align Left" aria-label="Acción">
           <AlignLeft className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={editor.isActive({ textAlign: "center" }) ? "bg-muted" : ""} title="Align Center">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={editor.isActive({ textAlign: "center" }) ? "bg-muted" : ""} title="Align Center" aria-label="Acción">
           <AlignCenter className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={editor.isActive({ textAlign: "right" }) ? "bg-muted" : ""} title="Align Right">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={editor.isActive({ textAlign: "right" }) ? "bg-muted" : ""} title="Align Right" aria-label="Acción">
           <AlignRight className="h-4 w-4" />
         </Button>
 
@@ -256,7 +256,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Link */}
         <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-muted" : ""} title="Insert Link">
+            <Button type="button" variant="ghost" size="sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-muted" : ""} title="Insert Link" aria-label="Abrir enlace">
               <LinkIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -295,7 +295,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={() => editor.chain().focus().unsetLink().run()}
           disabled={!editor.isActive("link")}
           title="Remove Link"
-        >
+         aria-label="Abrir enlace">
           <Unlink className="h-4 w-4" />
         </Button>
 
@@ -304,7 +304,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Image */}
         <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" title="Insert Image">
+            <Button type="button" variant="ghost" size="sm" title="Insert Image" aria-label="Imagen">
               <ImageIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -369,7 +369,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Video */}
         <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" title="Insert Video">
+            <Button type="button" variant="ghost" size="sm" title="Insert Video" aria-label="Acción">
               <VideoIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -425,10 +425,10 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Undo/Redo */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo" aria-label="Deshacer">
           <Undo className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo" aria-label="Rehacer">
           <Redo className="h-4 w-4" />
         </Button>
       </div>

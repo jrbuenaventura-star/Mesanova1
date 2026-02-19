@@ -89,6 +89,7 @@ export function SearchAutocomplete() {
           .select(`
             id,
             name,
+            share_token,
             event_date,
             status
           `)
@@ -127,7 +128,8 @@ export function SearchAutocomplete() {
   }
 
   const handleSelectGiftList = (giftList: any) => {
-    router.push(`/bonos/${giftList.id}`)
+    if (!giftList.share_token) return
+    router.push(`/lista/${giftList.share_token}`)
     setQuery("")
     setIsOpen(false)
   }

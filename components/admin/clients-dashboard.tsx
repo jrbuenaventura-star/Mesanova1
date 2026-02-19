@@ -482,7 +482,7 @@ export function ClientsDashboard() {
                       className="flex-1"
                       onClick={() => setFilters(emptyFilters)}
                     >
-                      Limpiar
+                      Limpiar filtros
                     </Button>
                     <Button className="flex-1" onClick={() => setShowFilters(false)}>
                       Aplicar
@@ -503,7 +503,7 @@ export function ClientsDashboard() {
               className="gap-2"
               onClick={syncToClientify}
               disabled={isSyncing || !filteredClients.length}
-            >
+             aria-label="Subir">
               {isSyncing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -521,7 +521,7 @@ export function ClientsDashboard() {
             {filters.aliado !== "all" && (
               <Badge variant="secondary" className="gap-1">
                 Aliado: {filters.aliado === "__direct" ? "Directo" : uniqueAliados.find((a) => a.id === filters.aliado)?.name}
-                <button onClick={() => setFilters((f) => ({ ...f, aliado: "all" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, aliado: "all" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -529,7 +529,7 @@ export function ClientsDashboard() {
             {filters.city !== "all" && (
               <Badge variant="secondary" className="gap-1">
                 Ciudad: {filters.city}
-                <button onClick={() => setFilters((f) => ({ ...f, city: "all" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, city: "all" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -537,7 +537,7 @@ export function ClientsDashboard() {
             {filters.businessType !== "all" && (
               <Badge variant="secondary" className="gap-1">
                 Tipo: {filters.businessType}
-                <button onClick={() => setFilters((f) => ({ ...f, businessType: "all" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, businessType: "all" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -545,7 +545,7 @@ export function ClientsDashboard() {
             {filters.segment !== "all" && (
               <Badge variant="secondary" className="gap-1">
                 Segmento: {filters.segment}
-                <button onClick={() => setFilters((f) => ({ ...f, segment: "all" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, segment: "all" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -553,7 +553,7 @@ export function ClientsDashboard() {
             {filters.minSpent && (
               <Badge variant="secondary" className="gap-1">
                 Gasto &ge; {formatCOP(parseFloat(filters.minSpent))}
-                <button onClick={() => setFilters((f) => ({ ...f, minSpent: "" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, minSpent: "" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -561,7 +561,7 @@ export function ClientsDashboard() {
             {filters.maxSpent && (
               <Badge variant="secondary" className="gap-1">
                 Gasto &le; {formatCOP(parseFloat(filters.maxSpent))}
-                <button onClick={() => setFilters((f) => ({ ...f, maxSpent: "" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, maxSpent: "" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -569,7 +569,7 @@ export function ClientsDashboard() {
             {filters.maxRecency && (
               <Badge variant="secondary" className="gap-1">
                 Recencia &le; {filters.maxRecency}d
-                <button onClick={() => setFilters((f) => ({ ...f, maxRecency: "" }))}>
+                <button onClick={() => setFilters((f) => ({ ...f, maxRecency: "" }))} aria-label="Cerrar">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -578,7 +578,7 @@ export function ClientsDashboard() {
               className="text-xs text-muted-foreground hover:text-foreground underline"
               onClick={() => setFilters(emptyFilters)}
             >
-              Limpiar todos
+              Limpiar filtros
             </button>
           </div>
         )}
@@ -641,11 +641,11 @@ export function ClientsDashboard() {
                         {client.recencyDays !== null ? `${client.recencyDays}d` : "—"}
                       </TableCell>
                       <TableCell>
-                        <Link href={`/admin/distributors/${client.distributorId}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" asChild aria-label="Ver distribuidor">
+                          <Link href={`/admin/distributors/${client.distributorId}`} aria-label="Ver distribuidor">
                             <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                          </Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))

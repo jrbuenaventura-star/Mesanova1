@@ -214,7 +214,7 @@ export function ContactForm({ tipo, showVolumen = false }: ContactFormProps) {
           disabled={isSubmitting}
         />
       </div>
-      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting} aria-label="Enviar">
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

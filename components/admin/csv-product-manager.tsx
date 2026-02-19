@@ -290,11 +290,11 @@ export function CSVProductManager() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => downloadTemplate(false)}>
             <Download className="w-4 h-4 mr-2" />
-            Template vacío
+            Descargar plantilla vacía
           </Button>
           <Button variant="outline" onClick={() => downloadTemplate(true)}>
             <FileText className="w-4 h-4 mr-2" />
-            Template con instrucciones
+            Descargar plantilla con instrucciones
           </Button>
           <Button variant="secondary" onClick={downloadExport}>
             <FileSpreadsheet className="w-4 h-4 mr-2" />
@@ -652,12 +652,12 @@ export function CSVProductManager() {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={handleReset}>
-                    Cancelar
+                    Nueva importación
                   </Button>
                   <Button
                     onClick={handleImport}
                     disabled={validationResult.stats.invalid > 0}
-                  >
+                   aria-label="Importar">
                     {validationResult.stats.invalid > 0 ? (
                       'Corrige los errores primero'
                     ) : (
@@ -783,7 +783,7 @@ export function CSVProductManager() {
           )}
 
           <div className="flex justify-center">
-            <Button onClick={handleReset}>
+            <Button onClick={handleReset} aria-label="Nueva importación">
               <RefreshCw className="w-4 h-4 mr-2" />
               Nueva importación
             </Button>

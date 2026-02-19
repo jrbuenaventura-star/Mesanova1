@@ -99,7 +99,7 @@ export default function NuevoLeadPage() {
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/aliado/leads">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a CRM
+            Ver CRM
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">Nuevo Lead</h1>
@@ -252,7 +252,7 @@ export default function NuevoLeadPage() {
 
             <div className="flex gap-4">
               <Button type="button" variant="outline" onClick={() => router.back()}>
-                Cancelar
+                Volver
               </Button>
               <Button type="submit" disabled={isLoading} className="flex-1">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

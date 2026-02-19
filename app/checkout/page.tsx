@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/contexts/cart-context"
 import { createClient } from "@/lib/supabase/client"
@@ -250,7 +251,7 @@ export default function CheckoutPage() {
               Agrega productos a tu carrito para continuar con tu compra
             </p>
             <Button asChild size="lg">
-              <a href="/productos">Explorar Productos</a>
+              <Link href="/productos">Ver productos</Link>
             </Button>
           </CardContent>
         </Card>
@@ -592,7 +593,7 @@ export default function CheckoutPage() {
                   size="lg"
                   className="w-full"
                   disabled={isProcessing}
-                >
+                 aria-label="Confirmar">
                   {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

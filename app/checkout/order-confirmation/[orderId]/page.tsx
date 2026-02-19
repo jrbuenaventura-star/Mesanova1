@@ -72,7 +72,7 @@ export default function OrderConfirmationPage() {
       <div className="container mx-auto py-16 px-4 text-center">
         <p>Orden no encontrada</p>
         <Button asChild className="mt-4">
-          <Link href="/">Volver al inicio</Link>
+          <Link href="/">Inicio</Link>
         </Button>
       </div>
     )
@@ -168,10 +168,10 @@ export default function OrderConfirmationPage() {
 
       <div className="flex gap-4 justify-center">
         <Button asChild variant="outline">
-          <Link href="/">Volver al inicio</Link>
+          <Link href="/">Inicio</Link>
         </Button>
         <Button asChild>
-          <Link href="/productos">Seguir comprando</Link>
+          <Link href="/productos">Ver productos</Link>
         </Button>
       </div>
     </div>

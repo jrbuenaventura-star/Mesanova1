@@ -76,7 +76,7 @@ export function GiftCardInput({
           size="sm"
           onClick={handleRemoveGiftCard}
           className="text-blue-700 hover:text-blue-900"
-        >
+         aria-label="Cerrar">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -100,7 +100,7 @@ export function GiftCardInput({
           variant="outline"
           onClick={handleApplyGiftCard}
           disabled={isValidating || !giftCardCode.trim()}
-        >
+         aria-label="Acción">
           {isValidating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

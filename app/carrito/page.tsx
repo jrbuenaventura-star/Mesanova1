@@ -61,7 +61,7 @@ export default function CartPage() {
             <Button asChild size="lg">
               <Link href="/productos">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Explorar Productos
+                Ver productos
               </Link>
             </Button>
           </CardContent>
@@ -77,7 +77,7 @@ export default function CartPage() {
         <Button variant="ghost" asChild>
           <Link href="/productos">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Seguir Comprando
+            Ver productos
           </Link>
         </Button>
       </div>
@@ -106,7 +106,7 @@ export default function CartPage() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <Link 
+                        <Link  aria-label="Ver producto"
                           href={`/productos/${item.silo}/${item.slug}`}
                           className="font-semibold hover:text-primary transition-colors"
                         >
@@ -118,7 +118,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemoveItem(item.productId, item.name, item.quantity)}
-                      >
+                       aria-label="Eliminar">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -131,7 +131,7 @@ export default function CartPage() {
                           className="h-8 w-8"
                           onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1, item.maxStock)}
                           disabled={item.quantity <= 1}
-                        >
+                         aria-label="Quitar">
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className="w-12 text-center font-medium">{item.quantity}</span>
@@ -141,7 +141,7 @@ export default function CartPage() {
                           className="h-8 w-8"
                           onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1, item.maxStock)}
                           disabled={item.quantity >= item.maxStock}
-                        >
+                         aria-label="Agregar">
                           <Plus className="h-3 w-3" />
                         </Button>
                         <span className="text-sm text-muted-foreground ml-2">
@@ -217,7 +217,7 @@ export default function CartPage() {
               </Button>
               <Button variant="outline" size="lg" className="w-full" asChild>
                 <Link href="/productos">
-                  Continuar Comprando
+                  Ver productos
                 </Link>
               </Button>
             </CardFooter>

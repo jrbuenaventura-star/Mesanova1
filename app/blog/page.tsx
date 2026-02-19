@@ -40,7 +40,7 @@ export default async function BlogPage() {
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {posts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`}>
+                <Link key={post.id} href={`/blog/${post.slug}`} aria-label="Leer artículo">
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                     {post.featured_image_url && (
                       <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">

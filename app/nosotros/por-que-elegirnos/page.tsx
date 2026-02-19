@@ -132,7 +132,7 @@ export default function PorQueElegirnosPage() {
             gestionar tu negocio.
           </p>
           <Button variant="default" size="lg" asChild>
-            <Link href="/auth/signup?tipo=distribuidor">Registrarme como Distribuidor</Link>
+            <Link href="/auth/signup?tipo=distribuidor">Crear cuenta</Link>
           </Button>
         </div>
       </section>

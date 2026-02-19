@@ -145,7 +145,7 @@ export default function LoginPage() {
                     />
                   </div>
                   {error && <p className="text-sm text-destructive">{error}</p>}
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full" disabled={isLoading} aria-label="Enviar">
                     {isLoading ? "Ingresando..." : "Iniciar sesión"}
                   </Button>
                 </div>
@@ -154,7 +154,7 @@ export default function LoginPage() {
               <div className="text-center text-sm">
                 ¿No tienes una cuenta?{" "}
                 <Link href="/auth/signup" className="underline underline-offset-4 hover:text-primary">
-                  Regístrate
+                  Crear cuenta
                 </Link>
               </div>
             </div>

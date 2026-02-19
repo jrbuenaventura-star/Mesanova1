@@ -83,7 +83,35 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
 
       if (updateError) throw updateError
 
-      // TODO: Enviar email de notificación al aliado y distribuidor
+      // Notifica al aliado y distribuidor sin bloquear el flujo de aprobación.
+      try {
+        const notificationType = approvalAction === "approve" ? "approved" : "rejected"
+        const payload: {
+          orderId: string
+          notificationType: "approved" | "rejected"
+          rejectionReason?: string
+        } = {
+          orderId: selectedOrder.id,
+          notificationType,
+        }
+
+        if (notificationType === "rejected") {
+          payload.rejectionReason = rejectionReason.trim()
+        }
+
+        const notificationResponse = await fetch("/api/orders/send-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+
+        if (!notificationResponse.ok) {
+          const notificationJson = await notificationResponse.json().catch(() => null)
+          console.error("Email notification failed:", notificationJson?.error || notificationResponse.statusText)
+        }
+      } catch (notificationError) {
+        console.error("Error sending approval notification:", notificationError)
+      }
 
       setShowApprovalDialog(false)
       setSelectedOrder(null)
@@ -280,7 +308,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
               variant={approvalAction === "approve" ? "default" : "destructive"}
               onClick={handleApproval}
               disabled={isProcessing}
-            >
+             aria-label="Confirmar">
               {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -119,12 +119,12 @@ export default function AdminBlogPage() {
                   {new Date(post.created_at).toLocaleDateString("es-CO")}
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/blog/${post.slug}`} target="_blank">
+                  <Button variant="outline" size="sm" asChild aria-label="Abrir enlace">
+                    <Link href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" aria-label="Leer artículo">
                       <Eye className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild aria-label="Abrir enlace">
                     <Link href={`/admin/blog/${post.id}/editar`}>
                       <Edit className="h-4 w-4" />
                     </Link>
@@ -137,7 +137,7 @@ export default function AdminBlogPage() {
                       postId: post.id, 
                       postTitle: post.title 
                     })}
-                  >
+                   aria-label="Eliminar">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

@@ -147,7 +147,7 @@ export default function EditarPostPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="p-8 space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Abrir enlace">
           <Link href="/admin/blog">
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -223,14 +223,14 @@ export default function EditarPostPage({ params }: { params: Promise<{ id: strin
                 {featuredImageUrl ? (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                     <img src={featuredImageUrl} alt="Featured" className="w-full h-full object-cover" />
-                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => setFeaturedImageUrl("")}>
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => setFeaturedImageUrl("")} aria-label="Cerrar">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-4">
                     <Input ref={fileInputRef} type="file" accept="image/*" onChange={handleFeaturedImageUpload} disabled={uploadingImage} className="hidden" />
-                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage}>
+                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} aria-label="Subir">
                       <Upload className="mr-2 h-4 w-4" />
                       {uploadingImage ? "Uploading..." : "Upload Image"}
                     </Button>
@@ -281,7 +281,7 @@ export default function EditarPostPage({ params }: { params: Promise<{ id: strin
           <Button type="button" variant="outline" asChild>
             <Link href="/admin/blog">Cancel</Link>
           </Button>
-          <Button type="submit" disabled={saving}>
+          <Button type="submit" disabled={saving} aria-label="Enviar">
             {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>

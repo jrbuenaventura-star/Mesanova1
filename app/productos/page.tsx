@@ -135,7 +135,7 @@ export default async function ProductosPage() {
                   </div>
                   <Button asChild variant="outline">
                     <Link href={`/productos/${silo.slug}`}>
-                      Ver todos
+                      Ver categoría
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -147,7 +147,7 @@ export default async function ProductosPage() {
                     {silo.products.map((item: any) => {
                       const product = item.product
                       return (
-                        <Link key={product.id} href={`/productos/${silo.slug}/${product.slug || product.pdt_codigo}`}>
+                        <Link key={product.id} href={`/productos/${silo.slug}/${product.slug || product.pdt_codigo}`} aria-label="Ver producto">
                           <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                             <CardHeader className="p-0">
                               <div className="relative h-48 bg-muted rounded-t-lg overflow-hidden">
@@ -190,7 +190,7 @@ export default async function ProductosPage() {
                     </p>
                     <Button asChild variant="outline" className="mt-4">
                       <Link href={`/productos/${silo.slug}`}>
-                        Ver todos los productos
+                        Ver categoría
                       </Link>
                     </Button>
                   </Card>

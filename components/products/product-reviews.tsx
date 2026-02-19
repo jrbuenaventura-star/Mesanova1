@@ -178,7 +178,7 @@ export function ProductReviews({ productId, reviews, stats, currentUserId }: Pro
                   size="sm"
                   className="h-8 px-2"
                   onClick={() => handleVote(review.id, true)}
-                >
+                 aria-label="Acción">
                   <ThumbsUp className="h-4 w-4 mr-1" />
                   {review.helpful_count}
                 </Button>
@@ -187,7 +187,7 @@ export function ProductReviews({ productId, reviews, stats, currentUserId }: Pro
                   size="sm"
                   className="h-8 px-2"
                   onClick={() => handleVote(review.id, false)}
-                >
+                 aria-label="Acción">
                   <ThumbsDown className="h-4 w-4 mr-1" />
                   {review.not_helpful_count}
                 </Button>

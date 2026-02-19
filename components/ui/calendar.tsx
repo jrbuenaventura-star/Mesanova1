@@ -206,7 +206,7 @@ function CalendarDayButton({
         className,
       )}
       {...props}
-    />
+     aria-label="Acción"/>
   )
 }
 

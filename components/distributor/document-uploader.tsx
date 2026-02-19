@@ -193,7 +193,7 @@ export function DocumentUploader({ distributorId, documentType, onUploadComplete
           disabled={isUploading}
           size="sm"
           className="w-full"
-        >
+         aria-label="Acción">
           {isUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -88,7 +89,7 @@ export function WriteReviewForm({ productId, userId, onReviewSubmitted }: WriteR
             Inicia sesión para escribir una reseña
           </p>
           <Button asChild>
-            <a href="/auth/login">Iniciar Sesión</a>
+            <Link href="/auth/login">Iniciar sesión</Link>
           </Button>
         </CardContent>
       </Card>
@@ -114,6 +115,7 @@ export function WriteReviewForm({ productId, userId, onReviewSubmitted }: WriteR
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
                   className="transition-transform hover:scale-110"
+                  aria-label={`Calificar con ${star} estrella${star === 1 ? "" : "s"}`}
                 >
                   <Star
                     className={`h-8 w-8 ${
@@ -157,7 +159,7 @@ export function WriteReviewForm({ productId, userId, onReviewSubmitted }: WriteR
           </div>
 
           {/* Submit Button */}
-          <Button type="submit" disabled={isSubmitting || rating === 0} className="w-full">
+          <Button type="submit" disabled={isSubmitting || rating === 0} className="w-full" aria-label="Enviar">
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

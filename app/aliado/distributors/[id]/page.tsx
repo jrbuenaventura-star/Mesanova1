@@ -89,7 +89,7 @@ export default async function AliadoDistributorDetailPage({
         <Button asChild className="mt-4">
           <Link href="/aliado/distributors">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Clientes
+            Ver clientes
           </Link>
         </Button>
       </div>
@@ -111,8 +111,8 @@ export default async function AliadoDistributorDetailPage({
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/aliado/distributors">
+        <Button variant="outline" size="icon" asChild aria-label="Abrir enlace">
+          <Link href="/aliado/distributors" aria-label="Ver clientes">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

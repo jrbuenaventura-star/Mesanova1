@@ -421,7 +421,7 @@ export function DistributorsManagement() {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" aria-label="Más opciones">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -796,7 +796,7 @@ export function DistributorsManagement() {
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => markAddressForDeletion(addr.id)}
-                      >
+                       aria-label="Cerrar">
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
@@ -817,7 +817,7 @@ export function DistributorsManagement() {
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => removeNewAddress(index)}
-                      >
+                       aria-label="Cerrar">
                         <X className="h-3 w-3" />
                       </Button>
                     </div>

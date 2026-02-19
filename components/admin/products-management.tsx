@@ -418,7 +418,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Más opciones">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -530,7 +530,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
             <Button variant="outline" onClick={() => setPriceDialogOpen(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button onClick={handleSavePriceDiscount} disabled={isLoading}>
+            <Button onClick={handleSavePriceDiscount} disabled={isLoading} aria-label="Acción">
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>

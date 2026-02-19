@@ -181,7 +181,7 @@ export function AdminTicketsDashboard() {
             <Button
               variant={incluirOcultos ? 'default' : 'outline'}
               onClick={() => setIncluirOcultos(!incluirOcultos)}
-            >
+             aria-label="Acción">
               {incluirOcultos ? 'Ocultando cerrados' : 'Mostrar cerrados'}
             </Button>
           </div>

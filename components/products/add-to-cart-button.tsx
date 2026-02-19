@@ -96,7 +96,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium">Cantidad:</span>
         <div className="flex items-center border rounded-md">
-          <Button variant="ghost" size="icon" onClick={handleDecrease} disabled={quantity <= 1 || disabled}>
+          <Button variant="ghost" size="icon" onClick={handleDecrease} disabled={quantity <= 1 || disabled} aria-label="Quitar">
             <Minus className="h-4 w-4" />
           </Button>
           <span className="px-4 py-2 min-w-12 text-center font-medium">{quantity}</span>
@@ -105,7 +105,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
             size="icon"
             onClick={handleIncrease}
             disabled={quantity >= availableStock || disabled}
-          >
+           aria-label="Agregar">
             <Plus className="h-4 w-4" />
           </Button>
         </div>
@@ -116,12 +116,13 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       </div>
 
       {/* Botón agregar al carrito */}
-      <Button 
-        size="lg" 
-        className="w-full" 
-        onClick={handleAddToCart} 
+      <Button
+        size="lg"
+        className="w-full"
+        onClick={handleAddToCart}
         disabled={disabled || isAdding || availableStock === 0}
         variant={inCart ? "secondary" : "default"}
+        aria-label="Agregar al carrito"
       >
         {inCart ? (
           <>

@@ -48,7 +48,7 @@ export default function NuevaListaRegaloPage() {
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/perfil/listas-regalo">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Volver a mis listas
+            Volver a listas
           </Link>
         </Button>
         <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -144,9 +144,9 @@ export default function NuevaListaRegaloPage() {
 
             <div className="flex gap-4 pt-4">
               <Button type="button" variant="outline" asChild>
-                <Link href="/perfil/listas-regalo">Cancelar</Link>
+                <Link href="/perfil/listas-regalo">Volver a listas</Link>
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending} aria-label="Enviar">
                 {isPending ? "Creando..." : "Crear Lista"}
               </Button>
             </div>

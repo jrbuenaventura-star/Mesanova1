@@ -124,7 +124,7 @@ export default async function AdminDashboard() {
             Tienes <strong>{pendingOrdersCount}</strong> órdenes pendientes de aprobación.
           </p>
           <Button size="sm" variant="outline" asChild className="ml-auto">
-            <Link href="/admin/orders?status=por_aprobar">Ver órdenes</Link>
+            <Link href="/admin/orders?status=por_aprobar" aria-label="Ver órdenes">Ver órdenes</Link>
           </Button>
         </div>
       )}
@@ -262,7 +262,7 @@ export default async function AdminDashboard() {
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/admin/orders">
-                Ver todas <ArrowRight className="ml-2 h-4 w-4" />
+                Ver órdenes <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </CardHeader>

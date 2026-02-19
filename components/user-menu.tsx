@@ -119,7 +119,7 @@ export function UserMenu() {
 
   if (isLoading) {
     return (
-      <Button variant="ghost" size="icon" disabled>
+      <Button variant="ghost" size="icon" disabled aria-label="Usuario">
         <User className="h-5 w-5" />
       </Button>
     )
@@ -127,7 +127,7 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <Button variant="ghost" onClick={() => router.push('/auth/login')}>
+      <Button variant="ghost" onClick={() => router.push('/auth/login')} aria-label="Iniciar sesión">
         Iniciar Sesión
       </Button>
     )
@@ -136,7 +136,7 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full" aria-label="Acción">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
               {getInitials()}

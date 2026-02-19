@@ -225,11 +225,11 @@ export function CSVDistributorManager() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => downloadTemplate(false)}>
             <Download className="mr-2 h-4 w-4" />
-            Plantilla Vacía
+            Descargar plantilla vacía
           </Button>
           <Button variant="outline" onClick={() => downloadTemplate(true)}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />
-            Plantilla con Instrucciones
+            Descargar plantilla con instrucciones
           </Button>
         </div>
       </div>
@@ -460,9 +460,9 @@ export function CSVDistributorManager() {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={handleReset}>
-                    Cancelar
+                    Nueva importación
                   </Button>
-                  <Button
+                  <Button aria-label="Importar"
                     onClick={handleImport}
                     disabled={validationResult.stats.invalid > 0}
                   >
@@ -555,7 +555,7 @@ export function CSVDistributorManager() {
           )}
 
           <div className="flex gap-2">
-            <Button onClick={handleReset}>
+            <Button onClick={handleReset} aria-label="Nueva importación">
               <RefreshCw className="mr-2 h-4 w-4" />
               Nueva importación
             </Button>

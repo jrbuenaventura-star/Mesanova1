@@ -3,9 +3,9 @@ import { getGiftRegistryByToken } from "@/lib/db/user-features"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, Calendar, ShoppingCart, Check, Share2 } from "lucide-react"
+import { Gift, Calendar, ShoppingCart, Check } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import { ShareButton } from "@/components/ui/share-button"
 
 const eventTypeLabels: Record<string, string> = {
   wedding: "Lista de Boda",
@@ -78,10 +78,14 @@ export default async function GiftRegistryPublicPage({ params }: { params: { tok
           )}
 
           <div className="flex justify-center gap-4 mt-6">
-            <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartir
-            </Button>
+            <ShareButton
+              variant="outline"
+              size="sm"
+              url={`/lista/${params.token}`}
+              title={registry.name}
+              text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+              label="Compartir"
+            />
           </div>
         </div>
       </div>

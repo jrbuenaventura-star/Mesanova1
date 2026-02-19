@@ -2,13 +2,36 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 
+type NotificationType = "created" | "approved" | "rejected"
+
+type NotificationPayload = {
+  orderId?: string
+  notificationType?: NotificationType
+  rejectionReason?: string
+}
+
+type NotificationEmail = {
+  to: string[]
+  subject: string
+  html: string
+}
+
+const INTERNAL_NOTIFICATION_EMAIL = "atencion@alumaronline.com"
+
 export async function POST(request: Request) {
   try {
-    const { orderId } = await request.json()
+    const { orderId, notificationType = "created", rejectionReason } = (await request.json()) as NotificationPayload
 
     if (!orderId) {
       return NextResponse.json(
         { error: "Order ID is required" },
+        { status: 400 }
+      )
+    }
+
+    if (!["created", "approved", "rejected"].includes(notificationType)) {
+      return NextResponse.json(
+        { error: "Invalid notification type" },
         { status: 400 }
       )
     }
@@ -42,30 +65,36 @@ export async function POST(request: Request) {
       )
     }
 
-    // Preparar datos del email
-    const orderRef = (order as any).order_number || String(order.id).slice(0, 8)
-    const emailData = {
-      to: "atencion@alumaronline.com",
-      subject: `Nueva Orden de Compra - ${orderRef}`,
-      html: generateOrderEmailHTML(order),
+    const emailMessages = buildNotificationEmails(order, notificationType, rejectionReason)
+    if (emailMessages.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: "No recipients configured for this notification",
+      })
     }
 
     const resend = new Resend(resendApiKey)
-    const { error: emailError } = await resend.emails.send({
-      from: resendFrom,
-      to: emailData.to,
-      subject: emailData.subject,
-      html: emailData.html,
-    })
+    const results = await Promise.allSettled(
+      emailMessages.map((email) =>
+        resend.emails.send({
+          from: resendFrom,
+          to: email.to,
+          subject: email.subject,
+          html: email.html,
+        })
+      )
+    )
 
-    if (emailError) {
-      console.error("Resend error:", emailError)
-      return NextResponse.json({ error: "Failed to send email" }, { status: 502 })
+    const failedCount = results.filter((result) => result.status === "rejected").length
+    if (failedCount === emailMessages.length) {
+      return NextResponse.json({ error: "Failed to send email notifications" }, { status: 502 })
     }
 
     return NextResponse.json({
       success: true,
-      message: "Notification sent successfully",
+      message: failedCount > 0 ? "Notification sent with partial failures" : "Notification sent successfully",
+      sent: emailMessages.length - failedCount,
+      failed: failedCount,
     })
   } catch (error) {
     console.error("Error sending notification:", error)
@@ -74,6 +103,52 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
+}
+
+function buildNotificationEmails(
+  order: any,
+  notificationType: NotificationType,
+  rejectionReason?: string
+): NotificationEmail[] {
+  const orderRef = order.order_number || String(order.id).slice(0, 8)
+
+  if (notificationType === "created") {
+    return [
+      {
+        to: [INTERNAL_NOTIFICATION_EMAIL],
+        subject: `Nueva Orden de Compra - ${orderRef}`,
+        html: generateOrderEmailHTML(order),
+      },
+    ]
+  }
+
+  const recipients = uniqueEmails([
+    order.aliado?.email,
+    order.distributor?.contact_email,
+    order.customer_email,
+  ])
+
+  if (recipients.length === 0) {
+    return []
+  }
+
+  const subjectPrefix = notificationType === "approved" ? "Orden Aprobada" : "Orden Rechazada"
+  return [
+    {
+      to: recipients,
+      subject: `${subjectPrefix} - ${orderRef}`,
+      html: generateOrderStatusEmailHTML(order, notificationType, rejectionReason),
+    },
+  ]
+}
+
+function uniqueEmails(candidates: Array<string | null | undefined>): string[] {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return [...new Set(
+    candidates
+      .map((email) => email?.trim().toLowerCase())
+      .filter((email): email is string => Boolean(email && emailRegex.test(email)))
+  )]
 }
 
 function generateOrderEmailHTML(order: any): string {
@@ -157,6 +232,53 @@ function generateOrderEmailHTML(order: any): string {
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
           <p>Este es un correo automático generado por el sistema Mesanova.</p>
           <p>Para aprobar o rechazar esta orden, ingresa al panel de administración.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function generateOrderStatusEmailHTML(
+  order: any,
+  notificationType: Exclude<NotificationType, "created">,
+  rejectionReason?: string
+): string {
+  const isApproved = notificationType === "approved"
+  const title = isApproved ? "Tu orden fue aprobada" : "Tu orden fue rechazada"
+  const statusLabel = isApproved ? "Aprobada" : "Rechazada"
+  const statusColor = isApproved ? "#16a34a" : "#dc2626"
+  const reason = !isApproved ? (rejectionReason || order.rejected_reason || "No especificada") : null
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${title}</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: ${statusColor}; border-bottom: 2px solid ${statusColor}; padding-bottom: 10px;">
+          ${title}
+        </h1>
+
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <p><strong>Referencia:</strong> ${order.order_number || order.id.slice(0, 8)}</p>
+          <p><strong>Estado:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusLabel}</span></p>
+          <p><strong>Total:</strong> $${Number(order.total || 0).toFixed(2)}</p>
+          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}</p>
+        </div>
+
+        ${reason ? `
+          <div style="background-color: #fef2f2; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #b91c1c;">Motivo del rechazo</h3>
+            <p style="margin-bottom: 0;">${reason}</p>
+          </div>
+        ` : ""}
+
+        <div style="margin-top: 24px;">
+          <p>Si tienes dudas sobre esta orden, por favor contacta al equipo de Mesanova.</p>
         </div>
       </div>
     </body>

@@ -39,7 +39,7 @@ export default async function FavoritosPage() {
             Explora nuestro catálogo y guarda los productos que te gusten
           </p>
           <Button asChild>
-            <Link href="/productos">Ver productos</Link>
+            <Link href="/productos" aria-label="Ver productos">Ver productos</Link>
           </Button>
         </Card>
       ) : (

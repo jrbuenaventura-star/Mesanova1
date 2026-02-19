@@ -139,7 +139,7 @@ export default async function PerfilPage() {
 
               {userProfile?.role === "distributor" && (
                 <Button asChild className="w-full" variant="default">
-                  <Link href="/distribuidor/dashboard">
+                  <Link href="/distributor">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     Mi Dashboard
                   </Link>

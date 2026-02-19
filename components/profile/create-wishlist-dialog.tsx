@@ -94,7 +94,7 @@ export function CreateWishlistDialog({ children }: CreateWishlistDialogProps) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} aria-label="Enviar">
               {isPending ? "Creando..." : "Crear lista"}
             </Button>
           </DialogFooter>

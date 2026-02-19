@@ -163,7 +163,7 @@ export function ProductsWithFilters({ products, subcategories, productTypes = []
                 No se encontraron productos con los filtros seleccionados. Intenta ajustar los filtros.
               </p>
               <Button asChild variant="outline">
-                <Link href={`/productos/${siloSlug}`}>Ver todas las subcategorías</Link>
+                <Link href={`/productos/${siloSlug}`}>Ver categoría</Link>
               </Button>
             </div>
           </Card>

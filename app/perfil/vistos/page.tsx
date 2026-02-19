@@ -53,7 +53,7 @@ export default async function VistosRecientementePage() {
             Cuando explores nuestro catálogo, los productos aparecerán aquí
           </p>
           <Button asChild>
-            <Link href="/productos">Explorar productos</Link>
+            <Link href="/productos">Ver productos</Link>
           </Button>
         </Card>
       ) : (

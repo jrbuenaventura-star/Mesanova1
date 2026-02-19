@@ -189,7 +189,7 @@ export default function ProductosDestacadosPage() {
                   variant={selectedSilo === silo.slug ? "default" : "outline"}
                   className="h-20 flex flex-col gap-2"
                   onClick={() => setSelectedSilo(silo.slug)}
-                >
+                 aria-label="Acción">
                   <SiloIcon className="h-6 w-6" />
                   <span>{silo.name}</span>
                 </Button>
@@ -308,7 +308,7 @@ export default function ProductosDestacadosPage() {
                         className="h-6 w-6"
                         onClick={() => moveProduct(item.id, 'up')}
                         disabled={index === 0}
-                      >
+                       aria-label="Acción">
                         <ArrowUp className="h-4 w-4" />
                       </Button>
                       <Button
@@ -317,7 +317,7 @@ export default function ProductosDestacadosPage() {
                         className="h-6 w-6"
                         onClick={() => moveProduct(item.id, 'down')}
                         disabled={index === featuredProducts.length - 1}
-                      >
+                       aria-label="Acción">
                         <ArrowDown className="h-4 w-4" />
                       </Button>
                     </div>
@@ -357,7 +357,7 @@ export default function ProductosDestacadosPage() {
                       size="icon"
                       variant="destructive"
                       onClick={() => removeFeaturedProduct(item.id)}
-                    >
+                     aria-label="Eliminar">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

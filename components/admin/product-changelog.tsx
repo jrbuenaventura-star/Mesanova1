@@ -288,7 +288,7 @@ export function ProductChangelog({ productId }: ProductChangelogProps) {
               variant="outline"
               onClick={() => fetchLogs(false)}
               disabled={loading}
-            >
+             aria-label="Acción">
               {loading ? 'Cargando...' : 'Cargar más'}
             </Button>
           </div>

@@ -25,7 +25,7 @@ async function SearchResults({ query }: { query: string }) {
         <h2 className="text-xl font-semibold mb-2">No se encontraron resultados</h2>
         <p className="text-muted-foreground mb-6">No encontramos productos que coincidan con "{query}"</p>
         <Button asChild>
-          <Link href="/productos">Ver todos los productos</Link>
+          <Link href="/productos">Ver productos</Link>
         </Button>
       </div>
     )

@@ -255,7 +255,7 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
           <Button asChild>
             <Link href="/distributor/orders/nueva">
               <Plus className="mr-2 h-4 w-4" />
-              Nueva Orden
+              Nueva orden
             </Link>
           </Button>
         )}
@@ -304,7 +304,7 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleViewDetails(order)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleViewDetails(order)} aria-label="Ver">
                         <Eye className="h-4 w-4" />
                       </Button>
                       {userRole === "superadmin" && order.status === "por_aprobar" && (
@@ -316,7 +316,7 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
                               setSelectedOrder(order)
                               setApprovalDialogOpen(true)
                             }}
-                          >
+                           aria-label="Confirmar">
                             <Check className="h-4 w-4 text-green-600" />
                           </Button>
                         </>
@@ -326,12 +326,12 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
                           variant="ghost"
                           size="sm"
                           onClick={() => handleUpdateStatus(order.id, "en_preparacion")}
-                        >
+                         aria-label="Acción">
                           <Package className="h-4 w-4" />
                         </Button>
                       )}
                       {userRole === "superadmin" && order.status === "en_preparacion" && (
-                        <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, "enviada")}>
+                        <Button variant="ghost" size="sm" onClick={() => handleUpdateStatus(order.id, "enviada")} aria-label="Acción">
                           <Truck className="h-4 w-4" />
                         </Button>
                       )}

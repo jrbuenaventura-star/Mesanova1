@@ -235,7 +235,7 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
                       size="sm"
                       onClick={() => handleDescargarArchivo(archivo.id, archivo.nombre_archivo)}
                       disabled={descargando === archivo.id}
-                    >
+                     aria-label="Descargar">
                       {descargando === archivo.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -308,7 +308,7 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
             <Button
               onClick={handleEnviarComentario}
               disabled={!comentario.trim() || enviandoComentario || ticket.estado === 'cerrado'}
-            >
+             aria-label="Acción">
               {enviandoComentario ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

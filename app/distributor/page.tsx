@@ -132,7 +132,7 @@ export default async function DistributorDashboardPage() {
         <Button asChild>
           <Link href="/distributor/orders/nueva">
             <ShoppingCart className="mr-2 h-4 w-4" />
-            Nueva Orden
+            Nueva orden
           </Link>
         </Button>
       </div>
@@ -242,7 +242,7 @@ export default async function DistributorDashboardPage() {
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/distributor/invoices">
-                Ver todas
+                Facturas
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -263,7 +263,9 @@ export default async function DistributorDashboardPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold">${invoice.total?.toLocaleString()}</p>
-                      <Button size="sm" variant="outline">Pagar</Button>
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/distributor/invoices?invoice=${invoice.id}`}>Facturas</Link>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -281,7 +283,7 @@ export default async function DistributorDashboardPage() {
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/distributor/orders">
-                Ver todos
+                Ver pedidos
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -332,7 +334,7 @@ export default async function DistributorDashboardPage() {
                 {topProducts.map((product) => (
                   <Link 
                     key={product.id} 
-                    href={`/productos/${product.id}`}
+                    href={`/productos/Ver categoría{product.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                   >
                     <div className="h-12 w-12 rounded bg-muted flex items-center justify-center overflow-hidden">

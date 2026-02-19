@@ -110,7 +110,7 @@ export function HeroCarousel({ slides, hideContent = false }: HeroCarouselProps)
                   )}
                   {s.cta_text && s.cta_link && (
                     <div className="pt-4">
-                      <Button size="lg" asChild className="text-lg">
+                      <Button size="lg" asChild className="text-lg" aria-label="Abrir enlace">
                         <Link href={s.cta_link}>
                           {s.cta_text}
                         </Link>

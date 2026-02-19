@@ -269,7 +269,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild aria-label="Abrir enlace">
             <Link href="/admin/products">
               <ArrowLeft className="h-4 w-4" />
             </Link>
@@ -281,7 +281,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
             </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={isLoading}>
+        <Button onClick={handleSave} disabled={isLoading} aria-label="Acción">
           <Save className="mr-2 h-4 w-4" />
           {isLoading ? "Guardando..." : (product.id === "new" ? "Crear Producto" : "Guardar Cambios")}
         </Button>
@@ -472,7 +472,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                           onClick={() => handleRemoveCategory(cat.id)}
                           className="ml-2 hover:text-destructive"
                           type="button"
-                        >
+                         aria-label="Eliminar">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
@@ -538,7 +538,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                           onClick={() => handleRemoveProductType(type.id)}
                           className="ml-2 hover:text-destructive"
                           type="button"
-                        >
+                         aria-label="Eliminar">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
@@ -735,7 +735,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                           onClick={() => handleRemoveMedia(media.id)}
                           className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                           type="button"
-                        >
+                         aria-label="Eliminar">
                           <X className="h-4 w-4" />
                         </button>
                       </div>
@@ -772,7 +772,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
                           <Video className="h-4 w-4 text-muted-foreground" />
                           <span className="text-sm">{media.url}</span>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => handleRemoveMedia(media.id)} type="button">
+                        <Button variant="ghost" size="sm" onClick={() => handleRemoveMedia(media.id)} type="button" aria-label="Eliminar">
                           <X className="h-4 w-4" />
                         </Button>
                       </div>

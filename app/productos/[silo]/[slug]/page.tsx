@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Share2, Package, Truck, CheckCircle, AlertCircle, Percent } from "lucide-react"
+import { Package, Truck, CheckCircle, AlertCircle, Percent } from "lucide-react"
 import { ProductImageGallery } from "@/components/products/product-image-gallery"
 import { ProductCard } from "@/components/products/product-card"
 import { AddToCartButton } from "@/components/products/add-to-cart-button"
@@ -17,6 +17,7 @@ import { ProductReviews } from "@/components/products/product-reviews"
 import { TrackProductView } from "@/components/products/track-product-view"
 import { RecentlyViewedProducts } from "@/components/products/recently-viewed-products"
 import { NotifyStockButton } from "@/components/products/notify-stock-button"
+import { ShareButton } from "@/components/ui/share-button"
 import { calculateProductPricing, formatPrice, isQualifiedDistributor } from "@/lib/pricing"
 
 interface ProductPageProps {
@@ -182,21 +183,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <nav className="mb-6 text-sm">
         <ol className="flex items-center gap-2 text-muted-foreground">
           <li>
-            <Link href="/" className="hover:text-foreground">
+            <Link href="/" className="hover:text-foreground" aria-label="Inicio">
               Inicio
             </Link>
           </li>
           <li>/</li>
           <li>
             <Link href="/productos" className="hover:text-foreground">
-              Productos
+              Ver productos
             </Link>
           </li>
           {primaryCategory?.subcategory?.silo && (
             <>
               <li>/</li>
               <li>
-                <Link href={`/productos/${primaryCategory.subcategory.silo.slug}`} className="hover:text-foreground">
+                <Link href={`/productos/${primaryCategory.subcategory.silo.slug}`} className="hover:text-foreground" aria-label="Ver categoría">
                   {primaryCategory.subcategory.silo.name}
                 </Link>
               </li>
@@ -227,7 +228,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             ))}
             {product.collection && (
               <Link href={`/productos?coleccion=${encodeURIComponent(product.collection.slug || product.collection.name)}`}>
-                <Badge variant="outline" className="cursor-pointer hover:bg-muted">Colección: {product.collection.name}</Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-muted">Ver productos {product.collection.name}</Badge>
               </Link>
             )}
             {primaryCategory?.subcategory && (
@@ -338,7 +339,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.marca && (
                 <div>
                   <span className="text-muted-foreground">Marca:</span>
-                  <Link href={`/productos?marca=${encodeURIComponent(product.marca)}`} className="ml-2 font-medium hover:underline">
+                  <Link href={`/productos?marca=${encodeURIComponent(product.marca)}`} className="ml-2 font-medium hover:underline" aria-label="Ver productos">
                     {product.marca}
                   </Link>
                 </div>
@@ -346,7 +347,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.material && (
                 <div>
                   <span className="text-muted-foreground">Material:</span>
-                  <Link href={`/productos?material=${encodeURIComponent(product.material)}`} className="ml-2 font-medium hover:underline">
+                  <Link href={`/productos?material=${encodeURIComponent(product.material)}`} className="ml-2 font-medium hover:underline" aria-label="Ver productos">
                     {product.material}
                   </Link>
                 </div>
@@ -354,7 +355,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.color && (
                 <div>
                   <span className="text-muted-foreground">Color:</span>
-                  <Link href={`/productos?color=${encodeURIComponent(product.color)}`} className="ml-2 font-medium hover:underline">
+                  <Link href={`/productos?color=${encodeURIComponent(product.color)}`} className="ml-2 font-medium hover:underline" aria-label="Ver productos">
                     {product.color}
                   </Link>
                 </div>
@@ -403,10 +404,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 variant="button"
                 className="flex-1"
               />
-              <Button variant="outline" className="flex-1 bg-transparent">
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartir
-              </Button>
+              <ShareButton
+                variant="outline"
+                className="flex-1 bg-transparent"
+                url={`/productos/${silo}/${slug}`}
+                title={product.nombre_comercial || product.pdt_descripcion}
+                text={`Mira este producto en Mesanova: ${product.nombre_comercial || product.pdt_descripcion}`}
+                label="Compartir"
+              />
             </div>
             <AddToListButton
               productId={product.id}
@@ -431,7 +436,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="flex flex-wrap gap-2">
                 {product.categories.map((cat) => (
                   <Badge key={cat.id} variant="outline">
-                    <Link href={`/productos/${cat.subcategory?.silo?.slug}#${cat.subcategory?.slug}`}>
+                    <Link href={`/productos/${cat.subcategory?.silo?.slug}#${cat.subcategory?.slug}`} aria-label="Ver categoría">
                       {cat.subcategory?.name}
                     </Link>
                   </Badge>

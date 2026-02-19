@@ -180,10 +180,18 @@ export default async function ReviewsAdminPage() {
                       </>
                     )}
                     {!review.seller_response && (
-                      <Button size="sm" variant="outline">
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        Responder
-                      </Button>
+                      <form action={`/api/reviews/${review.id}/respond`} method="POST" className="space-y-2">
+                        <input
+                          name="response"
+                          placeholder="Escribe una respuesta..."
+                          className="h-8 w-full min-w-48 rounded-md border bg-background px-2 text-xs"
+                          required
+                        />
+                        <Button size="sm" variant="outline" type="submit">
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          Responder
+                        </Button>
+                      </form>
                     )}
                   </div>
                 </div>

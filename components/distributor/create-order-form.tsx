@@ -336,7 +336,7 @@ export default function CreateOrderForm({ distributorId, companies, products, us
                       </TableCell>
                       <TableCell className="font-medium">${item.subtotal.toLocaleString()}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.product_id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.product_id)} aria-label="Eliminar">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </TableCell>
@@ -377,9 +377,9 @@ export default function CreateOrderForm({ distributorId, companies, products, us
       {/* Botones de acción */}
       <div className="flex justify-end gap-4">
         <Button variant="outline" onClick={() => router.back()} disabled={isLoading}>
-          Cancelar
+          Volver
         </Button>
-        <Button onClick={handleSubmit} disabled={isLoading || orderItems.length === 0}>
+        <Button onClick={handleSubmit} disabled={isLoading || orderItems.length === 0} aria-label="Agregar al carrito">
           <Save className="mr-2 h-4 w-4" />
           {isLoading ? "Creando..." : "Crear Orden"}
         </Button>

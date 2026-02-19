@@ -30,12 +30,12 @@ export default async function AdminTicketManagementPage({
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/pqrs">
-          <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/admin/pqrs">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver a gestión de PQRs
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <AdminTicketManagement ticketId={params.id} />

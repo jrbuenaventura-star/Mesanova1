@@ -29,7 +29,7 @@ export function RecentlyViewedProducts({
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {recentItems.map((item) => (
-          <Link key={item.id} href={`/productos/${item.siloSlug}/${item.slug}`}>
+          <Link key={item.id} href={`/productos/${item.siloSlug}/${item.slug}`} aria-label="Ver producto">
             <Card className="group hover:shadow-md transition-shadow h-full">
               <CardContent className="p-3">
                 <div className="aspect-square rounded-md overflow-hidden bg-muted mb-2">

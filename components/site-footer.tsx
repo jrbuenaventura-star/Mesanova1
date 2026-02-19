@@ -59,7 +59,7 @@ export function SiteFooter() {
             <h3 className="mb-4 text-sm font-semibold">Categorías</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link
+                <Link aria-label="Cocina"
                   href="/productos/cocina"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -67,12 +67,12 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/productos/mesa" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/productos/mesa" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Mesa">
                   Mesa
                 </Link>
               </li>
               <li>
-                <Link
+                <Link aria-label="Café, Té y Bar"
                   href="/productos/cafe-te-bar"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -105,7 +105,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
-                  A mesa puesta
+                  Ver blog
                 </Link>
               </li>
             </ul>

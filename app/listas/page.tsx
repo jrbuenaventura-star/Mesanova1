@@ -95,7 +95,7 @@ export default async function BuscarListasPage({
                     </div>
                     <Button asChild>
                       <Link href={`/lista/${registry.share_token}`}>
-                        Ver Lista
+                        Ver lista
                         <ExternalLink className="h-4 w-4 ml-2" />
                       </Link>
                     </Button>

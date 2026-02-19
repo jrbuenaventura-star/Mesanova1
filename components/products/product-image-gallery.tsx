@@ -56,7 +56,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               size="icon"
               className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={handlePrevious}
-            >
+             aria-label="Anterior">
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
@@ -64,7 +64,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               size="icon"
               className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={handleNext}
-            >
+             aria-label="Siguiente">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </>
@@ -81,6 +81,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                   index === selectedIndex ? "bg-primary w-6" : "bg-primary/30 hover:bg-primary/50",
                 )}
                 onClick={() => setSelectedIndex(index)}
+                aria-label="Ver imagen"
               />
             ))}
           </div>
@@ -98,6 +99,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 index === selectedIndex ? "border-primary" : "border-transparent hover:border-primary/50",
               )}
               onClick={() => setSelectedIndex(index)}
+              aria-label="Ver imagen"
             >
               <Image
                 src={image.url ? getImageKitUrl(image.url, { width: 250, height: 250, quality: 75, format: "auto" }) : "/placeholder.svg"}

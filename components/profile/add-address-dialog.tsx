@@ -121,7 +121,7 @@ export function AddAddressDialog({ children }: AddAddressDialogProps) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} aria-label="Enviar">
               {isPending ? "Guardando..." : "Guardar dirección"}
             </Button>
           </DialogFooter>

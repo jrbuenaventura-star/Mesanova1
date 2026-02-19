@@ -404,7 +404,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
             <Button
               variant="outline"
               onClick={handleOcultarTicket}
-            >
+             aria-label="Ver">
               {ticket.oculto ? (
                 <>
                   <Eye className="mr-2 h-4 w-4" />
@@ -619,7 +619,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
               <Button
                 onClick={handleEnviarComentario}
                 disabled={!comentario.trim() || enviandoComentario}
-              >
+               aria-label="Acción">
                 {enviandoComentario ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

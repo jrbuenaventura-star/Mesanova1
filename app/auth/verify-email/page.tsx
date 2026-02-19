@@ -21,7 +21,7 @@ export default function VerifyEmailPage() {
               tu carpeta de spam.
             </p>
             <Button asChild variant="outline" className="w-full bg-transparent">
-              <Link href="/auth/login">Volver al inicio de sesión</Link>
+              <Link href="/auth/login">Iniciar sesión</Link>
             </Button>
           </CardContent>
         </Card>

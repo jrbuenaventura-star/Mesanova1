@@ -237,7 +237,7 @@ export function LeadCapturePopup({
             size="lg"
             className="w-full"
             disabled={isSubmitting}
-          >
+           aria-label="Correo">
             {isSubmitting ? (
               "Enviando..."
             ) : (

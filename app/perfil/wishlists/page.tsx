@@ -4,9 +4,10 @@ import { getUserWishlists } from "@/lib/db/user-features"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ListChecks, Plus, Share2, Lock, Globe, Eye } from "lucide-react"
+import { ListChecks, Plus, Lock, Globe, Eye } from "lucide-react"
 import Link from "next/link"
 import { CreateWishlistDialog } from "@/components/profile/create-wishlist-dialog"
+import { ShareButton } from "@/components/ui/share-button"
 
 export default async function WishlistsPage() {
   const supabase = await createClient()
@@ -31,7 +32,7 @@ export default async function WishlistsPage() {
           </p>
         </div>
         <CreateWishlistDialog>
-          <Button>
+          <Button type="button">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Lista
           </Button>
@@ -46,7 +47,7 @@ export default async function WishlistsPage() {
             Crea listas para organizar los productos que quieres comprar
           </p>
           <CreateWishlistDialog>
-            <Button>
+            <Button type="button">
               <Plus className="h-4 w-4 mr-2" />
               Crear mi primera lista
             </Button>
@@ -94,9 +95,15 @@ export default async function WishlistsPage() {
                       </Link>
                     </Button>
                     {wishlist.share_token && (
-                      <Button variant="ghost" size="sm">
-                        <Share2 className="h-4 w-4" />
-                      </Button>
+                      <ShareButton
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        label={`Compartir lista ${wishlist.name}`}
+                        url={`/wishlist/${wishlist.share_token}`}
+                        title={wishlist.name}
+                        text={`Mira esta lista de deseos en Mesanova: ${wishlist.name}`}
+                      />
                     )}
                   </div>
                 </CardContent>

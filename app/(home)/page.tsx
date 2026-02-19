@@ -114,7 +114,7 @@ export default async function HomePage() {
                 <div className="flex flex-wrap gap-4 pt-2">
                   <Button asChild size="lg" className="text-base">
                     <Link href="/productos">
-                      Comprar ahora
+                      Ver productos
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -142,7 +142,7 @@ export default async function HomePage() {
               <div className="flex flex-wrap gap-4">
                 <Button asChild size="lg" className="text-base">
                   <Link href="/productos">
-                    Comprar ahora
+                    Ver productos
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
@@ -168,7 +168,7 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Mesa */}
-            <Link href="/productos/mesa" className="group">
+            <Link href="/productos/mesa" className="group" aria-label="Mesa">
               <Card className="h-full overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="aspect-[4/3] bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
                   <UtensilsCrossed className="h-20 w-20 text-amber-600/60 group-hover:scale-110 transition-transform duration-300" />
@@ -186,7 +186,7 @@ export default async function HomePage() {
             </Link>
 
             {/* Cocina */}
-            <Link href="/productos/cocina" className="group">
+            <Link href="/productos/cocina" className="group" aria-label="Cocina">
               <Card className="h-full overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="aspect-[4/3] bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center">
                   <ChefHat className="h-20 w-20 text-emerald-600/60 group-hover:scale-110 transition-transform duration-300" />
@@ -204,7 +204,7 @@ export default async function HomePage() {
             </Link>
 
             {/* Bar · Té · Café */}
-            <Link href="/productos/cafe-te-bar" className="group">
+            <Link href="/productos/cafe-te-bar" className="group" aria-label="Café, Té y Bar">
               <Card className="h-full overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="aspect-[4/3] bg-gradient-to-br from-violet-50 to-purple-50 flex items-center justify-center">
                   <Wine className="h-20 w-20 text-violet-600/60 group-hover:scale-110 transition-transform duration-300" />
@@ -246,7 +246,7 @@ export default async function HomePage() {
             <div className="text-center mt-10">
               <Button asChild variant="outline" size="lg">
                 <Link href="/productos">
-                  Ver todos los productos
+                  Ver productos
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -309,7 +309,7 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {collectionCards.map((col) => (
-              <Link
+              <Link aria-label="Ver productos"
                 key={col.slug}
                 href={`/productos?coleccion=${col.slug}`}
                 className="group"
@@ -358,7 +358,7 @@ export default async function HomePage() {
               </div>
               <Button asChild variant="ghost" className="hidden md:flex">
                 <Link href="/blog">
-                  Ver todo
+                  Ver blog
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -366,7 +366,7 @@ export default async function HomePage() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {blogPosts.slice(0, 3).map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className="group">
+                <Link key={post.id} href={`/blog/${post.slug}`} className="group" aria-label="Leer artículo">
                   <Card className="h-full overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300">
                     {post.featured_image_url ? (
                       <div className="aspect-[16/10] relative overflow-hidden">
@@ -402,7 +402,7 @@ export default async function HomePage() {
             <div className="text-center mt-8 md:hidden">
               <Button asChild variant="outline">
                 <Link href="/blog">
-                  Ver todos los artículos
+                  Ver blog
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -447,7 +447,7 @@ export default async function HomePage() {
           </h2>
           <Button asChild size="lg" variant="secondary" className="text-base">
             <Link href="/productos">
-              Comprar en Mesanova
+              Ver productos
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>

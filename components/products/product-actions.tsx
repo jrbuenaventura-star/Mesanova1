@@ -117,7 +117,7 @@ export function ProductActions({
               className="h-10 w-10"
               onClick={() => handleQuantityChange(-1)}
               disabled={quantity <= 1}
-            >
+             aria-label="Quitar">
               <Minus className="h-4 w-4" />
             </Button>
             <Input
@@ -134,7 +134,7 @@ export function ProductActions({
               className="h-10 w-10"
               onClick={() => handleQuantityChange(1)}
               disabled={quantity >= product.upp_existencia}
-            >
+             aria-label="Agregar">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -147,7 +147,7 @@ export function ProductActions({
       {/* Main Actions */}
       <div className="flex flex-col sm:flex-row gap-3">
         {hasStock ? (
-          <Button size="lg" className="flex-1" onClick={handleAddToCart}>
+          <Button size="lg" className="flex-1" onClick={handleAddToCart} aria-label="Agregar al carrito">
             <ShoppingCart className="h-5 w-5 mr-2" />
             Agregar al carrito
           </Button>
@@ -157,7 +157,7 @@ export function ProductActions({
             variant={stockAlertActive ? "secondary" : "outline"}
             className="flex-1"
             onClick={handleStockAlert}
-          >
+           aria-label="Notificaciones">
             {stockAlertActive ? (
               <>
                 <BellOff className="h-5 w-5 mr-2" />

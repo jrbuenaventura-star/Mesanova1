@@ -50,7 +50,7 @@ export function FavoriteButton({ productId, initialIsFavorite = false, variant =
         onClick={handleClick}
         disabled={isPending}
         className={className}
-      >
+       aria-label="Favorito">
         <Heart className={cn("h-4 w-4 mr-2", isFavorite && "fill-current")} />
         {isFavorite ? "En favoritos" : "Agregar a favoritos"}
       </Button>
@@ -68,7 +68,7 @@ export function FavoriteButton({ productId, initialIsFavorite = false, variant =
         isFavorite && "text-red-500 hover:text-red-600",
         className
       )}
-    >
+     aria-label="Favorito">
       <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
       <span className="sr-only">{isFavorite ? "Eliminar de favoritos" : "Agregar a favoritos"}</span>
     </Button>

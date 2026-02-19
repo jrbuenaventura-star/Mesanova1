@@ -53,7 +53,7 @@ export default async function EditAliadoPage({ params }: { params: Promise<{ id:
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Abrir enlace">
           <Link href="/admin/aliados">
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -116,7 +116,7 @@ export default async function EditAliadoPage({ params }: { params: Promise<{ id:
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href={`/admin/aliados/${aliado.id}/distributors`}>
+                <Link href={`/admin/aliados/${aliado.id}/distributors`} aria-label="Ver clientes">
                   <Users className="mr-2 h-4 w-4" />
                   Ver clientes ({distributorCount})
                 </Link>

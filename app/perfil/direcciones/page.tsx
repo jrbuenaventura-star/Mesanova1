@@ -3,8 +3,9 @@ import { createClient } from "@/lib/supabase/server"
 import { getUserAddresses } from "@/lib/db/user-features"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Plus, Star, Pencil, Trash2 } from "lucide-react"
+import { MapPin, Plus, Star, Trash2 } from "lucide-react"
 import { AddAddressDialog } from "@/components/profile/add-address-dialog"
+import { deleteAddressAction, setDefaultAddressAction } from "@/lib/actions/addresses"
 
 export default async function DireccionesPage() {
   const supabase = await createClient()
@@ -15,6 +16,20 @@ export default async function DireccionesPage() {
   }
 
   const addresses = await getUserAddresses(user.id)
+
+  async function setDefaultAddressFormAction(formData: FormData) {
+    "use server"
+    const addressId = String(formData.get("address_id") || "")
+    if (!addressId) return
+    await setDefaultAddressAction(addressId)
+  }
+
+  async function deleteAddressFormAction(formData: FormData) {
+    "use server"
+    const addressId = String(formData.get("address_id") || "")
+    if (!addressId) return
+    await deleteAddressAction(addressId)
+  }
 
   return (
     <div className="space-y-6">
@@ -29,7 +44,7 @@ export default async function DireccionesPage() {
           </p>
         </div>
         <AddAddressDialog>
-          <Button>
+          <Button type="button">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Dirección
           </Button>
@@ -44,7 +59,7 @@ export default async function DireccionesPage() {
             Agrega una dirección para agilizar tus compras
           </p>
           <AddAddressDialog>
-            <Button>
+            <Button type="button">
               <Plus className="h-4 w-4 mr-2" />
               Agregar Dirección
             </Button>
@@ -66,12 +81,33 @@ export default async function DireccionesPage() {
                     )}
                   </CardTitle>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <form action={setDefaultAddressFormAction}>
+                      <input type="hidden" name="address_id" value={address.id} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        type="submit"
+                        disabled={address.is_default}
+                        aria-label={`Marcar ${address.label} como predeterminada`}
+                        title="Marcar como predeterminada"
+                      >
+                        <Star className="h-4 w-4" />
+                      </Button>
+                    </form>
+                    <form action={deleteAddressFormAction}>
+                      <input type="hidden" name="address_id" value={address.id} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        type="submit"
+                        aria-label={`Eliminar dirección ${address.label}`}
+                        title="Eliminar dirección"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </form>
                   </div>
                 </div>
               </CardHeader>

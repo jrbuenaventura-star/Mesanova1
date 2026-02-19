@@ -104,7 +104,7 @@ export function WhatsAppWidget({
             <button
               onClick={handleCloseChat}
               className="text-white hover:bg-white/20 rounded-full p-1 transition-colors"
-            >
+             aria-label="Cerrar">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -175,7 +175,7 @@ export function WhatsAppWidget({
                   >
                     Omitir
                   </Button>
-                  <Button
+                  <Button aria-label="Iniciar chat"
                     onClick={handleStartChat}
                     size="sm"
                     className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-xs"
@@ -212,7 +212,7 @@ export function WhatsAppWidget({
                   className="w-full bg-[#25D366] hover:bg-[#20BD5A]"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Enviar por WhatsApp
+                  Iniciar chat
                 </Button>
               </div>
             )}

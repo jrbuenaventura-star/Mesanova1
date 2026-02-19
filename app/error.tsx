@@ -43,7 +43,7 @@ export default function Error({
             <Button variant="outline" asChild>
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
-                Ir al Inicio
+                Inicio
               </Link>
             </Button>
           </div>

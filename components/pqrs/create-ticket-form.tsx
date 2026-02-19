@@ -185,7 +185,7 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeFile(index)}
-                    >
+                     aria-label="Cerrar">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -194,7 +194,7 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
             )}
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading} className="w-full" aria-label="Enviar">
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

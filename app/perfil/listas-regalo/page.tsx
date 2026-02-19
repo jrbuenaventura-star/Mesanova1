@@ -4,8 +4,9 @@ import { getUserGiftRegistries } from "@/lib/db/user-features"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, Plus, Calendar, Share2, Eye, Settings } from "lucide-react"
+import { Gift, Plus, Calendar, Eye, Settings } from "lucide-react"
 import Link from "next/link"
+import { ShareButton } from "@/components/ui/share-button"
 
 const eventTypeLabels: Record<string, string> = {
   wedding: "Boda",
@@ -55,7 +56,7 @@ export default async function ListasRegaloPage() {
         <Button asChild>
           <Link href="/perfil/listas-regalo/nueva">
             <Plus className="h-4 w-4 mr-2" />
-            Nueva Lista
+            Nueva lista
           </Link>
         </Button>
       </div>
@@ -70,7 +71,7 @@ export default async function ListasRegaloPage() {
           <Button asChild>
             <Link href="/perfil/listas-regalo/nueva">
               <Plus className="h-4 w-4 mr-2" />
-              Crear mi primera lista
+              Nueva lista
             </Link>
           </Button>
         </Card>
@@ -113,14 +114,20 @@ export default async function ListasRegaloPage() {
                       </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/lista/${registry.share_token}`} target="_blank">
+                      <Link href={`/lista/${registry.share_token}`} target="_blank" rel="noopener noreferrer">
                         <Eye className="h-4 w-4 mr-1" />
-                        Ver
+                        Ver lista
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      <Share2 className="h-4 w-4" />
-                    </Button>
+                    <ShareButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      label="Compartir lista"
+                      url={`/lista/${registry.share_token}`}
+                      title={registry.name}
+                      text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+                    />
                   </div>
                 </CardContent>
               </Card>

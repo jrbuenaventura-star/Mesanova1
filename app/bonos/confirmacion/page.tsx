@@ -69,7 +69,7 @@ function ConfirmacionContent() {
       <div className="container mx-auto py-16 text-center">
         <p className="text-muted-foreground">No se encontró información del bono</p>
         <Button asChild className="mt-4">
-          <Link href="/bonos/comprar">Comprar un Bono</Link>
+          <Link href="/bonos/comprar">Comprar bono</Link>
         </Button>
       </div>
     )
@@ -105,7 +105,7 @@ function ConfirmacionContent() {
                 size="sm"
                 onClick={copyCode}
                 className="ml-2"
-              >
+               aria-label="Confirmar">
                 {copied ? (
                   <Check className="h-4 w-4 text-green-600" />
                 ) : (
@@ -221,12 +221,12 @@ function ConfirmacionContent() {
         <Button asChild className="flex-1" size="lg">
           <Link href="/productos">
             <Gift className="mr-2 h-4 w-4" />
-            Comenzar a Comprar
+            Ver productos
           </Link>
         </Button>
         <Button asChild variant="outline" className="flex-1" size="lg">
           <Link href="/bonos/comprar">
-            Comprar Otro Bono
+            Comprar bono
           </Link>
         </Button>
       </div>

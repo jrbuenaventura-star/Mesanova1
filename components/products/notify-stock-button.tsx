@@ -96,7 +96,7 @@ export function NotifyStockButton({ productId, productName, userEmail }: NotifyS
             required
             disabled={isSubmitting}
           />
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} aria-label="Enviar">
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

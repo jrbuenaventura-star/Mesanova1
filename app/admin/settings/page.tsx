@@ -57,7 +57,9 @@ export default async function SettingsPage() {
               <Label htmlFor="company-phone">Teléfono</Label>
               <Input id="company-phone" type="tel" placeholder="+57 300 000 0000" />
             </div>
-            <Button>Guardar Cambios</Button>
+            <Button disabled title="Edición directa pendiente de implementación">
+              Guardar Cambios (próximamente)
+            </Button>
           </CardContent>
         </Card>
 
@@ -143,7 +145,9 @@ export default async function SettingsPage() {
                 type="password"
               />
             </div>
-            <Button>Guardar Configuración</Button>
+            <Button disabled title="Edición directa pendiente de implementación">
+              Guardar Configuración (próximamente)
+            </Button>
           </CardContent>
         </Card>
 

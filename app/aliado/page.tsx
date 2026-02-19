@@ -106,7 +106,7 @@ export default async function AliadoDashboardPage() {
           <Button variant="outline" asChild>
             <Link href="/aliado/leads/nuevo">
               <UserPlus className="mr-2 h-4 w-4" />
-              Nuevo Lead
+              Nuevo lead
             </Link>
           </Button>
           <Button asChild>
@@ -124,7 +124,7 @@ export default async function AliadoDashboardPage() {
           <Calendar className="h-4 w-4" />
           <AlertDescription>
             Tienes <strong>{pendingFollowUps.length}</strong> leads con seguimiento pendiente.{" "}
-            <Link href="/aliado/leads" className="underline">Ver leads</Link>
+            <Link href="/aliado/leads" className="underline">Ver CRM</Link>
           </AlertDescription>
         </Alert>
       )}
@@ -187,7 +187,7 @@ export default async function AliadoDashboardPage() {
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/aliado/distributors">
-                Ver todos
+                Ver clientes
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -234,7 +234,7 @@ export default async function AliadoDashboardPage() {
               <CardDescription>Prospectos en tu embudo</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/aliado/leads">
+              <Link href="/aliado/leads" aria-label="Ver CRM">
                 Ver CRM
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -246,7 +246,7 @@ export default async function AliadoDashboardPage() {
                 <UserPlus className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No tienes leads registrados</p>
                 <Button variant="link" asChild className="mt-2">
-                  <Link href="/aliado/leads/nuevo">Crear primer lead</Link>
+                  <Link href="/aliado/leads/nuevo">Nuevo lead</Link>
                 </Button>
               </div>
             ) : (

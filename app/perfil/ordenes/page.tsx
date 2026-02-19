@@ -76,7 +76,7 @@ export default async function OrdenesPage() {
                 Cuando realices un pedido, podrás ver su seguimiento aquí
               </p>
               <Button asChild>
-                <Link href="/productos">Explorar productos</Link>
+                <Link href="/productos">Ver productos</Link>
               </Button>
             </Card>
           ) : (
@@ -140,7 +140,7 @@ export default async function OrdenesPage() {
                             <div className="flex items-center gap-2">
                               <p className="font-mono text-sm">{order.tracking_number}</p>
                               {trackingUrl && (
-                                <Button variant="ghost" size="sm" asChild>
+                                <Button variant="ghost" size="sm" asChild aria-label="Abrir enlace">
                                   <a href={trackingUrl} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="h-4 w-4" />
                                   </a>
@@ -169,7 +169,7 @@ export default async function OrdenesPage() {
 
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" asChild>
-                          <Link href={`/perfil/ordenes/${order.id}`}>Ver detalles</Link>
+                          <Link href={`/perfil/ordenes/${order.id}`}>Ver detalle</Link>
                         </Button>
                       </div>
                     </CardContent>
@@ -189,7 +189,7 @@ export default async function OrdenesPage() {
                 Cuando realices una compra, aparecerá aquí
               </p>
               <Button asChild>
-                <Link href="/productos">Explorar productos</Link>
+                <Link href="/productos">Ver productos</Link>
               </Button>
             </Card>
           ) : (
@@ -222,12 +222,14 @@ export default async function OrdenesPage() {
                         <p className="font-bold">${Number(order.total).toLocaleString("es-CO")}</p>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/perfil/ordenes/${order.id}`}>Ver</Link>
+                            <Link href={`/perfil/ordenes/${order.id}`}>Ver detalle</Link>
                           </Button>
                           {order.status === "entregada" && (
-                            <Button variant="ghost" size="sm">
-                              <RotateCcw className="h-4 w-4 mr-1" />
-                              Repetir
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/productos?reorden=${order.id}`}>
+                                <RotateCcw className="h-4 w-4 mr-1" />
+                                Ver productos
+                              </Link>
                             </Button>
                           )}
                         </div>

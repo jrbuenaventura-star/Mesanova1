@@ -88,7 +88,7 @@ export function CouponInput({
           size="sm"
           onClick={handleRemoveCoupon}
           className="text-green-700 hover:text-green-900"
-        >
+         aria-label="Cerrar">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -112,7 +112,7 @@ export function CouponInput({
           variant="outline"
           onClick={handleApplyCoupon}
           disabled={isValidating || !couponCode.trim()}
-        >
+         aria-label="Acción">
           {isValidating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

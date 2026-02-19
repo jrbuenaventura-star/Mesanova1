@@ -30,12 +30,12 @@ export default async function DistributorTicketDetailPage({
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/distributor/pqrs">
-          <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/distributor/pqrs">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver a mis tickets
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <TicketDetail ticketId={params.id} />

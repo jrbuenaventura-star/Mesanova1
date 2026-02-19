@@ -296,7 +296,7 @@ export default function ComprarBonoPage() {
                   size="lg"
                   className="w-full"
                   disabled={isProcessing || finalAmount < 10000}
-                >
+                 aria-label="Confirmar">
                   {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

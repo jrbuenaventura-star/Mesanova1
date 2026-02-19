@@ -62,7 +62,7 @@ export function SiteNav() {
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link href="/" className={navigationMenuTriggerStyle()}>Home</Link>
+              <Link href="/" className={navigationMenuTriggerStyle()}>Inicio</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
 
@@ -96,7 +96,7 @@ export function SiteNav() {
                   return (
                     <li key={silo.slug}>
                       <NavigationMenuLink asChild>
-                        <Link
+                        <Link aria-label="Ver categoría"
                           href={`/productos/${silo.slug}`}
                           className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         >
@@ -126,7 +126,7 @@ export function SiteNav() {
               <ul className="grid w-[300px] gap-3 p-4">
                 <li>
                   <NavigationMenuLink asChild>
-                    <Link
+                    <Link aria-label="Sobre Mesanova"
                       href="/nosotros/sobre-mesanova"
                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                     >
@@ -139,7 +139,7 @@ export function SiteNav() {
                 </li>
                 <li>
                   <NavigationMenuLink asChild>
-                    <Link
+                    <Link aria-label="¿Por qué elegirnos?"
                       href="/nosotros/por-que-elegirnos"
                       className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                     >
@@ -156,7 +156,7 @@ export function SiteNav() {
 
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link href="/blog" className={navigationMenuTriggerStyle()}>A mesa puesta</Link>
+              <Link href="/blog" className={navigationMenuTriggerStyle()}>Ver blog</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
 
@@ -207,18 +207,18 @@ export function SiteNav() {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Abrir menú">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col space-y-6">
                 <SheetClose asChild>
-                  <Link href="/" className="text-lg font-semibold">Home</Link>
+                  <Link href="/" className="text-lg font-semibold">Inicio</Link>
                 </SheetClose>
 
                 <SheetClose asChild>
-                  <Link href="/productos" className="text-lg font-semibold">Productos</Link>
+                  <Link href="/productos" className="text-lg font-semibold">Ver productos</Link>
                 </SheetClose>
 
               <div>
@@ -226,7 +226,7 @@ export function SiteNav() {
                 <div className="pl-4 space-y-2">
                   {silos.map((silo) => (
                     <SheetClose asChild key={silo.slug}>
-                      <Link href={`/productos/${silo.slug}`} className="block text-sm hover:text-primary transition-colors">
+                      <Link href={`/productos/${silo.slug}`} className="block text-sm hover:text-primary transition-colors" aria-label="Ver categoría">
                         {silo.name}
                       </Link>
                     </SheetClose>
@@ -244,12 +244,12 @@ export function SiteNav() {
                 <p className="text-sm font-semibold text-muted-foreground">Nosotros</p>
                 <div className="pl-4 space-y-2">
                   <SheetClose asChild>
-                    <Link href="/nosotros/sobre-mesanova" className="block text-sm hover:text-primary transition-colors">
+                    <Link href="/nosotros/sobre-mesanova" className="block text-sm hover:text-primary transition-colors" aria-label="Sobre Mesanova">
                       Sobre Mesanova
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link href="/nosotros/por-que-elegirnos" className="block text-sm hover:text-primary transition-colors">
+                    <Link href="/nosotros/por-que-elegirnos" className="block text-sm hover:text-primary transition-colors" aria-label="¿Por qué elegirnos?">
                       ¿Por qué elegirnos?
                     </Link>
                   </SheetClose>
@@ -258,7 +258,7 @@ export function SiteNav() {
 
               <SheetClose asChild>
                 <Link href="/blog" className="text-lg font-semibold hover:text-primary transition-colors">
-                  A mesa puesta
+                  Ver blog
                 </Link>
               </SheetClose>
 

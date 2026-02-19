@@ -409,7 +409,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
                           variant="ghost"
                           size="icon"
                           onClick={() => removeItem(item.product_id)}
-                        >
+                         aria-label="Eliminar">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
@@ -446,6 +446,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
             onClick={handleSubmit}
             disabled={isLoading || !selectedDistributorId || orderItems.length === 0}
             className="flex-1"
+            aria-label="Agregar al carrito"
           >
             {isLoading ? (
               <>

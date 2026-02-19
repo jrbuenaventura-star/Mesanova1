@@ -187,12 +187,12 @@ export function ClientDetailView({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/distributors">
-          <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/admin/distributors">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">{distributor.company_name}</h1>

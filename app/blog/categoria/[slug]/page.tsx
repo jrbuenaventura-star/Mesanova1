@@ -40,7 +40,7 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ s
           <Button variant="ghost" asChild className="mb-4">
             <Link href="/blog">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al blog
+              Ver blog
             </Link>
           </Button>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{currentCategory.name}</h1>
@@ -53,7 +53,7 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ s
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
-            <Link key={post.id} href={`/blog/${post.slug}`}>
+            <Link key={post.id} href={`/blog/${post.slug}`} aria-label="Leer artículo">
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                 {post.featured_image_url && (
                   <div className="aspect-video w-full overflow-hidden rounded-t-lg">

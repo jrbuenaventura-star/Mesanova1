@@ -108,7 +108,7 @@ export default async function AliadosManagementPage() {
           <Button asChild>
             <Link href="/admin/aliados/nuevo">
               <UserPlus className="mr-2 h-4 w-4" />
-              Nuevo Aliado
+              Nuevo aliado
             </Link>
           </Button>
         </div>
@@ -178,7 +178,7 @@ export default async function AliadosManagementPage() {
               <Button asChild className="mt-4">
                 <Link href="/admin/aliados/nuevo">
                   <UserPlus className="mr-2 h-4 w-4" />
-                  Crear Aliado
+                  Nuevo aliado
                 </Link>
               </Button>
             </div>
@@ -226,7 +226,7 @@ export default async function AliadosManagementPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" aria-label="Más opciones">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -238,7 +238,7 @@ export default async function AliadosManagementPage() {
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href={`/admin/aliados/${aliado.id}/distributors`}>
+                            <Link href={`/admin/aliados/${aliado.id}/distributors`} aria-label="Ver clientes">
                               <Users className="mr-2 h-4 w-4" />
                               Ver clientes
                             </Link>

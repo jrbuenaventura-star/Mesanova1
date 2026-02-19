@@ -377,7 +377,7 @@ export default function BannerHomePage() {
                       variant="ghost"
                       onClick={() => moveSlide(slide.id, 'up')}
                       disabled={index === 0}
-                    >
+                     aria-label="Acción">
                       <ArrowUp className="h-4 w-4" />
                     </Button>
                     <Button
@@ -385,7 +385,7 @@ export default function BannerHomePage() {
                       variant="ghost"
                       onClick={() => moveSlide(slide.id, 'down')}
                       disabled={index === slides.length - 1}
-                    >
+                     aria-label="Acción">
                       <ArrowDown className="h-4 w-4" />
                     </Button>
                   </div>
@@ -446,7 +446,7 @@ export default function BannerHomePage() {
                       size="sm"
                       variant="destructive"
                       onClick={() => deleteSlide(slide.id)}
-                    >
+                     aria-label="Eliminar">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

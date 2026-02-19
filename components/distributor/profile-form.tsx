@@ -221,7 +221,7 @@ export function DistributorProfileForm({ distributor, userProfile }: Distributor
         </div>
       </div>
 
-      <Button type="submit" disabled={isLoading} className="w-full">
+      <Button type="submit" disabled={isLoading} className="w-full" aria-label="Enviar">
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {distributor ? 'Guardar Cambios' : 'Crear Perfil'}
       </Button>

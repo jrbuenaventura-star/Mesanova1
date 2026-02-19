@@ -77,7 +77,7 @@ export default async function LeadsPage() {
         <Button asChild>
           <Link href="/aliado/leads/nuevo">
             <UserPlus className="mr-2 h-4 w-4" />
-            Nuevo Lead
+            Nuevo lead
           </Link>
         </Button>
       </div>
@@ -177,7 +177,7 @@ export default async function LeadsPage() {
               <UserPlus className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No tienes leads registrados</p>
               <Button variant="link" asChild className="mt-2">
-                <Link href="/aliado/leads/nuevo">Crear primer lead</Link>
+                <Link href="/aliado/leads/nuevo">Nuevo lead</Link>
               </Button>
             </CardContent>
           </Card>

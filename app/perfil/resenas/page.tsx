@@ -72,7 +72,7 @@ export default async function MisResenasPage() {
             Comparte tu opinión sobre los productos que has comprado
           </p>
           <Button asChild>
-            <Link href="/perfil/ordenes">Ver mis compras</Link>
+            <Link href="/perfil/ordenes">Ver órdenes</Link>
           </Button>
         </Card>
       ) : (
@@ -152,9 +152,15 @@ export default async function MisResenasPage() {
                           <ThumbsDown className="h-3 w-3" />
                           {review.not_helpful_count}
                         </span>
-                        <Button variant="ghost" size="sm" className="h-auto p-0 text-primary">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-primary"
+                          disabled
+                          title="Edición de reseñas disponible próximamente"
+                        >
                           <Pencil className="h-3 w-3 mr-1" />
-                          Editar
+                          Editar (próximamente)
                         </Button>
                       </div>
                     </div>

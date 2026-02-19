@@ -114,7 +114,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/blog">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to blog
+            Ver blog
           </Link>
         </Button>
 
@@ -198,7 +198,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <h2 className="text-2xl font-bold mb-6">Related articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPosts.map((relatedPost) => (
-                <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
+                <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`} aria-label="Leer artículo">
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                     {relatedPost.featured_image_url && (
                       <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">

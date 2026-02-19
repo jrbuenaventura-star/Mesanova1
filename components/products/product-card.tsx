@@ -125,7 +125,7 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full" size="sm" disabled={!hasStock}>
+        <Button className="w-full" size="sm" disabled={!hasStock} aria-label="Agregar al carrito">
           <ShoppingCart className="h-4 w-4 mr-2" />
           {hasStock ? "Agregar" : "Agotado"}
         </Button>

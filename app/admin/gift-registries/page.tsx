@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Gift, Search, Calendar, Users, Eye, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { revalidatePath } from "next/cache"
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   active: { label: "Activa", color: "bg-green-500" },
@@ -27,6 +28,35 @@ export default async function AdminGiftRegistriesPage({
   searchParams: { q?: string; status?: string }
 }) {
   const supabase = await createClient()
+
+  async function cancelRegistryAction(formData: FormData) {
+    "use server"
+
+    const registryId = String(formData.get("registry_id") || "")
+    if (!registryId) return
+
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) return
+
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    if (profile?.role !== "superadmin") return
+
+    await supabase
+      .from("gift_registries")
+      .update({ status: "cancelled" })
+      .eq("id", registryId)
+
+    revalidatePath("/admin/gift-registries")
+  }
 
   let query = supabase
     .from("gift_registries")
@@ -183,14 +213,24 @@ export default async function AdminGiftRegistriesPage({
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/lista/${registry.share_token}`} target="_blank">
+                        <Link href={`/lista/${registry.share_token}`} target="_blank" rel="noopener noreferrer">
                           <Eye className="h-4 w-4 mr-1" />
-                          Ver
+                          Ver lista
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <form action={cancelRegistryAction}>
+                        <input type="hidden" name="registry_id" value={registry.id} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive"
+                          type="submit"
+                          aria-label={`Cancelar lista ${registry.name}`}
+                          title="Cancelar lista"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </form>
                     </div>
                   </div>
                 )

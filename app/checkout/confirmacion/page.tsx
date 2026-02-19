@@ -73,7 +73,7 @@ function ConfirmacionContent() {
           </CardHeader>
           <CardContent>
             <Button asChild>
-              <Link href="/">Volver al inicio</Link>
+              <Link href="/">Inicio</Link>
             </Button>
           </CardContent>
         </Card>
@@ -197,10 +197,10 @@ function ConfirmacionContent() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild className="flex-1">
-                <Link href="/productos">Seguir Comprando</Link>
+                <Link href="/productos">Ver productos</Link>
               </Button>
               <Button asChild variant="outline" className="flex-1">
-                <Link href="/">Volver al Inicio</Link>
+                <Link href="/">Inicio</Link>
               </Button>
             </div>
           </CardContent>

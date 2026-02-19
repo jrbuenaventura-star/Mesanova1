@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -329,7 +330,9 @@ export function DistributorDashboard({ distributorId }: DistributorDashboardProp
                 </TableBody>
               </Table>
               <div className="mt-4 text-center">
-                <Button variant="outline">Ver todos los pedidos</Button>
+                <Button variant="outline" asChild>
+                  <Link href="/distributor/orders">Ver pedidos</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -365,7 +368,9 @@ export function DistributorDashboard({ distributorId }: DistributorDashboardProp
                 </TableBody>
               </Table>
               <div className="mt-4 text-center">
-                <Button variant="outline">Reordenar productos frecuentes</Button>
+                <Button variant="outline" asChild>
+                  <Link href="/distributor/orders/nueva">Nueva orden</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
