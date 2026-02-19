@@ -1,6 +1,6 @@
 {
   "installCommand": "corepack enable && corepack prepare pnpm@10.16.0 --activate && pnpm install --frozen-lockfile",
-  "buildCommand": "corepack enable && corepack prepare pnpm@10.16.0 --activate && pnpm run build",
+  "buildCommand": "corepack enable && corepack prepare pnpm@10.16.0 --activate && NODE_OPTIONS='--max-old-space-size=8192' pnpm run build",
   "functions": {
     "app/api/products/csv/validate/route.ts": {
       "maxDuration": 300
