@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -36,6 +37,20 @@ export default async function SettingsPage() {
       </div>
 
       <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Gestión de Usuarios</CardTitle>
+            <CardDescription>
+              Accede al módulo de usuarios desde configuración
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline">
+              <Link href="/admin/settings/users">Ir a Usuarios</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Información General */}
         <Card>
           <CardHeader>

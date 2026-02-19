@@ -10,7 +10,6 @@ import {
   FileText,
   Settings,
   BarChart3,
-  Building2,
   Truck,
   Gift,
   MessageSquare,
@@ -21,7 +20,6 @@ import {
   Image,
 } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -46,18 +44,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const navLinks = (
     <>
       <NavLink href="/admin" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
-      <NavLink href="/admin/users" icon={<Users className="h-4 w-4" />} label="Usuarios" />
+
+      <NavSectionTitle title="Home" />
+      <NavLink href="/admin/banner-home" icon={<Image className="h-4 w-4" />} label="Banner Home" />
+      <NavLink href="/admin/productos-destacados" icon={<Sparkles className="h-4 w-4" />} label="Productos Destacados" />
+
+      <NavSectionTitle title="Productos y Pedidos" />
       <NavLink href="/admin/products" icon={<Package className="h-4 w-4" />} label="Productos" />
       <NavLink href="/admin/productos/csv" icon={<FileSpreadsheet className="h-4 w-4" />} label="Productos CSV" />
       <NavLink href="/admin/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Órdenes" />
       {userRole === "superadmin" && (
         <NavLink href="/admin/orders/approval" icon={<ShoppingCart className="h-4 w-4" />} label="Aprobar Órdenes" />
       )}
+
+      <NavSectionTitle title="Red Comercial" />
       <NavLink href="/admin/distributors" icon={<Truck className="h-4 w-4" />} label="Clientes" />
       <NavLink href="/admin/distributors/csv" icon={<FileSpreadsheet className="h-4 w-4" />} label="Clientes CSV" />
       {userRole === "superadmin" && (
         <NavLink href="/admin/aliados" icon={<Users className="h-4 w-4" />} label="Aliados" />
       )}
+
+      <NavSectionTitle title="Operación" />
       <NavLink href="/admin/gift-registries" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
       <NavLink href="/admin/blog" icon={<FileText className="h-4 w-4" />} label="Blog" />
       <NavLink href="/admin/analytics" icon={<BarChart3 className="h-4 w-4" />} label="Analíticas" />
@@ -65,10 +72,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <NavLink href="/admin/cupones" icon={<Tag className="h-4 w-4" />} label="Cupones" />
       <NavLink href="/admin/bonos" icon={<CreditCard className="h-4 w-4" />} label="Bonos de Regalo" />
       <NavLink href="/admin/reviews" icon={<Star className="h-4 w-4" />} label="Reviews" />
-      <NavLink href="/admin/productos-destacados" icon={<Sparkles className="h-4 w-4" />} label="Productos Destacados" />
-      <NavLink href="/admin/banner-home" icon={<Image className="h-4 w-4" />} label="Banner del Home" />
-      <div className="my-2 border-t" />
+
+      <NavSectionTitle title="Configuración" />
       <NavLink href="/admin/settings" icon={<Settings className="h-4 w-4" />} label="Configuración" />
+      <NavSubLink href="/admin/settings/users" icon={<Users className="h-4 w-4" />} label="Usuarios" />
     </>
   )
 
@@ -105,4 +112,20 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
       {label}
     </Link>
   )
+}
+
+function NavSubLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="ml-4 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+    >
+      {icon}
+      {label}
+    </Link>
+  )
+}
+
+function NavSectionTitle({ title }: { title: string }) {
+  return <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
 }

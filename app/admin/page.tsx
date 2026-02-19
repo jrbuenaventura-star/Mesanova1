@@ -8,16 +8,18 @@ import {
   Users, 
   Package, 
   ShoppingCart, 
-  TrendingUp, 
   AlertTriangle,
-  FileText,
   UserPlus,
   Building2,
   ArrowRight,
   Clock,
   DollarSign,
   BarChart3,
-  MessageSquare
+  MessageSquare,
+  Image,
+  Sparkles,
+  FileSpreadsheet,
+  Settings,
 } from "lucide-react"
 
 const statusLabels: Record<string, string> = {
@@ -94,14 +96,48 @@ export default async function AdminDashboard() {
     ordersByStatus[o.status] = (ordersByStatus[o.status] || 0) + 1
   })
 
-  // Quick links para admin
-  const quickLinks = [
-    { href: "/admin/orders", label: "Órdenes", icon: ShoppingCart, count: pendingOrdersCount || 0, badge: "Por aprobar" },
-    { href: "/admin/pqrs", label: "PQRS", icon: MessageSquare, count: pqrsOpenCount, badge: "Abiertos" },
-    { href: "/admin/productos", label: "Productos", icon: Package, count: activeProductsCount || 0, badge: "Activos" },
-    { href: "/admin/distributors", label: "Distribuidores", icon: Building2, count: activeDistributorsCount || 0, badge: "Activos" },
-    { href: "/admin/crm", label: "CRM / Leads", icon: UserPlus, count: leadsCount, badge: "En pipeline" },
-    { href: "/admin/blog", label: "Blog", icon: FileText },
+  const panelGroups = [
+    {
+      title: "1) Home",
+      icon: Image,
+      links: [
+        { href: "/admin/banner-home", label: "/banner-home" },
+        { href: "/admin/productos-destacados", label: "/productos-destacados", icon: Sparkles },
+      ],
+    },
+    {
+      title: "2) Productos",
+      icon: Package,
+      links: [
+        { href: "/admin/products", label: "/products" },
+        { href: "/admin/productos/csv", label: "/productos/csv", icon: FileSpreadsheet },
+      ],
+    },
+    {
+      title: "3) Órdenes",
+      icon: ShoppingCart,
+      links: [
+        { href: "/admin/orders", label: "/orders" },
+        { href: "/admin/orders/approval", label: "/orders/approval" },
+      ],
+    },
+    {
+      title: "4) Red Comercial",
+      icon: Building2,
+      links: [
+        { href: "/admin/distributors", label: "/distributors" },
+        { href: "/admin/distributors/csv", label: "/distributors/csv", icon: FileSpreadsheet },
+        { href: "/admin/aliados", label: "/aliados", icon: Users },
+      ],
+    },
+    {
+      title: "5) Configuración",
+      icon: Settings,
+      links: [
+        { href: "/admin/settings", label: "/settings" },
+        { href: "/admin/settings/users", label: "/settings/users", icon: Users },
+      ],
+    },
   ]
 
   return (
@@ -299,26 +335,34 @@ export default async function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Accesos rápidos */}
+      {/* Módulos del panel */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Accesos Rápidos</h2>
-        <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-          {quickLinks.map((link) => {
-            const Icon = link.icon
+        <h2 className="text-lg font-semibold mb-4">Módulos Integrados del Superadmin</h2>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {panelGroups.map((group) => {
+            const GroupIcon = group.icon
             return (
-              <Link key={link.href} href={link.href}>
-                <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
-                  <CardContent className="pt-6 text-center">
-                    <Icon className="h-6 w-6 mx-auto mb-2 text-primary" />
-                    <p className="font-medium text-sm">{link.label}</p>
-                    {link.count !== undefined && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {link.count} {link.badge}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
+              <Card key={group.title}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <GroupIcon className="h-4 w-4 text-primary" />
+                    {group.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {group.links.map((link) => {
+                    const LinkIcon = link.icon || ArrowRight
+                    return (
+                      <Button key={link.href} variant="outline" className="w-full justify-start" asChild>
+                        <Link href={link.href}>
+                          <LinkIcon className="mr-2 h-4 w-4" />
+                          {link.label}
+                        </Link>
+                      </Button>
+                    )
+                  })}
+                </CardContent>
+              </Card>
             )
           })}
         </div>
