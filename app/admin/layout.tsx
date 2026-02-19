@@ -39,18 +39,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const navLinks = (
     <>
       <NavLink href="/admin" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
-
-      <NavSectionTitle title="Home" />
       <NavLink href="/admin/home" icon={<Home className="h-4 w-4" />} label="Home" />
-
-      <NavSectionTitle title="Productos y Pedidos" />
       <NavLink href="/admin/productos" icon={<Package className="h-4 w-4" />} label="Productos" />
       <NavLink href="/admin/ordenes" icon={<ShoppingCart className="h-4 w-4" />} label="Órdenes" />
-
-      <NavSectionTitle title="Red Comercial" />
       <NavLink href="/admin/red-comercial" icon={<Users className="h-4 w-4" />} label="Red Comercial" />
-
-      <NavSectionTitle title="Operación" />
       <NavLink href="/admin/gift-registries" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
       <NavLink href="/admin/blog" icon={<FileText className="h-4 w-4" />} label="Blog" />
       <NavLink href="/admin/analytics" icon={<BarChart3 className="h-4 w-4" />} label="Analíticas" />
@@ -58,8 +50,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <NavLink href="/admin/cupones" icon={<Tag className="h-4 w-4" />} label="Cupones" />
       <NavLink href="/admin/bonos" icon={<CreditCard className="h-4 w-4" />} label="Bonos de Regalo" />
       <NavLink href="/admin/reviews" icon={<Star className="h-4 w-4" />} label="Reviews" />
-
-      <NavSectionTitle title="Configuración" />
       <NavLink href="/admin/settings" icon={<Settings className="h-4 w-4" />} label="Configuración" />
     </>
   )
@@ -87,8 +77,4 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
       {label}
     </Link>
   )
-}
-
-function NavSectionTitle({ title }: { title: string }) {
-  return <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
 }
