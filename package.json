@@ -2,9 +2,9 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.16.0",
   "scripts": {
-    "build": "NODE_OPTIONS='--require ./scripts/suppress-baseline-warning.js' BROWSERSLIST_IGNORE_OLD_DATA=1 BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 next build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192 --require ./scripts/suppress-baseline-warning.js' BROWSERSLIST_IGNORE_OLD_DATA=1 BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 next build",
     "dev": "next dev",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

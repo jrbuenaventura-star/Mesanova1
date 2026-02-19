@@ -7,6 +7,7 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
     },
+    webpackMemoryOptimizations: true,
   },
 }
 
