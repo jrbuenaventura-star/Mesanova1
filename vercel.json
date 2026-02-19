@@ -3,12 +3,10 @@
   "buildCommand": "corepack enable && corepack prepare pnpm@10.16.0 --activate && pnpm run build",
   "functions": {
     "app/api/products/csv/validate/route.ts": {
-      "maxDuration": 300,
-      "memory": 2048
+      "maxDuration": 300
     },
     "app/api/products/csv/import/route.ts": {
-      "maxDuration": 300,
-      "memory": 2048
+      "maxDuration": 300
     }
   }
 }
