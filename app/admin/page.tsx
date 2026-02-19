@@ -101,33 +101,33 @@ export default async function AdminDashboard() {
       title: "1) Home",
       icon: Image,
       links: [
-        { href: "/admin/banner-home", label: "/banner-home" },
-        { href: "/admin/productos-destacados", label: "/productos-destacados", icon: Sparkles },
+        { href: "/admin/home?tab=banner-home", label: "/banner-home" },
+        { href: "/admin/home?tab=productos-destacados", label: "/productos-destacados", icon: Sparkles },
       ],
     },
     {
       title: "2) Productos",
       icon: Package,
       links: [
-        { href: "/admin/products", label: "/products" },
-        { href: "/admin/productos/csv", label: "/productos/csv", icon: FileSpreadsheet },
+        { href: "/admin/productos?tab=productos", label: "/products" },
+        { href: "/admin/productos?tab=productos-csv", label: "/productos/csv", icon: FileSpreadsheet },
       ],
     },
     {
       title: "3) Órdenes",
       icon: ShoppingCart,
       links: [
-        { href: "/admin/orders", label: "/orders" },
-        { href: "/admin/orders/approval", label: "/orders/approval" },
+        { href: "/admin/ordenes?tab=ordenes", label: "/orders" },
+        { href: "/admin/ordenes?tab=aprobar-ordenes", label: "/orders/approval" },
       ],
     },
     {
       title: "4) Red Comercial",
       icon: Building2,
       links: [
-        { href: "/admin/distributors", label: "/distributors" },
-        { href: "/admin/distributors/csv", label: "/distributors/csv", icon: FileSpreadsheet },
-        { href: "/admin/aliados", label: "/aliados", icon: Users },
+        { href: "/admin/red-comercial?tab=clientes", label: "/distributors" },
+        { href: "/admin/red-comercial?tab=clientes-csv", label: "/distributors/csv", icon: FileSpreadsheet },
+        { href: "/admin/red-comercial?tab=aliados", label: "/aliados", icon: Users },
       ],
     },
     {
@@ -135,7 +135,7 @@ export default async function AdminDashboard() {
       icon: Settings,
       links: [
         { href: "/admin/settings", label: "/settings" },
-        { href: "/admin/settings/users", label: "/settings/users", icon: Users },
+        { href: "/admin/settings?tab=usuarios", label: "/settings/users", icon: Users },
       ],
     },
   ]
@@ -160,7 +160,7 @@ export default async function AdminDashboard() {
             Tienes <strong>{pendingOrdersCount}</strong> órdenes pendientes de aprobación.
           </p>
           <Button size="sm" variant="outline" asChild className="ml-auto">
-            <Link href="/admin/orders?status=por_aprobar" aria-label="Ver órdenes">Ver órdenes</Link>
+            <Link href="/admin/ordenes?tab=ordenes&status=por_aprobar" aria-label="Ver órdenes">Ver órdenes</Link>
           </Button>
         </div>
       )}
@@ -297,7 +297,7 @@ export default async function AdminDashboard() {
               <CardDescription>Últimos pedidos realizados</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/admin/orders">
+              <Link href="/admin/ordenes?tab=ordenes">
                 Ver órdenes <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
