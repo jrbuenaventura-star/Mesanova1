@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/lib/supabase/client"
-import { Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, Image as ImageIcon } from "lucide-react"
+import { Plus, Trash2, ArrowUp, ArrowDown, Image as ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import {
@@ -48,10 +48,21 @@ export default function BannerHomePage() {
     background_color: "#000000",
     text_color: "#FFFFFF",
   })
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     loadSlides()
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if (selectedImagePreview) {
+        URL.revokeObjectURL(selectedImagePreview)
+      }
+    }
+  }, [selectedImagePreview])
 
   const loadSlides = async () => {
     const supabase = createClient()
@@ -63,49 +74,126 @@ export default function BannerHomePage() {
     setSlides(data || [])
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
+  const resetSelectedImage = () => {
+    if (selectedImagePreview) {
+      URL.revokeObjectURL(selectedImagePreview)
+    }
+    setSelectedImagePreview(null)
+    setSelectedImageFile(null)
+  }
 
-    if (editingSlide) {
-      // Actualizar slide existente
-      const { error } = await supabase
-        .from('home_banner_slides')
-        .update(formData)
-        .eq('id', editingSlide.id)
+  const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-      if (error) {
-        toast.error('Error al actualizar slide')
-        return
-      }
-      toast.success('Slide actualizado exitosamente')
-    } else {
-      // Crear nuevo slide
-      const maxOrder = slides.length > 0 
-        ? Math.max(...slides.map(s => s.order_index))
-        : 0
-
-      const { error } = await supabase
-        .from('home_banner_slides')
-        .insert({
-          ...formData,
-          order_index: maxOrder + 1,
-          is_active: true,
-        })
-
-      if (error) {
-        toast.error('Error al crear slide')
-        return
-      }
-      toast.success('Slide creado exitosamente')
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Formato inválido. Usa PNG, JPG, WEBP o AVIF')
+      event.target.value = ''
+      return
     }
 
-    setIsDialogOpen(false)
-    resetForm()
-    loadSlides()
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('La imagen no puede superar 10MB')
+      event.target.value = ''
+      return
+    }
+
+    if (selectedImagePreview) {
+      URL.revokeObjectURL(selectedImagePreview)
+    }
+
+    setSelectedImageFile(file)
+    setSelectedImagePreview(URL.createObjectURL(file))
+  }
+
+  const uploadBannerImage = async (file: File) => {
+    const uploadData = new FormData()
+    uploadData.append('file', file)
+
+    const response = await fetch('/api/admin/banner-home/upload', {
+      method: 'POST',
+      body: uploadData,
+    })
+
+    const payload = await response.json().catch(() => null)
+    if (!response.ok || !payload?.imageUrl) {
+      throw new Error(payload?.error || 'No se pudo subir la imagen')
+    }
+
+    return payload.imageUrl as string
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+
+    try {
+      const supabase = createClient()
+      let imageUrl = formData.image_url
+
+      if (selectedImageFile) {
+        imageUrl = await uploadBannerImage(selectedImageFile)
+      }
+
+      if (!imageUrl) {
+        toast.error('Debes seleccionar una imagen')
+        return
+      }
+
+      const payload = {
+        ...formData,
+        image_url: imageUrl,
+      }
+
+      if (editingSlide) {
+        // Actualizar slide existente
+        const { error } = await supabase
+          .from('home_banner_slides')
+          .update(payload)
+          .eq('id', editingSlide.id)
+
+        if (error) {
+          toast.error('Error al actualizar slide')
+          return
+        }
+        toast.success('Slide actualizado exitosamente')
+      } else {
+        // Crear nuevo slide
+        const maxOrder = slides.length > 0
+          ? Math.max(...slides.map((s) => s.order_index))
+          : 0
+
+        const { error } = await supabase
+          .from('home_banner_slides')
+          .insert({
+            ...payload,
+            order_index: maxOrder + 1,
+            is_active: true,
+          })
+
+        if (error) {
+          toast.error('Error al crear slide')
+          return
+        }
+        toast.success('Slide creado exitosamente')
+      }
+
+      setIsDialogOpen(false)
+      resetForm()
+      loadSlides()
+    } catch (error) {
+      console.error('Error saving slide:', error)
+      toast.error('No se pudo guardar el slide')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const resetForm = () => {
+    resetSelectedImage()
     setFormData({
       title: "",
       subtitle: "",
@@ -120,6 +208,7 @@ export default function BannerHomePage() {
   }
 
   const openEditDialog = (slide: BannerSlide) => {
+    resetSelectedImage()
     setEditingSlide(slide)
     setFormData({
       title: slide.title,
@@ -252,18 +341,25 @@ export default function BannerHomePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">URL de Imagen *</Label>
+                <Label htmlFor="image_file">Imagen del Slide *</Label>
                 <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="/images/banner-1.jpg"
-                  required
+                  id="image_file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  onChange={handleImageFileChange}
                 />
-                {formData.image_url && (
+                <p className="text-xs text-muted-foreground">
+                  PNG, JPG, WEBP o AVIF. Máximo 10MB.
+                </p>
+                {editingSlide && !selectedImageFile && formData.image_url && (
+                  <p className="text-xs text-muted-foreground">
+                    Se mantendrá la imagen actual.
+                  </p>
+                )}
+                {(selectedImagePreview || formData.image_url) && (
                   <div className="relative h-40 bg-muted rounded overflow-hidden">
                     <Image
-                      src={formData.image_url}
+                      src={selectedImagePreview || formData.image_url}
                       alt="Preview"
                       fill
                       className="object-cover"
@@ -336,8 +432,8 @@ export default function BannerHomePage() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit">
-                  {editingSlide ? 'Actualizar' : 'Crear'} Slide
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Guardando...' : `${editingSlide ? 'Actualizar' : 'Crear'} Slide`}
                 </Button>
               </div>
             </form>
