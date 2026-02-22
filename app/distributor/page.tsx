@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Clock
 } from "lucide-react"
+import { buildDistributorDocumentReminder } from "@/lib/distributor-documents"
 
 export default async function DistributorDashboardPage() {
   const supabase = await createClient()
@@ -47,6 +48,17 @@ export default async function DistributorDashboardPage() {
         </Alert>
       </div>
     )
+  }
+
+  let documentReminder = buildDistributorDocumentReminder([])
+  const { data: distributorDocuments, error: documentsError } = await supabase
+    .from("distributor_documents")
+    .select("id, distributor_id, document_type, status, file_name, file_url, uploaded_at, expires_at, review_notes")
+    .eq("distributor_id", distributor.id)
+    .order("uploaded_at", { ascending: false })
+
+  if (!documentsError) {
+    documentReminder = buildDistributorDocumentReminder(distributorDocuments || [])
   }
 
   // Obtener estadísticas
@@ -94,6 +106,14 @@ export default async function DistributorDashboardPage() {
   
   if (distributor.requires_approval) {
     alerts.push({ type: "error", message: "Tu cuenta está pendiente de aprobación" })
+  }
+
+  if (documentReminder.status !== "ok") {
+    const isCritical = ["missing", "rejected", "expired"].includes(documentReminder.status)
+    alerts.push({
+      type: isCritical ? "error" : "warning",
+      message: `${documentReminder.message} Revisa y actualiza tus documentos en Perfil y Documentos.`,
+    })
   }
 
   // Calcular días hasta próximo pago (simulado)

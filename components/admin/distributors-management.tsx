@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,14 +28,16 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Search, MoreVertical, Pencil, Plus, Trash2, MapPin, X } from "lucide-react"
+import { Search, MoreVertical, Pencil, Plus, Trash2, MapPin, X, AlertTriangle, Clock3, CheckCircle2 } from "lucide-react"
 import type { Distributor, UserProfile, ShippingAddress } from "@/lib/db/types"
 import { BUSINESS_TYPES, COLOMBIA_DEPARTMENTS, getCitiesByDepartment } from "@/lib/data/colombia-locations"
+import type { DistributorDocumentReminder, DocumentReminderStatus } from "@/lib/distributor-documents"
 
 interface DistributorWithProfile extends Distributor {
   profile?: UserProfile
   aliado?: { id: string; company_name: string } | null
   shipping_addresses?: ShippingAddress[]
+  document_reminder?: DistributorDocumentReminder
 }
 
 type AliadoOption = {
@@ -44,6 +45,8 @@ type AliadoOption = {
   company_name: string
   is_active: boolean
 }
+
+type QuickDocumentFilter = "all" | "missing" | "due_soon" | "expired"
 
 interface NewAddress {
   label: string
@@ -67,12 +70,29 @@ const emptyAddress: NewAddress = {
   is_default: false,
 }
 
+const reminderVariantByStatus: Record<DocumentReminderStatus, "default" | "secondary" | "outline" | "destructive"> = {
+  ok: "default",
+  due_soon: "secondary",
+  pending: "outline",
+  missing: "destructive",
+  expired: "destructive",
+  rejected: "destructive",
+}
+
+const reminderLabelByStatus: Record<DocumentReminderStatus, string> = {
+  ok: "Al día",
+  due_soon: "Vence pronto",
+  pending: "Pendiente",
+  missing: "Faltante",
+  expired: "Vencido",
+  rejected: "Rechazado",
+}
+
 export function DistributorsManagement() {
-  const router = useRouter()
   const [distributors, setDistributors] = useState<DistributorWithProfile[]>([])
   const [aliados, setAliados] = useState<AliadoOption[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  const [documentStatusFilter, setDocumentStatusFilter] = useState<QuickDocumentFilter>("all")
   const [showDialog, setShowDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedDistributor, setSelectedDistributor] = useState<DistributorWithProfile | null>(null)
@@ -133,7 +153,6 @@ export function DistributorsManagement() {
   }
 
   async function loadDistributors() {
-    setIsLoading(true)
     try {
       const response = await fetch('/api/admin/distributors')
       const data = await response.json()
@@ -146,8 +165,6 @@ export function DistributorsManagement() {
     } catch (error) {
       console.error('Error loading distributors:', error)
       setDistributors([])
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -337,25 +354,86 @@ export function DistributorsManagement() {
     }
   }
 
-  const filteredDistributors = distributors.filter(
-    (d) =>
-      d.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const reminderQuickCounts = useMemo(() => {
+    const counts = {
+      missing: 0,
+      due_soon: 0,
+      expired: 0,
+    }
+
+    for (const distributor of distributors) {
+      const status = distributor.document_reminder?.status || "missing"
+      if (status === "missing" || status === "due_soon" || status === "expired") {
+        counts[status] += 1
+      }
+    }
+
+    return counts
+  }, [distributors])
+
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const filteredDistributors = distributors.filter((d) => {
+    const matchesSearch =
+      normalizedSearch.length === 0 ||
+      d.company_name?.toLowerCase().includes(normalizedSearch) ||
+      d.profile?.full_name?.toLowerCase().includes(normalizedSearch) ||
       d.profile?.phone?.includes(searchTerm) ||
-      d.company_rif?.includes(searchTerm),
-  )
+      d.company_rif?.includes(searchTerm)
+
+    const reminderStatus = d.document_reminder?.status || "missing"
+    const matchesDocumentStatus =
+      documentStatusFilter === "all" ? true : reminderStatus === documentStatusFilter
+
+    return Boolean(matchesSearch && matchesDocumentStatus)
+  })
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nombre, empresa, RIF o teléfono..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="w-full max-w-2xl space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre, empresa, RIF o teléfono..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={documentStatusFilter === "all" ? "default" : "outline"}
+              onClick={() => setDocumentStatusFilter("all")}
+            >
+              Todos ({distributors.length})
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={documentStatusFilter === "missing" ? "default" : "outline"}
+              onClick={() => setDocumentStatusFilter("missing")}
+            >
+              Faltante ({reminderQuickCounts.missing})
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={documentStatusFilter === "due_soon" ? "default" : "outline"}
+              onClick={() => setDocumentStatusFilter("due_soon")}
+            >
+              Vence pronto ({reminderQuickCounts.due_soon})
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={documentStatusFilter === "expired" ? "default" : "outline"}
+              onClick={() => setDocumentStatusFilter("expired")}
+            >
+              Vencido ({reminderQuickCounts.expired})
+            </Button>
+          </div>
         </div>
 
         <Button onClick={openCreateDialog} className="gap-2">
@@ -373,6 +451,7 @@ export function DistributorsManagement() {
               <TableHead>Tipo</TableHead>
               <TableHead>Contacto</TableHead>
               <TableHead>Aliado</TableHead>
+              <TableHead>Documentos</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -411,6 +490,29 @@ export function DistributorsManagement() {
                     </div>
                   ) : (
                     <span className="text-muted-foreground text-sm">Cliente final</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {distributor.document_reminder ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        {distributor.document_reminder.status === "ok" && (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        )}
+                        {distributor.document_reminder.status === "due_soon" && (
+                          <Clock3 className="h-4 w-4 text-amber-600" />
+                        )}
+                        {["missing", "expired", "rejected"].includes(distributor.document_reminder.status) && (
+                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                        )}
+                        <Badge variant={reminderVariantByStatus[distributor.document_reminder.status]}>
+                          {reminderLabelByStatus[distributor.document_reminder.status]}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{distributor.document_reminder.message}</p>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Sin información</span>
                   )}
                 </TableCell>
                 <TableCell>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { syncClientToClientify } from '@/lib/clientify/sync';
+import { buildDistributorDocumentReminder, type DistributorDocumentRecord } from '@/lib/distributor-documents';
 
 export async function GET() {
   try {
@@ -72,11 +73,37 @@ export async function GET() {
       if (a?.id) aliadoById.set(a.id, a);
     }
 
+    const distributorIds = (distData || [])
+      .map((d: any) => d?.id)
+      .filter((v: any): v is string => typeof v === 'string' && v.length > 0);
+
+    const documentsByDistributor = new Map<string, DistributorDocumentRecord[]>();
+    if (distributorIds.length > 0) {
+      const { data: docsData, error: docsError } = await admin
+        .from('distributor_documents')
+        .select('id, distributor_id, document_type, status, file_name, file_url, uploaded_at, expires_at, review_notes')
+        .in('distributor_id', distributorIds)
+        .order('uploaded_at', { ascending: false });
+
+      if (docsError && docsError.code !== '42P01') {
+        return NextResponse.json({ error: docsError.message }, { status: 500 });
+      }
+
+      for (const doc of docsData || []) {
+        const distributorId = doc.distributor_id as string | null;
+        if (!distributorId) continue;
+        const current = documentsByDistributor.get(distributorId) || [];
+        current.push(doc as DistributorDocumentRecord);
+        documentsByDistributor.set(distributorId, current);
+      }
+    }
+
     const withAliados = (distData || []).map((dist: any) => {
       return {
         ...dist,
         profile: profileById.get(dist.user_id) || null,
         aliado: dist.aliado_id ? aliadoById.get(dist.aliado_id) || null : null,
+        document_reminder: buildDistributorDocumentReminder(documentsByDistributor.get(dist.id) || []),
       };
     });
 

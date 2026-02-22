@@ -370,7 +370,11 @@ export default async function DistributorProfilePage() {
                 const status = getDocumentStatus(existingDoc)
 
                 return (
-                  <Card key={documentType.type} className="border">
+                  <Card
+                    key={documentType.type}
+                    id={`doc-card-${documentType.type}`}
+                    className="border scroll-mt-24"
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1">

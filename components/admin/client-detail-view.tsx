@@ -20,7 +20,17 @@ import {
   Phone,
   Mail,
   FileText,
+  CalendarClock,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react"
+import {
+  DISTRIBUTOR_DOCUMENT_DEFINITIONS,
+  buildDistributorDocumentReminder,
+  type DistributorDocumentRecord,
+  type DistributorDocumentReminder,
+  type DocumentReminderStatus,
+} from "@/lib/distributor-documents"
 
 interface Order {
   id: string
@@ -41,6 +51,8 @@ interface ClientDetailViewProps {
   aliado: { id: string; company_name: string } | null
   orders: Order[]
   addresses: any[]
+  documents: DistributorDocumentRecord[]
+  documentReminder: DistributorDocumentReminder
 }
 
 const statusLabels: Record<string, string> = {
@@ -89,7 +101,14 @@ export function ClientDetailView({
   aliado,
   orders,
   addresses,
+  documents,
+  documentReminder,
 }: ClientDetailViewProps) {
+  const resolvedDocumentReminder = useMemo(
+    () => documentReminder || buildDistributorDocumentReminder(documents || []),
+    [documentReminder, documents]
+  )
+
   const stats = useMemo(() => {
     const now = new Date()
     const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
@@ -182,6 +201,31 @@ export function ClientDetailView({
       byStatus,
     }
   }, [orders])
+
+  const reminderVariantByStatus: Record<DocumentReminderStatus, "default" | "secondary" | "outline" | "destructive"> = {
+    ok: "default",
+    due_soon: "secondary",
+    pending: "outline",
+    missing: "destructive",
+    expired: "destructive",
+    rejected: "destructive",
+  }
+
+  const reminderLabelByStatus: Record<DocumentReminderStatus, string> = {
+    ok: "Al día",
+    due_soon: "Vence pronto",
+    pending: "Pendiente revisión",
+    missing: "Faltante",
+    expired: "Vencido",
+    rejected: "Rechazado",
+  }
+
+  const formatDate = (value: string | null | undefined) => {
+    if (!value) return "—"
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return "—"
+    return parsed.toLocaleDateString("es-CO")
+  }
 
   return (
     <div className="space-y-6">
@@ -516,6 +560,98 @@ export function ClientDetailView({
                     <p className="text-sm mt-1">{distributor.notes}</p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Documentos del Distribuidor
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={reminderVariantByStatus[resolvedDocumentReminder.status]}>
+                    {reminderLabelByStatus[resolvedDocumentReminder.status]}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">{resolvedDocumentReminder.message}</span>
+                </div>
+
+                {resolvedDocumentReminder.status !== "ok" && (
+                  <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <p className="text-sm">
+                      Recordatorio anual: Estados Financieros, RUT y Cámara de Comercio se renuevan cada 12
+                      meses para mantener condiciones comerciales y de crédito.
+                    </p>
+                  </div>
+                )}
+
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Documento</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Cargado</TableHead>
+                        <TableHead>Próxima renovación</TableHead>
+                        <TableHead>Archivo</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {DISTRIBUTOR_DOCUMENT_DEFINITIONS.map((definition) => {
+                        const item = resolvedDocumentReminder.items.find((entry) => entry.type === definition.type)
+                        return (
+                          <TableRow key={definition.type}>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {item?.status === "ok" ? (
+                                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                ) : (
+                                  <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                <span>{definition.label}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={reminderVariantByStatus[item?.status || "missing"]}>
+                                {reminderLabelByStatus[item?.status || "missing"]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(item?.uploaded_at)}</TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                <div>{formatDate(item?.due_at)}</div>
+                                {typeof item?.days_until_due === "number" && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {item.days_until_due >= 0
+                                      ? `En ${item.days_until_due} día(s)`
+                                      : `Vencido hace ${Math.abs(item.days_until_due)} día(s)`}
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {item?.file_url ? (
+                                <a
+                                  href={item.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline text-sm"
+                                >
+                                  Ver archivo
+                                </a>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">No cargado</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
 
