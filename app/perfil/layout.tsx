@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import {
+  Home,
   User,
   Heart,
   ListChecks,
@@ -14,6 +15,9 @@ import {
   Award,
   Clock,
   Settings,
+  FileText,
+  MessageSquare,
+  UserCog,
 } from "lucide-react"
 import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
@@ -37,8 +41,27 @@ export default async function PerfilLayout({ children }: { children: React.React
     redirect("/auth/login")
   }
 
+  const { data: userProfile } = await supabase
+    .from("user_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single()
+
   const navLinks = (
     <>
+      {userProfile?.role === "distributor" && (
+        <>
+          <NavSection title="Panel Distribuidor" />
+          <NavLink href="/distributor" icon={<Home className="h-4 w-4 text-muted-foreground" />} label="Inicio" />
+          <NavLink href="/distributor/orders" icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />} label="Mis Órdenes" />
+          <NavLink href="/distributor/invoices" icon={<FileText className="h-4 w-4 text-muted-foreground" />} label="Facturas" />
+          <NavLink href="/distributor/pqrs" icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />} label="Soporte / PQRs" />
+          <NavLink href="/distributor/profile" icon={<UserCog className="h-4 w-4 text-muted-foreground" />} label="Perfil y Documentos" />
+          <div className="my-2 border-t" />
+        </>
+      )}
+
+      <NavSection title="Mi Cuenta" />
       <NavLink href="/perfil" icon={<User className="h-4 w-4 text-muted-foreground" />} label="Mi Perfil" />
       <NavLink href="/perfil/favoritos" icon={<Heart className="h-4 w-4 text-muted-foreground" />} label="Favoritos" />
       <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4 text-muted-foreground" />} label="Listas de Deseos" />
@@ -79,4 +102,8 @@ export default async function PerfilLayout({ children }: { children: React.React
       </div>
     </div>
   )
+}
+
+function NavSection({ title }: { title: string }) {
+  return <p className="px-3 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
 }

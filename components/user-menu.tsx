@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { User, LayoutDashboard, Settings, LogOut, Building2, Users } from 'lucide-react'
+import { User, LayoutDashboard, LogOut, Building2, Users } from 'lucide-react'
 import type { UserRole } from '@/lib/db/types'
 
 interface UserData {
@@ -160,12 +160,6 @@ export function UserMenu() {
           {getPanelIcon()}
           {getPanelLabel()}
         </DropdownMenuItem>
-        {user.role !== 'superadmin' && (
-          <DropdownMenuItem onClick={() => router.push('/perfil/configuracion')}>
-            <Settings className="mr-2 h-4 w-4" />
-            Configuración
-          </DropdownMenuItem>
-        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
           <LogOut className="mr-2 h-4 w-4" />

@@ -2,7 +2,26 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Home, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, Users, UserPlus, BarChart3 } from "lucide-react"
+import {
+  Home,
+  ShoppingCart,
+  FileText,
+  UserCog,
+  AlertCircle,
+  MessageSquare,
+  Users,
+  UserPlus,
+  BarChart3,
+  Heart,
+  ListChecks,
+  Gift,
+  MapPin,
+  Star,
+  Award,
+  Clock,
+  Bell,
+  Settings,
+} from "lucide-react"
 import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
 export default async function DistributorLayout({
@@ -69,12 +88,25 @@ export default async function DistributorLayout({
   ) : (
     <>
       {setupAlert && <div className="mb-2">{setupAlert}</div>}
+      <NavSection title="Panel Distribuidor" />
       <NavLink href="/distributor" icon={<Home className="h-4 w-4" />} label="Inicio" />
       <NavLink href="/distributor/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Mis Órdenes" />
       <NavLink href="/distributor/invoices" icon={<FileText className="h-4 w-4" />} label="Facturas" />
       <NavLink href="/distributor/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Soporte / PQRs" />
-      <div className="my-3 border-t" />
       <NavLink href="/distributor/profile" icon={<UserCog className="h-4 w-4" />} label="Perfil y Documentos" />
+      <div className="my-3 border-t" />
+      <NavSection title="Mi Cuenta" />
+      <NavLink href="/perfil" icon={<UserCog className="h-4 w-4" />} label="Mi Perfil" />
+      <NavLink href="/perfil/favoritos" icon={<Heart className="h-4 w-4" />} label="Favoritos" />
+      <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4" />} label="Listas de Deseos" />
+      <NavLink href="/perfil/listas-regalo" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
+      <NavLink href="/perfil/direcciones" icon={<MapPin className="h-4 w-4" />} label="Direcciones" />
+      <NavLink href="/perfil/ordenes" icon={<ShoppingCart className="h-4 w-4" />} label="Órdenes Tienda" />
+      <NavLink href="/perfil/resenas" icon={<Star className="h-4 w-4" />} label="Mis Reseñas" />
+      <NavLink href="/perfil/puntos" icon={<Award className="h-4 w-4" />} label="Mis Puntos" />
+      <NavLink href="/perfil/vistos" icon={<Clock className="h-4 w-4" />} label="Vistos Recientemente" />
+      <NavLink href="/perfil/notificaciones" icon={<Bell className="h-4 w-4" />} label="Notificaciones" />
+      <NavLink href="/perfil/configuracion" icon={<Settings className="h-4 w-4" />} label="Configuración" />
     </>
   )
 
@@ -112,4 +144,8 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
       {label}
     </Link>
   )
+}
+
+function NavSection({ title }: { title: string }) {
+  return <p className="px-3 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
 }
