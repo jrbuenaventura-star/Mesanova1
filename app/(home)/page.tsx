@@ -17,6 +17,7 @@ import { HeroCarousel } from "@/components/home/hero-carousel"
 import { ProductCard } from "@/components/products/product-card"
 import { createClient } from "@/lib/supabase/server"
 import { getFeaturedProducts, getBlogPosts } from "@/lib/db/queries"
+import { getCurrentDistributorPricingContext } from "@/lib/distributor-pricing-context"
 
 export const metadata = {
   title: "Mesa y cocina bien pensadas",
@@ -58,16 +59,17 @@ async function getCollections() {
 }
 
 export default async function HomePage() {
-  const [slides, featuredProducts, blogPosts, collections] = await Promise.all([
+  const [slides, featuredProducts, blogPosts, collections, distributorForPricing] = await Promise.all([
     getBannerSlides(),
     getFeaturedProducts(8),
     getBlogPosts(3),
     getCollections(),
+    getCurrentDistributorPricingContext(),
   ])
 
   // Colecciones con copy personalizado (fallback si no hay colecciones en DB)
   const collectionCards = collections.length > 0
-    ? collections.map((c, i) => ({
+    ? collections.map((c) => ({
         name: c.name,
         slug: c.slug,
         description: c.description || "",
@@ -239,7 +241,12 @@ export default async function HomePage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {featuredProducts.slice(0, 8).map((product: any) => (
-                <ProductCard key={product.id} product={product} showFavoriteButton={false} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  showFavoriteButton={false}
+                  distributor={distributorForPricing}
+                />
               ))}
             </div>
 

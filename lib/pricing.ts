@@ -55,14 +55,14 @@ export function calculateProductPricing(
   let distributorDiscount: number | null = null
   let distributorProductDiscount: number | null = null
 
-  if (distributor && precioDistribuidor) {
-    const descDist = product.desc_dist || 0
+  if (distributor) {
+    const distributorBase = precioDistribuidor ?? precio
     distributorSuggestedPrice = precio // Precio sugerido al público
-    distributorBasePrice = precioDistribuidor // Precio base para distribuidores
+    distributorBasePrice = distributorBase // Precio base para distribuidores
     distributorDiscount = distributor.discount_percentage
-    distributorProductDiscount = descDist
-    // Multiplicative: precio_dist × (1 - distributor%) × (1 - desc_dist%)
-    distributorNetPrice = precioDistribuidor * (1 - distributorDiscount / 100) * (1 - descDist / 100)
+    distributorProductDiscount = null
+    // Tu precio = Precio_Dist (o precio público fallback) menos descuento del distribuidor
+    distributorNetPrice = distributorBase * (1 - distributorDiscount / 100)
   }
 
   return {
@@ -91,16 +91,13 @@ export interface DistributorFull {
 
 /**
  * Check if a distributor record qualifies for distributor pricing.
- * Qualified = has aliado assigned AND (business_type "Tienda" OR
- * business_type "Persona natural" with a commercial_name).
+ * Qualified = active + has aliado assigned + business_type "Tienda".
  */
 export function isQualifiedDistributor(d: DistributorFull | null | undefined): boolean {
   if (!d || !d.is_active) return false
   if (!d.aliado_id) return false
   const bt = (d.business_type || '').trim()
-  if (bt.toLowerCase() === 'tienda') return true
-  if (bt.toLowerCase() === 'persona natural' && d.commercial_name?.trim()) return true
-  return false
+  return bt.toLowerCase() === 'tienda'
 }
 
 /**

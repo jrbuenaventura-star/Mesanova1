@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plus, Trash2, ShoppingCart, AlertCircle, Loader2, MapPin } from "lucide-react"
+import { Trash2, ShoppingCart, AlertCircle, Loader2, MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { ShippingAddress } from "@/lib/db/types"
 
@@ -29,6 +29,7 @@ type Product = {
   pdt_codigo: string
   nombre_comercial: string
   precio: number
+  precio_dist?: number | null
   upp_existencia: number
 }
 
@@ -106,7 +107,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("id, pdt_codigo, nombre_comercial, precio, upp_existencia")
+        .select("id, pdt_codigo, nombre_comercial, precio, precio_dist, upp_existencia")
         .or(`pdt_codigo.ilike.%${term}%,nombre_comercial.ilike.%${term}%`)
         .eq("is_active", true)
         .limit(10)
@@ -131,8 +132,8 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       ))
     } else {
       const discountPercentage = selectedDistributor?.discount_percentage || 0
-      const unitPrice = product.precio || 0
-      const discountedPrice = unitPrice * (1 - discountPercentage / 100)
+      const distributorBasePrice = product.precio_dist ?? product.precio ?? 0
+      const discountedPrice = distributorBasePrice * (1 - discountPercentage / 100)
       
       setOrderItems([...orderItems, {
         product_id: product.id,
@@ -189,7 +190,6 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
       const distributor = distributors.find(d => d.id === selectedDistributorId)
       if (!distributor) throw new Error("Distribuidor no encontrado")
 
-      const total = calculateTotal()
       const orderNumber = `ORD-${Date.now()}`
 
       const response = await fetch("/api/aliado/create-order", {
@@ -362,7 +362,7 @@ export function CreateOrderForDistributorForm({ distributors, aliadoId }: Create
                           <p className="text-xs text-muted-foreground">{product.pdt_codigo}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-sm">${product.precio?.toFixed(2)}</p>
+                          <p className="font-bold text-sm">${(product.precio_dist ?? product.precio ?? 0).toFixed(2)}</p>
                           <p className="text-xs text-muted-foreground">Stock: {product.upp_existencia}</p>
                         </div>
                       </div>

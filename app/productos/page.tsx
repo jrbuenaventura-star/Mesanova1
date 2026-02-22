@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { ChefHat, UtensilsCrossed, Coffee, Briefcase, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { getImageKitUrl } from "@/lib/imagekit"
+import { calculateProductPricing, formatPrice } from "@/lib/pricing"
+import { getCurrentDistributorPricingContext } from "@/lib/distributor-pricing-context"
 
 const silos = [
   {
@@ -70,6 +72,8 @@ async function getFeaturedProductsBySilo(siloSlug: string) {
         nombre_comercial,
         pdt_descripcion,
         precio,
+        precio_dist,
+        desc_dist,
         imagen_principal_url,
         slug
       )
@@ -83,6 +87,8 @@ async function getFeaturedProductsBySilo(siloSlug: string) {
 }
 
 export default async function ProductosPage() {
+  const distributorForPricing = await getCurrentDistributorPricingContext()
+
   // Obtener productos destacados para cada categoría
   const [cocinaProducts, mesaProducts, cafeProducts, profesionalProducts] = await Promise.all([
     getFeaturedProductsBySilo('cocina'),
@@ -146,6 +152,15 @@ export default async function ProductosPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {silo.products.map((item: any) => {
                       const product = item.product
+                      const pricing = calculateProductPricing(
+                        {
+                          precio: product.precio ?? null,
+                          descuento_porcentaje: 0,
+                          precio_dist: product.precio_dist ?? null,
+                          desc_dist: product.desc_dist ?? null,
+                        },
+                        distributorForPricing
+                      )
                       return (
                         <Link key={product.id} href={`/productos/${silo.slug}/${product.slug || product.pdt_codigo}`} aria-label="Ver producto">
                           <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
@@ -169,10 +184,27 @@ export default async function ProductosPage() {
                               <CardTitle className="text-base mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                                 {product.nombre_comercial || product.pdt_descripcion}
                               </CardTitle>
-                              {product.precio && (
+                              {!distributorForPricing ? (
                                 <p className="text-lg font-bold text-primary">
-                                  ${Number(product.precio).toLocaleString('es-CO')}
+                                  {formatPrice(pricing.publicPrice)}
                                 </p>
+                              ) : (
+                                <div className="space-y-1 text-xs">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-muted-foreground">Precio sugerido al público</span>
+                                    <span>{formatPrice(pricing.distributorSuggestedPrice)}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-muted-foreground">Precio distribuidor</span>
+                                    <span>{formatPrice(pricing.distributorBasePrice)}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-muted-foreground">Tu precio</span>
+                                    <span className="text-base font-bold text-green-700">
+                                      {formatPrice(pricing.distributorNetPrice)}
+                                    </span>
+                                  </div>
+                                </div>
                               )}
                               <p className="text-xs text-muted-foreground mt-1">
                                 Código: {product.pdt_codigo}

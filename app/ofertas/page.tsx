@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import Image from "next/image"
 import { getImageKitUrl } from "@/lib/imagekit"
 import { calculateProductPricing, formatPrice } from "@/lib/pricing"
+import { getCurrentDistributorPricingContext } from "@/lib/distributor-pricing-context"
 
 export const metadata = {
   title: "Ofertas - Mesanova",
@@ -15,6 +16,7 @@ export const metadata = {
 
 export default async function OfertasPage() {
   const supabase = await createClient()
+  const distributorForPricing = await getCurrentDistributorPricingContext()
 
   const { data: ofertas } = await supabase
     .from("products")
@@ -82,7 +84,7 @@ export default async function OfertasPage() {
                     precio_dist: producto.precio_dist,
                     desc_dist: producto.desc_dist ?? null,
                   },
-                  null // Public catalog, no distributor
+                  distributorForPricing
                 )
 
                 return (
@@ -100,7 +102,7 @@ export default async function OfertasPage() {
                           <Package className="h-12 w-12 text-muted-foreground" />
                         </div>
                       )}
-                      {pricing.publicHasDiscount && (
+                      {!distributorForPricing && pricing.publicHasDiscount && (
                         <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
                           -{pricing.publicDiscount}%
                         </Badge>
@@ -123,17 +125,36 @@ export default async function OfertasPage() {
                       <CardTitle className="text-lg line-clamp-2">
                         {producto.nombre_comercial || producto.pdt_descripcion}
                       </CardTitle>
-                      <CardDescription>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-2xl font-bold text-foreground">
-                            {formatPrice(pricing.publicPrice)}
-                          </span>
-                          {pricing.publicOriginalPrice && (
-                            <span className="text-sm line-through text-muted-foreground">
-                              {formatPrice(pricing.publicOriginalPrice)}
+                      <CardDescription className="mt-2">
+                        {!distributorForPricing ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-foreground">
+                              {formatPrice(pricing.publicPrice)}
                             </span>
-                          )}
-                        </div>
+                            {pricing.publicOriginalPrice && (
+                              <span className="text-sm line-through text-muted-foreground">
+                                {formatPrice(pricing.publicOriginalPrice)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Precio sugerido al público</span>
+                              <span>{formatPrice(pricing.distributorSuggestedPrice)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Precio distribuidor</span>
+                              <span>{formatPrice(pricing.distributorBasePrice)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground">Tu precio</span>
+                              <span className="font-bold text-green-700">
+                                {formatPrice(pricing.distributorNetPrice)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </CardDescription>
                     </CardHeader>
                     <CardFooter>
@@ -149,19 +170,21 @@ export default async function OfertasPage() {
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-muted/50">
-        <div className="container mx-auto text-center">
-          <TrendingDown className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-4">¿Eres distribuidor?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Los distribuidores registrados tienen acceso a descuentos adicionales y precios especiales. Regístrate para
-            ver tus precios personalizados.
-          </p>
-          <Button size="lg" asChild>
-            <Link href="/auth/login">Iniciar sesión</Link>
-          </Button>
-        </div>
-      </section>
+      {!distributorForPricing && (
+        <section className="py-12 px-4 bg-muted/50">
+          <div className="container mx-auto text-center">
+            <TrendingDown className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">¿Eres distribuidor?</h2>
+            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Los distribuidores registrados tienen acceso a descuentos adicionales y precios especiales. Regístrate para
+              ver tus precios personalizados.
+            </p>
+            <Button size="lg" asChild>
+              <Link href="/auth/login">Iniciar sesión</Link>
+            </Button>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

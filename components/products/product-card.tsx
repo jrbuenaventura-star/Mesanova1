@@ -111,14 +111,19 @@ export function ProductCard({ product, showFavoriteButton = true, isFavorited = 
         )}
 
         {/* Distributor pricing */}
-        {distributor && pricing.distributorNetPrice && (
-          <div className="space-y-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold">{formatPrice(pricing.distributorNetPrice)}</span>
-              <span className="text-xs text-muted-foreground">Precio neto</span>
+        {distributor && pricing.distributorNetPrice !== null && (
+          <div className="space-y-1.5 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">Precio sugerido al público</span>
+              <span className="font-medium">{formatPrice(pricing.distributorSuggestedPrice)}</span>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Base: {formatPrice(pricing.distributorBasePrice)} • Sugerido: {formatPrice(pricing.distributorSuggestedPrice)}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">Precio distribuidor</span>
+              <span className="font-medium">{formatPrice(pricing.distributorBasePrice)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">Tu precio</span>
+              <span className="text-lg font-bold text-green-700">{formatPrice(pricing.distributorNetPrice)}</span>
             </div>
           </div>
         )}

@@ -30,7 +30,7 @@ export default async function DistributorOrdersPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Mis Órdenes</h1>
-        <p className="text-muted-foreground">Crea y gestiona órdenes para tus clientes asignados</p>
+        <p className="text-muted-foreground">Crea y gestiona órdenes para tu negocio</p>
       </div>
       <OrdersManagement userRole="distributor" userId={user.id} distributorId={distributor.id} />
     </div>

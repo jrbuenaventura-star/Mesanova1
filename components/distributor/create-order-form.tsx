@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import { Trash2, Save, MapPin, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import type { Company, ShippingAddress } from "@/lib/db/types"
+import type { ShippingAddress } from "@/lib/db/types"
 import { getImageKitUrl } from "@/lib/imagekit"
 
 interface Product {
@@ -23,6 +23,7 @@ interface Product {
   pdt_descripcion: string
   nombre_comercial?: string
   precio?: number
+  precio_dist?: number | null
   imagen_principal_url?: string
   upp_existencia: number
 }
@@ -37,15 +38,21 @@ interface OrderItem {
 
 interface CreateOrderFormProps {
   distributorId: string
-  companies: Company[]
+  distributorName: string
+  distributorDiscount: number
   products: Product[]
   userId: string
 }
 
-export default function CreateOrderForm({ distributorId, companies, products, userId }: CreateOrderFormProps) {
+export default function CreateOrderForm({
+  distributorId,
+  distributorName,
+  distributorDiscount,
+  products,
+  userId,
+}: CreateOrderFormProps) {
   const router = useRouter()
-  const supabase = createClient()
-  const [selectedCompanyId, setSelectedCompanyId] = useState("")
+  const supabase = useMemo(() => createClient(), [])
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [notes, setNotes] = useState("")
   const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([])
@@ -68,14 +75,17 @@ export default function CreateOrderForm({ distributorId, companies, products, us
       }
     }
     loadAddresses()
-  }, [userId])
+  }, [supabase, userId])
 
   const IVA_PORCENTAJE = 19
 
   // Agregar producto a la orden
   const handleAddProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId)
-    if (!product || !product.precio) return
+    if (!product) return
+
+    const distributorBasePrice = product.precio_dist ?? product.precio ?? 0
+    if (distributorBasePrice <= 0) return
 
     const existingItem = orderItems.find((item) => item.product_id === productId)
     if (existingItem) {
@@ -87,8 +97,8 @@ export default function CreateOrderForm({ distributorId, companies, products, us
       product_id: productId,
       product,
       quantity: 1,
-      unit_price: product.precio,
-      subtotal: product.precio,
+      unit_price: distributorBasePrice * (1 - distributorDiscount / 100),
+      subtotal: distributorBasePrice * (1 - distributorDiscount / 100),
     }
 
     setOrderItems([...orderItems, newItem])
@@ -114,24 +124,23 @@ export default function CreateOrderForm({ distributorId, companies, products, us
   }
 
   // Calcular totales
+  const grossSubtotal = orderItems.reduce(
+    (sum, item) => sum + (item.product.precio_dist ?? item.product.precio ?? 0) * item.quantity,
+    0,
+  )
   const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+  const discountAmountTotal = grossSubtotal - subtotal
   const taxAmount = subtotal * (IVA_PORCENTAJE / 100)
   const total = subtotal + taxAmount
 
   // Crear orden
   const handleSubmit = async () => {
-    if (!selectedCompanyId) {
-      alert("Por favor selecciona un cliente")
-      return
-    }
-
     if (orderItems.length === 0) {
       alert("Por favor agrega al menos un producto")
       return
     }
 
     setIsLoading(true)
-    const supabase = createClient()
 
     try {
       // Generar número de orden
@@ -144,17 +153,18 @@ export default function CreateOrderForm({ distributorId, companies, products, us
           order_number: orderNumber,
           user_id: userId,
           distributor_id: distributorId,
-          company_id: selectedCompanyId,
           emisor: "Alumar SAS",
           fecha_pedido: new Date().toISOString().split("T")[0],
-          status: "pending_approval",
+          status: "por_aprobar",
           payment_status: "pending",
           subtotal,
-          discount_amount: 0,
+          discount_percentage: distributorDiscount,
+          discount_amount: discountAmountTotal,
           tax_amount: taxAmount,
           iva_porcentaje: IVA_PORCENTAJE,
           shipping_cost: 0,
           total,
+          customer_name: distributorName,
           shipping_address: (() => {
             const addr = shippingAddresses.find(a => a.id === selectedAddressId)
             return addr ? `${addr.address_line1}${addr.address_line2 ? `, ${addr.address_line2}` : ''}, ${addr.city}, ${addr.state}` : null
@@ -174,8 +184,12 @@ export default function CreateOrderForm({ distributorId, companies, products, us
         product_name: item.product.nombre_comercial || item.product.pdt_descripcion,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        discount_percentage: 0,
-        discount_amount: 0,
+        discount_percentage: distributorDiscount,
+        discount_amount: (() => {
+          const basePrice = item.product.precio_dist ?? item.product.precio ?? 0
+          const grossSubtotal = basePrice * item.quantity
+          return grossSubtotal - item.subtotal
+        })(),
         subtotal: item.subtotal,
       }))
 
@@ -195,26 +209,15 @@ export default function CreateOrderForm({ distributorId, companies, products, us
 
   return (
     <div className="space-y-6">
-      {/* Selección de cliente */}
+      {/* Información del pedido */}
       <Card>
         <CardHeader>
-          <CardTitle>Información del Cliente</CardTitle>
+          <CardTitle>Información del Pedido</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="company">Cliente *</Label>
-            <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {companies.map((company) => (
-                  <SelectItem key={company.id} value={company.id}>
-                    {company.razon_social} - NIT: {company.nit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="rounded-md border bg-muted/30 p-3 text-sm">
+            <p className="font-medium">{distributorName}</p>
+            <p className="text-muted-foreground">Descuento general (Desc_Dist): {distributorDiscount}% sobre Precio_Dist</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Dirección de Envío</Label>
@@ -281,7 +284,7 @@ export default function CreateOrderForm({ distributorId, companies, products, us
                 {products.map((product) => (
                   <SelectItem key={product.id} value={product.id}>
                     {product.pdt_codigo} - {product.nombre_comercial || product.pdt_descripcion} - $
-                    {product.precio?.toLocaleString()}
+                    {Math.round((product.precio_dist ?? product.precio ?? 0) * (1 - distributorDiscount / 100)).toLocaleString()}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -358,7 +361,15 @@ export default function CreateOrderForm({ distributorId, companies, products, us
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
+                <span>Subtotal base (Precio_Dist):</span>
+                <span className="font-medium">${grossSubtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Desc_Dist ({distributorDiscount}%):</span>
+                <span className="font-medium text-green-700">-${discountAmountTotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Subtotal neto:</span>
                 <span className="font-medium">${subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">

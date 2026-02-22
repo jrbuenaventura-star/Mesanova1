@@ -4,7 +4,6 @@ import { getProductBySlug, getRelatedProducts } from "@/lib/db/queries"
 import { createClient } from "@/lib/supabase/server"
 import { getProductReviews, getProductRatingStats, getUserWishlists, getUserGiftRegistries, isProductFavorited } from "@/lib/db/user-features"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Package, Truck, CheckCircle, AlertCircle, Percent } from "lucide-react"
@@ -18,7 +17,8 @@ import { TrackProductView } from "@/components/products/track-product-view"
 import { RecentlyViewedProducts } from "@/components/products/recently-viewed-products"
 import { NotifyStockButton } from "@/components/products/notify-stock-button"
 import { ShareButton } from "@/components/ui/share-button"
-import { calculateProductPricing, formatPrice, isQualifiedDistributor } from "@/lib/pricing"
+import { calculateProductPricing, formatPrice } from "@/lib/pricing"
+import { getCurrentDistributorPricingContext } from "@/lib/distributor-pricing-context"
 
 interface ProductPageProps {
   params: Promise<{
@@ -39,19 +39,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Check if user is a qualified distributor
-  let distributorForPricing: { discount_percentage: number } | null = null
-  if (user) {
-    const { data: distRecord } = await supabase
-      .from('distributors')
-      .select('aliado_id, business_type, commercial_name, is_active, discount_percentage')
-      .eq('user_id', user.id)
-      .single()
-    
-    if (isQualifiedDistributor(distRecord)) {
-      distributorForPricing = { discount_percentage: distRecord!.discount_percentage }
-    }
-  }
+  const distributorForPricing = await getCurrentDistributorPricingContext()
 
   const pricing = calculateProductPricing(
     {
@@ -258,20 +246,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold">{formatPrice(pricing.distributorNetPrice)}</span>
-                <span className="text-sm text-muted-foreground">Tu precio neto</span>
-              </div>
-              <div className="text-sm text-muted-foreground space-y-0.5">
-                <div>Precio base dist: {formatPrice(pricing.distributorBasePrice)}</div>
-                <div className="flex items-center gap-1">
-                  <Percent className="h-3 w-3" />
-                  Tu descuento: {pricing.distributorDiscount}%
-                  {(pricing.distributorProductDiscount ?? 0) > 0 && (
-                    <span> + {pricing.distributorProductDiscount}% desc. producto</span>
-                  )}
+              <div className="grid gap-1 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Precio sugerido al público</span>
+                  <span className="font-medium">{formatPrice(pricing.distributorSuggestedPrice)}</span>
                 </div>
-                <div>PVP sugerido: {formatPrice(pricing.distributorSuggestedPrice)}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Precio distribuidor</span>
+                  <span className="font-medium">{formatPrice(pricing.distributorBasePrice)}</span>
+                </div>
+              </div>
+              <div className="flex items-baseline justify-between rounded-lg border bg-muted/20 p-3">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Percent className="h-3 w-3" />
+                  Tu precio ({pricing.distributorDiscount}% desc.)
+                </div>
+                <span className="text-3xl font-bold text-green-700">{formatPrice(pricing.distributorNetPrice)}</span>
               </div>
             </div>
           )}
@@ -495,7 +485,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
             {!!distributorForPricing && product.descripcion_distribuidor && (
               <div className="mt-6">
-                <h4 className="text-lg font-semibold mb-3">Información para Distribuidores</h4>
+                <h4 className="text-lg font-semibold mb-3">Descrip Distribuidor</h4>
                 <p className="text-muted-foreground whitespace-pre-line">{product.descripcion_distribuidor}</p>
               </div>
             )}
@@ -507,14 +497,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="grid gap-2">
             {!!distributorForPricing && product.argumentos_venta && (
               <div className="flex justify-between py-2 border-b">
-                <span className="font-medium">Argumentos de Venta:</span>
+                <span className="font-medium">Argumentos de Venta Distribuidor:</span>
                 <span className="text-muted-foreground">{product.argumentos_venta}</span>
               </div>
             )}
             {!!distributorForPricing && product.ubicacion_tienda && (
               <div className="flex justify-between py-2 border-b">
-                <span className="font-medium">Ubicación en Tienda:</span>
+                <span className="font-medium">Ubicación Tienda Distribuidor:</span>
                 <span className="text-muted-foreground">{product.ubicacion_tienda}</span>
+              </div>
+            )}
+            {!!distributorForPricing && typeof product.margen_sugerido === "number" && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Margen Sugerido:</span>
+                <span className="text-muted-foreground">{product.margen_sugerido}%</span>
+              </div>
+            )}
+            {!!distributorForPricing && product.rotacion_esperada && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="font-medium">Rotación Esperada:</span>
+                <span className="text-muted-foreground capitalize">{product.rotacion_esperada}</span>
               </div>
             )}
             {product.dimensiones && (
@@ -643,7 +645,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <h2 className="text-2xl font-bold mb-6">Productos Relacionados</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} distributor={distributorForPricing} />
             ))}
           </div>
         </section>

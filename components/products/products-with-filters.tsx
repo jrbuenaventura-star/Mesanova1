@@ -13,9 +13,16 @@ interface ProductsWithFiltersProps {
   subcategories: Array<{ id: string; name: string; slug: string }>
   productTypes?: Array<{ id: string; name: string; slug: string; subcategory_id: string }>
   siloSlug: string
+  distributor?: { discount_percentage: number } | null
 }
 
-export function ProductsWithFilters({ products, subcategories, productTypes = [], siloSlug }: ProductsWithFiltersProps) {
+export function ProductsWithFilters({
+  products,
+  subcategories,
+  productTypes = [],
+  siloSlug,
+  distributor = null,
+}: ProductsWithFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     subcategories: [],
     productTypes: [],
@@ -151,7 +158,7 @@ export function ProductsWithFilters({ products, subcategories, productTypes = []
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} distributor={distributor} />
             ))}
           </div>
         ) : (

@@ -407,7 +407,7 @@ export function DistributorsManagement() {
                   {distributor.aliado ? (
                     <div>
                       <div className="text-sm">{distributor.aliado.company_name}</div>
-                      <div className="text-xs text-muted-foreground">{distributor.discount_percentage}% desc.</div>
+                      <div className="text-xs text-muted-foreground">Desc_Dist: {distributor.discount_percentage}%</div>
                     </div>
                   ) : (
                     <span className="text-muted-foreground text-sm">Cliente final</span>
@@ -722,7 +722,7 @@ export function DistributorsManagement() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="discount_percentage">Descuento (%)</Label>
+                    <Label htmlFor="discount_percentage">Desc_Dist (%)</Label>
                     <Input
                       id="discount_percentage"
                       type="number"

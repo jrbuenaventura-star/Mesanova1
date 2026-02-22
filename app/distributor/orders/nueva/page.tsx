@@ -13,24 +13,20 @@ export default async function NewOrderPage() {
   }
 
   // Obtener distribuidor
-  const { data: distributor } = await supabase.from("distributors").select("*").eq("user_id", user.id).single()
+  const { data: distributor } = await supabase
+    .from("distributors")
+    .select("id, company_name, discount_percentage")
+    .eq("user_id", user.id)
+    .single()
 
   if (!distributor) {
     return <div>No tienes un perfil de distribuidor configurado</div>
   }
 
-  // Obtener clientes asignados
-  const { data: companies } = await supabase
-    .from("companies")
-    .select("*")
-    .eq("distribuidor_asignado_id", distributor.id)
-    .eq("is_active", true)
-    .order("razon_social")
-
   // Obtener productos activos
   const { data: products } = await supabase
     .from("products")
-    .select("id, pdt_codigo, pdt_descripcion, nombre_comercial, precio, imagen_principal_url, upp_existencia")
+    .select("id, pdt_codigo, pdt_descripcion, nombre_comercial, precio, precio_dist, imagen_principal_url, upp_existencia")
     .eq("is_active", true)
     .order("pdt_descripcion")
 
@@ -38,11 +34,12 @@ export default async function NewOrderPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Nueva Orden</h1>
-        <p className="text-muted-foreground">Crea una nueva orden para uno de tus clientes</p>
+        <p className="text-muted-foreground">Crea una nueva orden para tu negocio</p>
       </div>
       <CreateOrderForm
         distributorId={distributor.id}
-        companies={companies || []}
+        distributorName={distributor.company_name}
+        distributorDiscount={distributor.discount_percentage || 0}
         products={products || []}
         userId={user.id}
       />

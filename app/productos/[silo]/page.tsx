@@ -7,6 +7,7 @@ import {
 } from "@/lib/db/queries"
 import { ProductsWithFilters } from "@/components/products/products-with-filters"
 import { createClient } from "@/lib/supabase/server"
+import { getCurrentDistributorPricingContext } from "@/lib/distributor-pricing-context"
 
 const silosIconMap = {
   cocina: ChefHat,
@@ -50,6 +51,7 @@ export default async function SiloPage({
   const products = isHoReCaSilo
     ? await getProductsForHoReCa(100)
     : await getProductsBySilo(silo, 200)
+  const distributorForPricing = await getCurrentDistributorPricingContext()
 
   // Load product types for this silo's subcategories
   const subcategoryIds = (siloData.subcategories || []).map((s: any) => s.id)
@@ -93,6 +95,7 @@ export default async function SiloPage({
             subcategories={siloData.subcategories || []}
             productTypes={productTypes}
             siloSlug={silo}
+            distributor={distributorForPricing}
           />
         </div>
       </section>

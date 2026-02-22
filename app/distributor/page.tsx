@@ -9,7 +9,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { 
   ShoppingCart, 
   Package, 
-  Users, 
   TrendingUp, 
   FileText, 
   AlertCircle,
@@ -63,18 +62,6 @@ export default async function DistributorDashboardPage() {
     .limit(5)
 
   const monthlyTotal = monthOrders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0
-
-  // Contar órdenes totales
-  const { count: ordersCount } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true })
-    .eq("distributor_id", distributor.id)
-
-  // Contar clientes
-  const { count: clientsCount } = await supabase
-    .from("companies")
-    .select("*", { count: "exact", head: true })
-    .eq("distribuidor_asignado_id", distributor.id)
 
   // Facturas pendientes (simuladas por ahora - cuando se ejecute la migración funcionará)
   const pendingInvoices: any[] = []
@@ -196,7 +183,7 @@ export default async function DistributorDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{distributor.discount_percentage || 0}%</div>
-            <p className="text-xs text-muted-foreground">Descuento sobre precio lista</p>
+            <p className="text-xs text-muted-foreground">Desc_Dist sobre Precio_Dist</p>
           </CardContent>
         </Card>
       </div>

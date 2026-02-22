@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -13,17 +13,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { 
-  ArrowLeft, 
-  Building2, 
-  Search,
+import {
+  ArrowLeft,
+  Building2,
   Mail,
   Phone,
   MapPin,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
 } from "lucide-react"
+import { DistributorAliadoAssignmentActions } from "@/components/admin/distributor-aliado-assignment-actions"
+
+type DistributorRow = {
+  id: string
+  user_id: string
+  company_name: string
+  contact_name: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  city: string | null
+  state: string | null
+  main_city: string | null
+  main_state: string | null
+  aliado_id: string | null
+  is_active: boolean
+  requires_approval: boolean
+  created_at: string
+}
 
 export default async function AliadoDistributorsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -47,86 +64,101 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
     redirect("/")
   }
 
-  const { data: aliado } = await supabase
-    .from("aliados")
-    .select("*")
-    .eq("id", id)
-    .single()
+  const admin = createAdminClient()
+
+  const [{ data: aliado }, { data: distData, error: distError }, { data: aliadosData }] = await Promise.all([
+    admin.from("aliados").select("id, company_name").eq("id", id).single(),
+    admin
+      .from("distributors")
+      .select(
+        "id, user_id, company_name, contact_name, contact_email, contact_phone, city, state, main_city, main_state, aliado_id, is_active, requires_approval, created_at",
+      )
+      .eq("aliado_id", id)
+      .order("created_at", { ascending: false }),
+    admin.from("aliados").select("id, company_name, is_active").order("company_name"),
+  ])
 
   if (!aliado) {
     notFound()
   }
 
-  let distributors: any[] = []
-  try {
-    const { data: distData, error: distError } = await supabase
-      .from("distributors")
-      .select("*")
-      .eq("aliado_id", id)
-      .order("created_at", { ascending: false })
-
-    if (distError) {
-      const message = distError.message || "Error al cargar clientes"
-      if (message.toLowerCase().includes("aliado_id") && message.toLowerCase().includes("does not exist")) {
-        distributors = []
-      } else {
-        console.error("Error loading aliado clients:", distError)
-        distributors = []
-      }
-    } else {
-      const userIds = (distData || [])
-        .map((d: any) => d?.user_id)
-        .filter((v: any): v is string => typeof v === "string" && v.length > 0)
-
-      const { data: profilesData, error: profilesError } = userIds.length
-        ? await supabase.from("user_profiles").select("id, full_name").in("id", userIds)
-        : { data: [], error: null }
-
-      if (profilesError) {
-        console.error("Error loading user_profiles for aliado clients:", profilesError)
-      }
-
-      const profileById = new Map<string, any>()
-      for (const p of profilesData || []) {
-        if (p?.id) profileById.set(p.id, p)
-      }
-
-      distributors = (distData || []).map((d: any) => ({
-        ...d,
-        user: d?.user_id ? profileById.get(d.user_id) || null : null,
-      }))
-    }
-  } catch (e) {
-    console.error("Unexpected error loading aliado clients:", e)
-    distributors = []
+  if (distError) {
+    console.error("Error loading aliado clients:", distError)
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return (
-          <Badge variant="default" className="gap-1">
-            <CheckCircle className="h-3 w-3" />
-            Activo
-          </Badge>
-        )
-      case "pending":
-        return (
-          <Badge variant="outline" className="gap-1">
-            <Clock className="h-3 w-3" />
-            Pendiente
-          </Badge>
-        )
-      case "inactive":
-        return (
-          <Badge variant="secondary" className="gap-1">
-            <XCircle className="h-3 w-3" />
-            Inactivo
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{status}</Badge>
+  const distributors = ((distData as DistributorRow[] | null) || [])
+
+  const userIds = distributors.map((d) => d.user_id).filter((v): v is string => Boolean(v))
+
+  const [{ data: profilesData, error: profilesError }, { data: usersData, error: usersError }] = await Promise.all([
+    userIds.length > 0
+      ? admin.from("user_profiles").select("id, full_name, phone").in("id", userIds)
+      : Promise.resolve({ data: [], error: null }),
+    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+  ])
+
+  if (profilesError) {
+    console.error("Error loading user_profiles for aliado clients:", profilesError)
+  }
+
+  if (usersError) {
+    console.error("Error loading auth users for aliado clients:", usersError)
+  }
+
+  const profileByUserId = new Map<string, { id: string; full_name: string | null; phone: string | null }>()
+  for (const p of profilesData || []) {
+    if (p?.id) {
+      profileByUserId.set(p.id, {
+        id: p.id,
+        full_name: p.full_name || null,
+        phone: p.phone || null,
+      })
     }
+  }
+
+  const emailByUserId = new Map<string, string>()
+  for (const authUser of usersData?.users || []) {
+    if (authUser.id && authUser.email) {
+      emailByUserId.set(authUser.id, authUser.email)
+    }
+  }
+
+  const enrichedDistributors = distributors.map((dist) => ({
+    ...dist,
+    profile: profileByUserId.get(dist.user_id) || null,
+    email: emailByUserId.get(dist.user_id) || dist.contact_email || null,
+  }))
+
+  const aliados = (aliadosData || []) as Array<{ id: string; company_name: string; is_active: boolean }>
+
+  const activeCount = enrichedDistributors.filter((d) => d.is_active && !d.requires_approval).length
+  const pendingCount = enrichedDistributors.filter((d) => d.requires_approval).length
+
+  const getStatusBadge = (isActive: boolean, requiresApproval: boolean) => {
+    if (requiresApproval) {
+      return (
+        <Badge variant="outline" className="gap-1">
+          <Clock className="h-3 w-3" />
+          Pendiente
+        </Badge>
+      )
+    }
+
+    if (isActive) {
+      return (
+        <Badge variant="default" className="gap-1">
+          <CheckCircle className="h-3 w-3" />
+          Activo
+        </Badge>
+      )
+    }
+
+    return (
+      <Badge variant="secondary" className="gap-1">
+        <XCircle className="h-3 w-3" />
+        Inactivo
+      </Badge>
+    )
   }
 
   return (
@@ -139,9 +171,7 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Clientes de {aliado.company_name}</h1>
-          <p className="text-muted-foreground">
-            Gestiona los clientes asignados a este aliado comercial
-          </p>
+          <p className="text-muted-foreground">Gestiona los clientes asignados a este aliado comercial</p>
         </div>
       </div>
 
@@ -152,7 +182,7 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{distributors.length}</div>
+            <div className="text-2xl font-bold">{enrichedDistributors.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -161,9 +191,7 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {distributors.filter(d => d.status === "active").length}
-            </div>
+            <div className="text-2xl font-bold">{activeCount}</div>
           </CardContent>
         </Card>
         <Card>
@@ -172,35 +200,22 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
             <Clock className="h-4 w-4 text-amber-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {distributors.filter(d => d.status === "pending").length}
-            </div>
+            <div className="text-2xl font-bold">{pendingCount}</div>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="flex gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar clientes..." className="pl-10" />
-        </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Listado de Clientes</CardTitle>
-          <CardDescription>
-            Clientes asignados a {aliado.company_name}
-          </CardDescription>
+          <CardDescription>Superadmin puede reasignar o desvincular aliado desde esta tabla</CardDescription>
         </CardHeader>
         <CardContent>
-          {distributors.length === 0 ? (
+          {enrichedDistributors.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg font-medium">No hay clientes asignados</p>
-              <p className="text-sm">
-                Este aliado aún no tiene clientes asociados
-              </p>
+              <p className="text-sm">Este aliado aún no tiene clientes asociados</p>
             </div>
           ) : (
             <Table>
@@ -212,54 +227,66 @@ export default async function AliadoDistributorsPage({ params }: { params: Promi
                   <TableHead>Teléfono</TableHead>
                   <TableHead>Ubicación</TableHead>
                   <TableHead>Estado</TableHead>
+                  <TableHead>Gestión de aliado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {distributors.map((distributor) => (
-                  <TableRow key={distributor.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{distributor.company_name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {distributor.contact_name || distributor.user?.full_name || "-"}
-                    </TableCell>
-                    <TableCell>
-                      {distributor.contact_email && (
-                        <a 
-                          href={`mailto:${distributor.contact_email}`} 
-                          className="text-primary hover:underline flex items-center gap-1"
-                        >
-                          <Mail className="h-3 w-3" />
-                          {distributor.contact_email}
-                        </a>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {distributor.contact_phone && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="h-3 w-3 text-muted-foreground" />
-                          {distributor.contact_phone}
+                {enrichedDistributors.map((distributor) => {
+                  const phone = distributor.contact_phone || distributor.profile?.phone || "-"
+                  const city = distributor.main_city || distributor.city
+                  const state = distributor.main_state || distributor.state
+                  const location = city || state ? [city, state].filter(Boolean).join(", ") : "-"
+
+                  return (
+                    <TableRow key={distributor.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{distributor.company_name}</span>
                         </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {distributor.city && distributor.state ? (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3 text-muted-foreground" />
-                          {distributor.city}, {distributor.state}
-                        </div>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(distributor.status)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>{distributor.contact_name || distributor.profile?.full_name || "-"}</TableCell>
+                      <TableCell>
+                        {distributor.email ? (
+                          <a href={`mailto:${distributor.email}`} className="text-primary hover:underline flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {distributor.email}
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {phone !== "-" ? (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            {phone}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {location !== "-" ? (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            {location}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(distributor.is_active, distributor.requires_approval)}</TableCell>
+                      <TableCell>
+                        <DistributorAliadoAssignmentActions
+                          distributorId={distributor.id}
+                          currentAliadoId={distributor.aliado_id}
+                          aliados={aliados}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           )}

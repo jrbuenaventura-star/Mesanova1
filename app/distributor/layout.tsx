@@ -2,7 +2,7 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Home, Package, Users, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, DollarSign } from "lucide-react"
+import { Home, ShoppingCart, FileText, UserCog, AlertCircle, MessageSquare, Users, UserPlus, BarChart3 } from "lucide-react"
 import { MobileSidebar } from "@/components/layout/mobile-sidebar"
 
 export default async function DistributorLayout({
@@ -55,15 +55,23 @@ export default async function DistributorLayout({
     </div>
   ) : null
 
-  const navLinks = (
+  const navLinks = profile.role === "aliado" ? (
+    <>
+      <NavLink href="/aliado" icon={<Home className="h-4 w-4" />} label="Inicio" />
+      <NavLink href="/aliado/distributors" icon={<Users className="h-4 w-4" />} label="Mis Clientes" />
+      <NavLink href="/aliado/leads" icon={<UserPlus className="h-4 w-4" />} label="CRM / Leads" />
+      <NavLink href="/aliado/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Crear Pedido" />
+      <NavLink href="/aliado/stats" icon={<BarChart3 className="h-4 w-4" />} label="Estadísticas" />
+      <NavLink href="/distributor/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Soporte / PQRs" />
+      <div className="my-3 border-t" />
+      <NavLink href="/aliado/profile" icon={<UserCog className="h-4 w-4" />} label="Mi Perfil" />
+    </>
+  ) : (
     <>
       {setupAlert && <div className="mb-2">{setupAlert}</div>}
       <NavLink href="/distributor" icon={<Home className="h-4 w-4" />} label="Inicio" />
       <NavLink href="/distributor/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Mis Órdenes" />
       <NavLink href="/distributor/invoices" icon={<FileText className="h-4 w-4" />} label="Facturas" />
-      <NavLink href="/distributor/clients" icon={<Users className="h-4 w-4" />} label="Mis Clientes" />
-      <NavLink href="/productos" icon={<Package className="h-4 w-4" />} label="Catálogo" />
-      <NavLink href="/distributor/precios" icon={<DollarSign className="h-4 w-4" />} label="Mi Lista de Precios" />
       <NavLink href="/distributor/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Soporte / PQRs" />
       <div className="my-3 border-t" />
       <NavLink href="/distributor/profile" icon={<UserCog className="h-4 w-4" />} label="Perfil y Documentos" />
