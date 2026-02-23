@@ -105,7 +105,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Ver blog
+                  A Mesa Puesta
                 </Link>
               </li>
             </ul>

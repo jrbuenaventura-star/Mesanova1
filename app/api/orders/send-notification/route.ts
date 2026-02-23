@@ -177,22 +177,22 @@ function generateOrderEmailHTML(order: any): string {
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h2 style="margin-top: 0;">Información de la Orden</h2>
           <p><strong>Referencia:</strong> ${order.order_number || order.id.slice(0, 8)}</p>
-          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}</p>
+          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/D"}</p>
           <p><strong>Estado:</strong> ${order.status}</p>
         </div>
 
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h2 style="margin-top: 0;">Información del Aliado</h2>
-          <p><strong>Empresa:</strong> ${order.aliado?.company_name || 'N/A'}</p>
-          <p><strong>Contacto:</strong> ${order.aliado?.contact_name || 'N/A'}</p>
-          <p><strong>Email:</strong> ${order.aliado?.email || 'N/A'}</p>
+          <p><strong>Empresa:</strong> ${order.aliado?.company_name || 'N/D'}</p>
+          <p><strong>Contacto:</strong> ${order.aliado?.contact_name || 'N/D'}</p>
+          <p><strong>Email:</strong> ${order.aliado?.email || 'N/D'}</p>
         </div>
 
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h2 style="margin-top: 0;">Información del Distribuidor</h2>
-          <p><strong>Empresa:</strong> ${order.distributor?.company_name || order.customer_name || 'N/A'}</p>
-          <p><strong>Contacto:</strong> ${order.distributor?.contact_name || 'N/A'}</p>
-          <p><strong>Email:</strong> ${order.distributor?.contact_email || order.customer_email || 'N/A'}</p>
+          <p><strong>Empresa:</strong> ${order.distributor?.company_name || order.customer_name || 'N/D'}</p>
+          <p><strong>Contacto:</strong> ${order.distributor?.contact_name || 'N/D'}</p>
+          <p><strong>Email:</strong> ${order.distributor?.contact_email || order.customer_email || 'N/D'}</p>
         </div>
 
         <h2>Productos</h2>
@@ -267,7 +267,7 @@ function generateOrderStatusEmailHTML(
           <p><strong>Referencia:</strong> ${order.order_number || order.id.slice(0, 8)}</p>
           <p><strong>Estado:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusLabel}</span></p>
           <p><strong>Total:</strong> $${Number(order.total || 0).toFixed(2)}</p>
-          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}</p>
+          <p><strong>Fecha:</strong> ${order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/D"}</p>
         </div>
 
         ${reason ? `

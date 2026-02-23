@@ -201,7 +201,7 @@ export function ClientsDashboard() {
       c.totalSpent.toFixed(0),
       c.orderCount,
       c.avgOrderValue.toFixed(0),
-      c.recencyDays ?? "N/A",
+      c.recencyDays ?? "N/D",
       c.ordersLastYear,
       c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString("es-CO") : "Nunca",
     ])

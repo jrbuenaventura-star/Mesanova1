@@ -6,10 +6,10 @@ import Image from "next/image"
 import { CalendarDays } from "lucide-react"
 
 export const metadata = {
-  title: "A mesa puesta - Blog de Mesanova",
+  title: "A Mesa Puesta - Mesanova",
   description: "Artículos, tendencias y consejos sobre vajilla, decoración de mesa y el arte de recibir",
   openGraph: {
-    title: "A mesa puesta - Blog de Mesanova",
+    title: "A Mesa Puesta - Mesanova",
     description: "Artículos, tendencias y consejos sobre vajilla, decoración de mesa y el arte de recibir",
     siteName: "Mesanova",
     type: "website",
@@ -27,7 +27,7 @@ export default async function BlogPage() {
       {/* Header */}
       <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">A mesa puesta</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">A Mesa Puesta</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Artículos, tendencias y consejos sobre vajilla, productos de cocina y el arte de recibir
           </p>

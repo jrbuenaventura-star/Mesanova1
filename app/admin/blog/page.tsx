@@ -66,12 +66,12 @@ export default function AdminBlogPage() {
       .eq("id", deleteDialog.postId)
 
     if (error) {
-      toast.error("Error deleting", {
-        description: "Could not delete the post. Please try again."
+      toast.error("Error al eliminar", {
+        description: "No se pudo eliminar la publicación. Intenta nuevamente."
       })
     } else {
-      toast.success("Post deleted", {
-        description: "The post has been successfully deleted"
+      toast.success("Publicación eliminada", {
+        description: "La publicación se eliminó correctamente"
       })
       loadPosts()
     }
@@ -80,20 +80,20 @@ export default function AdminBlogPage() {
   }
 
   if (isLoading) {
-    return <div className="container mx-auto py-10">Loading...</div>
+    return <div className="container mx-auto py-10">Cargando...</div>
   }
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gestión del Blog</h1>
-          <p className="text-muted-foreground">Administra las publicaciones de "A mesa puesta"</p>
+          <h1 className="text-3xl font-bold">Gestión de A Mesa Puesta</h1>
+          <p className="text-muted-foreground">Administra las publicaciones de "A Mesa Puesta"</p>
         </div>
         <Button asChild>
           <Link href="/admin/blog/nuevo">
             <Plus className="h-4 w-4 mr-2" />
-            New Post
+            Nueva publicación
           </Link>
         </Button>
       </div>
@@ -108,14 +108,14 @@ export default function AdminBlogPage() {
                   <CardDescription className="line-clamp-2">{post.excerpt}</CardDescription>
                 </div>
                 <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                  {post.status === "published" ? "Published" : "Draft"}
+                  {post.status === "published" ? "Publicado" : post.status === "archived" ? "Archivado" : "Borrador"}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  By {post.author?.full_name || "Unknown author"} •{" "}
+                  Por {post.author?.full_name || "Autor desconocido"} •{" "}
                   {new Date(post.created_at).toLocaleDateString("es-CO")}
                 </div>
                 <div className="flex gap-2">
@@ -151,8 +151,8 @@ export default function AdminBlogPage() {
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
         onConfirm={handleDelete}
-        title="Delete blog post?"
-        description="This action cannot be undone. The post will be permanently deleted."
+        title="¿Eliminar publicación?"
+        description="Esta acción no se puede deshacer. La publicación se eliminará de forma permanente."
         itemName={deleteDialog.postTitle}
       />
     </div>

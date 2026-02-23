@@ -98,10 +98,10 @@ export default async function AdminDashboard() {
 
   const panelGroups = [
     {
-      title: "1) Home",
+      title: "1) Inicio",
       icon: Image,
       links: [
-        { href: "/admin/home?tab=banner-home", label: "/banner-home" },
+        { href: "/admin/home?tab=banner-home", label: "/banner-inicio" },
         { href: "/admin/home?tab=productos-destacados", label: "/productos-destacados", icon: Sparkles },
       ],
     },
@@ -109,7 +109,7 @@ export default async function AdminDashboard() {
       title: "2) Productos",
       icon: Package,
       links: [
-        { href: "/admin/productos?tab=productos", label: "/products" },
+        { href: "/admin/productos?tab=productos", label: "/productos" },
         { href: "/admin/productos?tab=productos-csv", label: "/productos/csv", icon: FileSpreadsheet },
       ],
     },
@@ -117,16 +117,16 @@ export default async function AdminDashboard() {
       title: "3) Órdenes",
       icon: ShoppingCart,
       links: [
-        { href: "/admin/ordenes?tab=ordenes", label: "/orders" },
-        { href: "/admin/ordenes?tab=aprobar-ordenes", label: "/orders/approval" },
+        { href: "/admin/ordenes?tab=ordenes", label: "/ordenes" },
+        { href: "/admin/ordenes?tab=aprobar-ordenes", label: "/ordenes/aprobacion" },
       ],
     },
     {
       title: "4) Red Comercial",
       icon: Building2,
       links: [
-        { href: "/admin/red-comercial?tab=clientes", label: "/distributors" },
-        { href: "/admin/red-comercial?tab=clientes-csv", label: "/distributors/csv", icon: FileSpreadsheet },
+        { href: "/admin/red-comercial?tab=clientes", label: "/clientes" },
+        { href: "/admin/red-comercial?tab=clientes-csv", label: "/clientes/csv", icon: FileSpreadsheet },
         { href: "/admin/red-comercial?tab=aliados", label: "/aliados", icon: Users },
       ],
     },
@@ -134,8 +134,8 @@ export default async function AdminDashboard() {
       title: "5) Configuración",
       icon: Settings,
       links: [
-        { href: "/admin/settings", label: "/settings" },
-        { href: "/admin/settings?tab=usuarios", label: "/settings/users", icon: Users },
+        { href: "/admin/settings", label: "/configuracion" },
+        { href: "/admin/settings?tab=usuarios", label: "/configuracion/usuarios", icon: Users },
       ],
     },
   ]
@@ -144,7 +144,7 @@ export default async function AdminDashboard() {
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Panel principal</h1>
           <p className="text-muted-foreground">Resumen general de Mesanova</p>
         </div>
         <Badge variant="outline" className="text-sm">
@@ -254,7 +254,7 @@ export default async function AdminDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Leads en Pipeline</p>
+                <p className="text-sm text-muted-foreground">Prospectos en embudo</p>
                 <p className="text-xl font-bold">{leadsCount}</p>
               </div>
               <UserPlus className="h-8 w-8 text-muted-foreground/50" />
@@ -337,7 +337,7 @@ export default async function AdminDashboard() {
 
       {/* Módulos del panel */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Módulos Integrados del Superadmin</h2>
+        <h2 className="text-lg font-semibold mb-4">Módulos integrados del superadministrador</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {panelGroups.map((group) => {
             const GroupIcon = group.icon

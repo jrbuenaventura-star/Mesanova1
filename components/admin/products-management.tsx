@@ -222,7 +222,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by SKU, name or brand..."
+              placeholder="Buscar por SKU, nombre o marca..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -231,7 +231,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
           <Button asChild>
             <Link href="/admin/products/nuevo">
               <Plus className="mr-2 h-4 w-4" />
-              Add Product
+              Agregar producto
             </Link>
           </Button>
         </div>
@@ -240,10 +240,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
         <div className="flex flex-wrap items-center gap-3">
           <Select value={filterSilo} onValueChange={handleSiloChange}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Category" />
+              <SelectValue placeholder="Categoría" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="all">Todas las categorías</SelectItem>
               {silos.map(silo => (
                 <SelectItem key={silo.id} value={silo.id}>{silo.name}</SelectItem>
               ))}
@@ -253,10 +253,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
           {filteredSubcategories.length > 0 && (
             <Select value={filterSubcategory} onValueChange={handleSubcategoryChange}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Subcategory" />
+                <SelectValue placeholder="Subcategoría" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All subcategories</SelectItem>
+                <SelectItem value="all">Todas las subcategorías</SelectItem>
                 {filteredSubcategories.map(sub => (
                   <SelectItem key={sub.id} value={sub.id}>{sub.name}</SelectItem>
                 ))}
@@ -267,10 +267,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
           {filteredProductTypes.length > 0 && (
             <Select value={filterProductType} onValueChange={setFilterProductType}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Product type" />
+                <SelectValue placeholder="Tipo de producto" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="all">Todos los tipos</SelectItem>
                 {filteredProductTypes.map(pt => (
                   <SelectItem key={pt.id} value={pt.id}>{pt.name}</SelectItem>
                 ))}
@@ -280,10 +280,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
 
           <Select value={filterMarca} onValueChange={setFilterMarca}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Brand" />
+              <SelectValue placeholder="Marca" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All brands</SelectItem>
+              <SelectItem value="all">Todas las marcas</SelectItem>
               {marcas.map(marca => (
                 <SelectItem key={marca} value={marca}>{marca}</SelectItem>
               ))}
@@ -292,14 +292,14 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
 
           <Select value={filterEstado} onValueChange={setFilterEstado}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="activo">Active</SelectItem>
-              <SelectItem value="inactivo">Inactive</SelectItem>
-              <SelectItem value="descontinuado">Discontinued</SelectItem>
-              <SelectItem value="pedido_camino">In transit</SelectItem>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="activo">Activo</SelectItem>
+              <SelectItem value="inactivo">Inactivo</SelectItem>
+              <SelectItem value="descontinuado">Descontinuado</SelectItem>
+              <SelectItem value="pedido_camino">En camino</SelectItem>
             </SelectContent>
           </Select>
 
@@ -315,12 +315,12 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                 setFilterEstado("all")
               }}
             >
-              Clear filters
+              Limpiar filtros
             </Button>
           )}
 
           <div className="ml-auto text-sm text-muted-foreground">
-            {filteredProducts.length} of {products.length} products
+            {filteredProducts.length} de {products.length} productos
           </div>
         </div>
       </div>
@@ -330,20 +330,20 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[60px]">Image</TableHead>
+              <TableHead className="w-[60px]">Imagen</TableHead>
               <TableHead className="w-[100px]">SKU</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead className="w-[100px]">Price</TableHead>
+              <TableHead>Producto</TableHead>
+              <TableHead className="w-[100px]">Precio</TableHead>
               <TableHead className="w-[80px]">Stock</TableHead>
-              <TableHead className="w-[80px]">Status</TableHead>
-              <TableHead className="w-[60px]">Actions</TableHead>
+              <TableHead className="w-[80px]">Estado</TableHead>
+              <TableHead className="w-[60px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  No products found.
+                  No se encontraron productos.
                 </TableCell>
               </TableRow>
             ) : (
@@ -354,7 +354,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                       {product.imagen_principal_url ? (
                         <Image
                           src={product.imagen_principal_url}
-                          alt={product.nombre_comercial || product.pdt_descripcion || "Product"}
+                          alt={product.nombre_comercial || product.pdt_descripcion || "Producto"}
                           fill
                           className="object-cover"
                           unoptimized
@@ -365,7 +365,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-muted text-[10px] text-muted-foreground">
-                          N/A
+                          N/D
                         </div>
                       )}
                     </div>
@@ -379,15 +379,15 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                         {product.descontinuado && (
                           <Badge variant="destructive" className="text-[10px] px-1 py-0">
                             <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />
-                            Disc.
+                            Desc.
                           </Badge>
                         )}
                         {product.pedido_en_camino && (
-                          <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                            <Package className="h-2.5 w-2.5 mr-0.5" />
-                            Transit
-                          </Badge>
-                        )}
+                            <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                              <Package className="h-2.5 w-2.5 mr-0.5" />
+                              En camino
+                            </Badge>
+                          )}
                       </div>
                     </div>
                   </TableCell>
@@ -397,7 +397,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                         <div className="font-medium text-sm">${product.precio.toLocaleString()}</div>
                         {product.descuento_porcentaje && product.descuento_porcentaje > 0 && (
                           <Badge variant="secondary" className="text-[10px] px-1 py-0 mt-0.5">
-                            {product.descuento_porcentaje}% OFF
+                            {product.descuento_porcentaje}% DTO.
                           </Badge>
                         )}
                       </div>
@@ -412,7 +412,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                   </TableCell>
                   <TableCell>
                     <Badge variant={product.is_active ? "default" : "secondary"} className="text-xs">
-                      {product.is_active ? "Active" : "Inactive"}
+                      {product.is_active ? "Activo" : "Inactivo"}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -425,17 +425,17 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleOpenPriceDialog(product)}>
                           <Pencil className="mr-2 h-4 w-4" />
-                          Edit Price & Discount
+                          Editar precio y descuento
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/products/${product.id}/editar`} className="flex items-center">
                             <ExternalLink className="mr-2 h-4 w-4" />
-                            Advanced Edit
+                            Edición avanzada
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)} className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          Eliminar
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -451,12 +451,12 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
       <Dialog open={priceDialogOpen} onOpenChange={setPriceDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Price & Discount</DialogTitle>
+            <DialogTitle>Editar precio y descuento</DialogTitle>
             <DialogDescription>{editingProduct?.nombre_comercial || editingProduct?.pdt_descripcion}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Precio ($)</Label>
               <Input
                 id="price"
                 type="number"
@@ -467,7 +467,7 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="discount">Discount (%)</Label>
+              <Label htmlFor="discount">Descuento (%)</Label>
               <Input
                 id="discount"
                 type="number"
@@ -479,12 +479,12 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                If discount is greater than 0, the product will appear in Offers
+                Si el descuento es mayor a 0, el producto aparecerá en Ofertas
               </p>
             </div>
             {Number.parseFloat(editDiscount) > 0 && Number.parseFloat(editPrice) > 0 && (
               <div className="rounded-md bg-muted p-3">
-                <div className="text-sm font-medium">Discounted price:</div>
+                <div className="text-sm font-medium">Precio con descuento:</div>
                 <div className="text-2xl font-bold text-primary">
                   $
                   {getPriceWithDiscount(Number.parseFloat(editPrice), Number.parseFloat(editDiscount)).toLocaleString()}
@@ -496,20 +496,20 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
             )}
 
             <div className="border-t pt-4 mt-2">
-              <p className="text-sm font-medium mb-3">Distributor Pricing</p>
+              <p className="text-sm font-medium mb-3">Precios para distribuidores</p>
               <div className="space-y-2">
-                <Label htmlFor="precio-dist">Distributor Price ($)</Label>
+                <Label htmlFor="precio-dist">Precio distribuidor ($)</Label>
                 <Input
                   id="precio-dist"
                   type="number"
                   step="0.01"
                   value={editPrecioDist}
                   onChange={(e) => setEditPrecioDist(e.target.value)}
-                  placeholder="Leave empty if N/A"
+                  placeholder="Dejar vacío si no aplica"
                 />
               </div>
               <div className="space-y-2 mt-2">
-                <Label htmlFor="desc-dist">Product Distributor Discount (%)</Label>
+                <Label htmlFor="desc-dist">Descuento distribuidor del producto (%)</Label>
                 <Input
                   id="desc-dist"
                   type="number"
@@ -521,17 +521,17 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
                   placeholder="0"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Applies to ALL distributors on this product, after their own discount %
+                  Aplica a TODOS los distribuidores en este producto, después de su propio descuento %
                 </p>
               </div>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPriceDialogOpen(false)} disabled={isLoading}>
-              Cancel
+              Cancelar
             </Button>
             <Button onClick={handleSavePriceDiscount} disabled={isLoading} aria-label="Acción">
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? "Guardando..." : "Guardar cambios"}
             </Button>
           </DialogFooter>
         </DialogContent>

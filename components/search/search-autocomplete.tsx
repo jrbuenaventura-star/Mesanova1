@@ -204,7 +204,7 @@ export function SearchAutocomplete() {
               )}
 
               {blogResults.length > 0 && (
-                <CommandGroup heading="Blog">
+                <CommandGroup heading="A Mesa Puesta">
                   {blogResults.map((blog) => (
                     <CommandItem
                       key={blog.id}

@@ -169,7 +169,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
-                          {order.aliado?.company_name || "N/A"}
+                          {order.aliado?.company_name || "N/D"}
                         </span>
                       </div>
                     </TableCell>
@@ -184,7 +184,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/D"}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -199,7 +199,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                           {order.discount_percentage}%
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground text-sm">N/A</span>
+                        <span className="text-muted-foreground text-sm">N/D</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -271,7 +271,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Aliado</p>
-                  <p className="font-medium">{selectedOrder.aliado?.company_name || "N/A"}</p>
+                  <p className="font-medium">{selectedOrder.aliado?.company_name || "N/D"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Distribuidor</p>
@@ -350,7 +350,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                   <CardContent className="space-y-2 text-sm">
                     <div>
                       <p className="text-muted-foreground">Aliado</p>
-                      <p className="font-medium">{selectedOrder.aliado?.company_name || "N/A"}</p>
+                      <p className="font-medium">{selectedOrder.aliado?.company_name || "N/D"}</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Distribuidor</p>
@@ -361,7 +361,7 @@ export function OrdersApproval({ orders, userId }: OrdersApprovalProps) {
                     <div>
                       <p className="text-muted-foreground">Fecha</p>
                       <p className="font-medium">
-                        {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleDateString() : "N/A"}
+                        {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleDateString() : "N/D"}
                       </p>
                     </div>
                   </CardContent>

@@ -20,11 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getBlogPostBySlug(slug)
 
   if (!post) {
-    return { title: "Post not found" }
+    return { title: "Artículo no encontrado" }
   }
 
-  const seoTitle = post.meta_title || `${post.title} - Mesanova Blog`
-  const seoDescription = post.meta_description || post.excerpt || `Read ${post.title} on the Mesanova blog`
+  const seoTitle = post.meta_title || `${post.title} - A Mesa Puesta`
+  const seoDescription = post.meta_description || post.excerpt || `Lee ${post.title} en A Mesa Puesta`
   const postUrl = `https://mesanova.co/blog/${post.slug}`
 
   return {
@@ -114,7 +114,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/blog">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Ver blog
+            A Mesa Puesta
           </Link>
         </Button>
 
@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
               <time dateTime={post.published_at}>
-                {new Date(post.published_at!).toLocaleDateString("en-US", {
+                {new Date(post.published_at!).toLocaleDateString("es-CO", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -165,11 +165,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span>{readingTime} min read</span>
+              <span>{readingTime} min de lectura</span>
             </div>
             <div className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
-              <span>{post.views_count || 0} views</span>
+              <span>{post.views_count || 0} vistas</span>
             </div>
           </div>
 
@@ -195,7 +195,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* Related Posts */}
         {relatedPosts && relatedPosts.length > 0 && (
           <section className="mt-16 pt-8 border-t">
-            <h2 className="text-2xl font-bold mb-6">Related articles</h2>
+            <h2 className="text-2xl font-bold mb-6">Artículos relacionados</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPosts.map((relatedPost) => (
                 <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`} aria-label="Leer artículo">

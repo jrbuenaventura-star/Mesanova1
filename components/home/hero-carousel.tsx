@@ -131,14 +131,14 @@ export function HeroCarousel({ slides, hideContent = false }: HeroCarouselProps)
           <button
             onClick={prevSlide}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all"
-            aria-label="Slide anterior"
+            aria-label="Diapositiva anterior"
           >
             <ChevronLeft className="h-6 w-6 text-white" />
           </button>
           <button
             onClick={nextSlide}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all"
-            aria-label="Siguiente slide"
+            aria-label="Siguiente diapositiva"
           >
             <ChevronRight className="h-6 w-6 text-white" />
           </button>
@@ -154,7 +154,7 @@ export function HeroCarousel({ slides, hideContent = false }: HeroCarouselProps)
                     ? 'w-8 bg-white'
                     : 'w-2 bg-white/50 hover:bg-white/75'
                 }`}
-                aria-label={`Ir al slide ${index + 1}`}
+                aria-label={`Ir a la diapositiva ${index + 1}`}
               />
             ))}
           </div>

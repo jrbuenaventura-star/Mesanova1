@@ -100,7 +100,7 @@ export default function OrderConfirmationPage() {
             <div>
               <p className="text-sm text-muted-foreground">Fecha</p>
               <p className="font-medium">
-                {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
+                {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/D"}
               </p>
             </div>
             <div>

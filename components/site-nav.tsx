@@ -156,7 +156,7 @@ export function SiteNav() {
 
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link href="/blog" className={navigationMenuTriggerStyle()}>Ver blog</Link>
+              <Link href="/blog" className={navigationMenuTriggerStyle()}>A Mesa Puesta</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
 
@@ -258,7 +258,7 @@ export function SiteNav() {
 
               <SheetClose asChild>
                 <Link href="/blog" className="text-lg font-semibold hover:text-primary transition-colors">
-                  Ver blog
+                  A Mesa Puesta
                 </Link>
               </SheetClose>
 

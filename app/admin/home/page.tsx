@@ -3,7 +3,7 @@ import ProductosDestacadosPage from "@/app/admin/productos-destacados/page"
 import { AdminSectionTabs, type AdminSectionTab } from "@/components/admin/admin-section-tabs"
 
 const HOME_TABS: AdminSectionTab[] = [
-  { value: "banner-home", label: "Banner Home" },
+  { value: "banner-home", label: "Banner de inicio" },
   { value: "productos-destacados", label: "Productos destacados" },
 ]
 
@@ -18,8 +18,8 @@ export default async function AdminHomeTabsPage({
   return (
     <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-3xl font-bold">Home</h1>
-        <p className="text-muted-foreground">Gestiona el contenido principal del home desde un solo lugar.</p>
+        <h1 className="text-3xl font-bold">Inicio</h1>
+        <p className="text-muted-foreground">Gestiona el contenido principal de la página de inicio desde un solo lugar.</p>
       </div>
 
       <AdminSectionTabs basePath="/admin/home" activeTab={currentTab} tabs={HOME_TABS} />

@@ -132,7 +132,7 @@ export default async function PerfilPage() {
                 <Button asChild className="w-full" variant="default">
                   <Link href="/admin">
                     <Settings className="h-4 w-4 mr-2" />
-                    Panel Admin
+                    Panel de administración
                   </Link>
                 </Button>
               )}
@@ -141,7 +141,7 @@ export default async function PerfilPage() {
                 <Button asChild className="w-full" variant="default">
                   <Link href="/distributor">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Mi Dashboard
+                    Mi panel
                   </Link>
                 </Button>
               )}
@@ -172,13 +172,13 @@ export default async function PerfilPage() {
           {userProfile?.role === "superadmin" && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Privilegios de Admin</CardTitle>
+                <CardTitle className="text-lg">Privilegios de administración</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Gestionar usuarios</li>
                   <li>• Administrar productos</li>
-                  <li>• Editar blog</li>
+                  <li>• Editar A Mesa Puesta</li>
                   <li>• Configuración del sitio</li>
                 </ul>
               </CardContent>

@@ -196,7 +196,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                   <p className="text-sm text-muted-foreground mt-1">{activity.description}</p>
                   {activity.old_stage || activity.new_stage ? (
                     <p className="text-xs mt-2 text-muted-foreground">
-                      Etapa: {activity.old_stage || "N/A"} → {activity.new_stage || "N/A"}
+                      Etapa: {activity.old_stage || "N/D"} → {activity.new_stage || "N/D"}
                     </p>
                   ) : null}
                 </div>

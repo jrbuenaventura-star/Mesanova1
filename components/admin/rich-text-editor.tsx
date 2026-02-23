@@ -123,7 +123,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Upload failed")
+        throw new Error("No se pudo subir el archivo")
       }
 
       const data = await response.json()
@@ -137,20 +137,20 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           .chain()
           .focus()
           .insertContent(
-            `<video controls class="max-w-full h-auto rounded-lg my-4"><source src="${data.url}" type="${file.type}">Your browser does not support the video element.</video>`,
+            `<video controls class="max-w-full h-auto rounded-lg my-4"><source src="${data.url}" type="${file.type}">Tu navegador no soporta el elemento de video.</video>`,
           )
           .run()
         setVideoDialogOpen(false)
       }
 
       toast({
-        title: "Success",
-        description: `${type === "image" ? "Image" : "Video"} uploaded and optimized`,
+        title: "Éxito",
+        description: `${type === "image" ? "Imagen" : "Video"} cargado y optimizado`,
       })
     } catch (error) {
       toast({
         title: "Error",
-        description: "Could not upload the file",
+        description: "No se pudo subir el archivo",
         variant: "destructive",
       })
     } finally {
@@ -175,7 +175,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         .chain()
         .focus()
         .insertContent(
-          `<video controls class="max-w-full h-auto rounded-lg my-4"><source src="${videoUrl}" type="video/mp4">Your browser does not support the video element.</video>`,
+          `<video controls class="max-w-full h-auto rounded-lg my-4"><source src="${videoUrl}" type="video/mp4">Tu navegador no soporta el elemento de video.</video>`,
         )
         .run()
       setVideoUrl("")
@@ -199,55 +199,55 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       {/* Toolbar */}
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1 items-center">
         {/* Text Formatting */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-muted" : ""} title="Bold" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-muted" : ""} title="Negrita" aria-label="Acción">
           <Bold className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-muted" : ""} title="Italic" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-muted" : ""} title="Cursiva" aria-label="Acción">
           <Italic className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive("underline") ? "bg-muted" : ""} title="Underline" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive("underline") ? "bg-muted" : ""} title="Subrayado" aria-label="Acción">
           <UnderlineIcon className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Headings */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""} title="Heading 1" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""} title="Encabezado 1" aria-label="Acción">
           <Heading1 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""} title="Heading 2" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""} title="Encabezado 2" aria-label="Acción">
           <Heading2 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive("heading", { level: 3 }) ? "bg-muted" : ""} title="Heading 3" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive("heading", { level: 3 }) ? "bg-muted" : ""} title="Encabezado 3" aria-label="Acción">
           <Heading3 className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Lists */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-muted" : ""} title="Bullet List" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-muted" : ""} title="Lista con viñetas" aria-label="Acción">
           <List className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-muted" : ""} title="Ordered List" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-muted" : ""} title="Lista numerada" aria-label="Acción">
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive("blockquote") ? "bg-muted" : ""} title="Blockquote" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive("blockquote") ? "bg-muted" : ""} title="Cita" aria-label="Acción">
           <Quote className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule" aria-label="Quitar">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Línea horizontal" aria-label="Insertar línea horizontal">
           <Minus className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Alignment */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={editor.isActive({ textAlign: "left" }) ? "bg-muted" : ""} title="Align Left" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={editor.isActive({ textAlign: "left" }) ? "bg-muted" : ""} title="Alinear a la izquierda" aria-label="Acción">
           <AlignLeft className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={editor.isActive({ textAlign: "center" }) ? "bg-muted" : ""} title="Align Center" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={editor.isActive({ textAlign: "center" }) ? "bg-muted" : ""} title="Centrar" aria-label="Acción">
           <AlignCenter className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={editor.isActive({ textAlign: "right" }) ? "bg-muted" : ""} title="Align Right" aria-label="Acción">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={editor.isActive({ textAlign: "right" }) ? "bg-muted" : ""} title="Alinear a la derecha" aria-label="Acción">
           <AlignRight className="h-4 w-4" />
         </Button>
 
@@ -256,14 +256,14 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Link */}
         <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-muted" : ""} title="Insert Link" aria-label="Abrir enlace">
+            <Button type="button" variant="ghost" size="sm" onClick={openLinkDialog} className={editor.isActive("link") ? "bg-muted" : ""} title="Insertar enlace" aria-label="Abrir enlace">
               <LinkIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Insert Link</DialogTitle>
-              <DialogDescription>Add a URL to the selected text</DialogDescription>
+              <DialogTitle>Insertar enlace</DialogTitle>
+              <DialogDescription>Agrega una URL al texto seleccionado</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -283,8 +283,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setLinkDialogOpen(false)}>Cancel</Button>
-              <Button type="button" onClick={setLink} disabled={!linkUrl}>Insert Link</Button>
+              <Button type="button" variant="outline" onClick={() => setLinkDialogOpen(false)}>Cancelar</Button>
+              <Button type="button" onClick={setLink} disabled={!linkUrl}>Insertar enlace</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -294,8 +294,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           size="sm"
           onClick={() => editor.chain().focus().unsetLink().run()}
           disabled={!editor.isActive("link")}
-          title="Remove Link"
-         aria-label="Abrir enlace">
+          title="Quitar enlace"
+         aria-label="Quitar enlace">
           <Unlink className="h-4 w-4" />
         </Button>
 
@@ -304,27 +304,27 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Image */}
         <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" title="Insert Image" aria-label="Imagen">
+            <Button type="button" variant="ghost" size="sm" title="Insertar imagen" aria-label="Imagen">
               <ImageIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Insert Image</DialogTitle>
-              <DialogDescription>Upload an image or enter a URL. Images are automatically resized and optimized.</DialogDescription>
+              <DialogTitle>Insertar imagen</DialogTitle>
+              <DialogDescription>Sube una imagen o pega una URL. Las imágenes se redimensionan y optimizan automáticamente.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="image-alt">Alt Text (for SEO & accessibility)</Label>
+                <Label htmlFor="image-alt">Texto alternativo (para SEO y accesibilidad)</Label>
                 <Input
                   id="image-alt"
-                  placeholder="Describe the image..."
+                  placeholder="Describe la imagen..."
                   value={imageAlt}
                   onChange={(e) => setImageAlt(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image-file">Upload from your computer</Label>
+                <Label htmlFor="image-file">Subir desde tu equipo</Label>
                 <Input
                   ref={fileInputRef}
                   id="image-file"
@@ -336,14 +336,14 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
                   }}
                   disabled={uploading}
                 />
-                <p className="text-xs text-muted-foreground">Images are automatically resized to max 1200px and converted to WebP</p>
+                <p className="text-xs text-muted-foreground">Las imágenes se redimensionan automáticamente a 1200px máximo y se convierten a WebP</p>
               </div>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">OR</span></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">O</span></div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image-url">Image URL</Label>
+                <Label htmlFor="image-url">URL de la imagen</Label>
                 <Input
                   id="image-url"
                   placeholder="https://example.com/image.jpg"
@@ -360,8 +360,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => { setImageDialogOpen(false); setImageAlt("") }} disabled={uploading}>Cancel</Button>
-              <Button type="button" onClick={addImage} disabled={!imageUrl || uploading}>Insert URL</Button>
+              <Button type="button" variant="outline" onClick={() => { setImageDialogOpen(false); setImageAlt("") }} disabled={uploading}>Cancelar</Button>
+              <Button type="button" onClick={addImage} disabled={!imageUrl || uploading}>Insertar URL</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -369,18 +369,18 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         {/* Video */}
         <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" title="Insert Video" aria-label="Acción">
+            <Button type="button" variant="ghost" size="sm" title="Insertar video" aria-label="Acción">
               <VideoIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Insert Video</DialogTitle>
-              <DialogDescription>Upload a video or enter a URL</DialogDescription>
+              <DialogTitle>Insertar video</DialogTitle>
+              <DialogDescription>Sube un video o pega una URL</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="video-file">Upload from your computer</Label>
+                <Label htmlFor="video-file">Subir desde tu equipo</Label>
                 <Input
                   ref={videoInputRef}
                   id="video-file"
@@ -396,10 +396,10 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
               </div>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">OR</span></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">O</span></div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="video-url">Video URL</Label>
+                <Label htmlFor="video-url">URL del video</Label>
                 <Input
                   id="video-url"
                   placeholder="https://example.com/video.mp4"
@@ -416,8 +416,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setVideoDialogOpen(false)} disabled={uploading}>Cancel</Button>
-              <Button type="button" onClick={addVideo} disabled={!videoUrl || uploading}>Insert URL</Button>
+              <Button type="button" variant="outline" onClick={() => setVideoDialogOpen(false)} disabled={uploading}>Cancelar</Button>
+              <Button type="button" onClick={addVideo} disabled={!videoUrl || uploading}>Insertar URL</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -425,10 +425,10 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Undo/Redo */}
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Undo" aria-label="Deshacer">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Deshacer" aria-label="Deshacer">
           <Undo className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo" aria-label="Rehacer">
+        <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Rehacer" aria-label="Rehacer">
           <Redo className="h-4 w-4" />
         </Button>
       </div>

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return {
-    title: `${category.name} - Nuestra Mesa`,
+    title: `${category.name} - A Mesa Puesta`,
     description: category.description || `Artículos de ${category.name}`,
   }
 }
@@ -40,7 +40,7 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ s
           <Button variant="ghost" asChild className="mb-4">
             <Link href="/blog">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Ver blog
+              A Mesa Puesta
             </Link>
           </Button>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{currentCategory.name}</h1>

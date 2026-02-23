@@ -48,10 +48,17 @@ export default async function ReviewsAdminPage() {
     ))
   }
 
+  const getReviewStatusLabel = (status: string) => {
+    if (status === "approved") return "Aprobada"
+    if (status === "pending") return "Pendiente"
+    if (status === "rejected") return "Rechazada"
+    return status
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Moderación de Reviews</h1>
+        <h1 className="text-3xl font-bold">Moderación de reseñas</h1>
         <p className="text-muted-foreground">Gestiona las reseñas de productos</p>
       </div>
 
@@ -89,7 +96,7 @@ export default async function ReviewsAdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rating Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">Calificación promedio</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -98,10 +105,10 @@ export default async function ReviewsAdminPage() {
         </Card>
       </div>
 
-      {/* Reviews List */}
+      {/* Lista de reseñas */}
       <Card>
         <CardHeader>
-          <CardTitle>Todas las Reviews</CardTitle>
+          <CardTitle>Todas las reseñas</CardTitle>
           <CardDescription>Modera y responde a las reseñas de clientes</CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,7 +123,7 @@ export default async function ReviewsAdminPage() {
                         review.status === 'approved' ? 'default' :
                         review.status === 'pending' ? 'secondary' : 'destructive'
                       }>
-                        {review.status}
+                        {getReviewStatusLabel(review.status)}
                       </Badge>
                       {review.verified_purchase && (
                         <Badge variant="outline" className="text-green-600">
@@ -138,7 +145,7 @@ export default async function ReviewsAdminPage() {
                     )}
                     
                     <p className="text-sm text-muted-foreground">
-                      Producto: <strong>{review.product?.name || 'N/A'}</strong> ({review.product?.product_code})
+                      Producto: <strong>{review.product?.name || 'N/D'}</strong> ({review.product?.product_code})
                     </p>
                     
                     <div className="flex gap-2 text-sm text-muted-foreground">
@@ -200,7 +207,7 @@ export default async function ReviewsAdminPage() {
 
             {(!reviews || reviews.length === 0) && (
               <div className="text-center py-8 text-muted-foreground">
-                No hay reviews aún
+                No hay reseñas aún
               </div>
             )}
           </div>

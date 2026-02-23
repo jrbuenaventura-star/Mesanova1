@@ -38,18 +38,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const navLinks = (
     <>
-      <NavLink href="/admin" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
-      <NavLink href="/admin/home" icon={<Home className="h-4 w-4" />} label="Home" />
+      <NavLink href="/admin" icon={<LayoutDashboard className="h-4 w-4" />} label="Panel" />
+      <NavLink href="/admin/home" icon={<Home className="h-4 w-4" />} label="Inicio" />
       <NavLink href="/admin/productos" icon={<Package className="h-4 w-4" />} label="Productos" />
       <NavLink href="/admin/ordenes" icon={<ShoppingCart className="h-4 w-4" />} label="Órdenes" />
       <NavLink href="/admin/red-comercial" icon={<Users className="h-4 w-4" />} label="Red Comercial" />
       <NavLink href="/admin/gift-registries" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
-      <NavLink href="/admin/blog" icon={<FileText className="h-4 w-4" />} label="Blog" />
+      <NavLink href="/admin/blog" icon={<FileText className="h-4 w-4" />} label="A Mesa Puesta" />
       <NavLink href="/admin/analytics" icon={<BarChart3 className="h-4 w-4" />} label="Analíticas" />
       <NavLink href="/admin/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Gestión de PQRs" />
       <NavLink href="/admin/cupones" icon={<Tag className="h-4 w-4" />} label="Cupones" />
       <NavLink href="/admin/bonos" icon={<CreditCard className="h-4 w-4" />} label="Bonos de Regalo" />
-      <NavLink href="/admin/reviews" icon={<Star className="h-4 w-4" />} label="Reviews" />
+      <NavLink href="/admin/reviews" icon={<Star className="h-4 w-4" />} label="Reseñas" />
       <NavLink href="/admin/settings" icon={<Settings className="h-4 w-4" />} label="Configuración" />
     </>
   )

@@ -118,7 +118,7 @@ export default async function BonosAdminPage() {
                       Saldo: ${Number(card.current_balance).toLocaleString('es-CO')}
                     </span>
                     <span className="text-muted-foreground">
-                      Para: {card.recipient_name || 'N/A'}
+                      Para: {card.recipient_name || 'N/D'}
                     </span>
                   </div>
                   {card.expires_at && (

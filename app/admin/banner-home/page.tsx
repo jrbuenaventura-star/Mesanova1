@@ -156,10 +156,10 @@ export default function BannerHomePage() {
           .eq('id', editingSlide.id)
 
         if (error) {
-          toast.error('Error al actualizar slide')
+          toast.error('Error al actualizar la diapositiva')
           return
         }
-        toast.success('Slide actualizado exitosamente')
+        toast.success('Diapositiva actualizada exitosamente')
       } else {
         // Crear nuevo slide
         const maxOrder = slides.length > 0
@@ -175,10 +175,10 @@ export default function BannerHomePage() {
           })
 
         if (error) {
-          toast.error('Error al crear slide')
+          toast.error('Error al crear la diapositiva')
           return
         }
-        toast.success('Slide creado exitosamente')
+        toast.success('Diapositiva creada exitosamente')
       }
 
       setIsDialogOpen(false)
@@ -186,7 +186,7 @@ export default function BannerHomePage() {
       loadSlides()
     } catch (error) {
       console.error('Error saving slide:', error)
-      toast.error('No se pudo guardar el slide')
+      toast.error('No se pudo guardar la diapositiva')
     } finally {
       setIsSubmitting(false)
     }
@@ -224,7 +224,7 @@ export default function BannerHomePage() {
   }
 
   const deleteSlide = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este slide?')) return
+    if (!confirm('¿Estás seguro de eliminar esta diapositiva?')) return
 
     const supabase = createClient()
     const { error } = await supabase
@@ -233,11 +233,11 @@ export default function BannerHomePage() {
       .eq('id', id)
 
     if (error) {
-      toast.error('Error al eliminar slide')
+      toast.error('Error al eliminar la diapositiva')
       return
     }
 
-    toast.success('Slide eliminado')
+    toast.success('Diapositiva eliminada')
     loadSlides()
   }
 
@@ -253,7 +253,7 @@ export default function BannerHomePage() {
       return
     }
 
-    toast.success(currentState ? 'Slide desactivado' : 'Slide activado')
+    toast.success(currentState ? 'Diapositiva desactivada' : 'Diapositiva activada')
     loadSlides()
   }
 
@@ -285,9 +285,9 @@ export default function BannerHomePage() {
     <div className="container mx-auto py-8 px-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Banner del Home</h1>
+          <h1 className="text-3xl font-bold">Banner de Inicio</h1>
           <p className="text-muted-foreground">
-            Gestiona los slides del carrusel principal de la página de inicio
+            Gestiona las diapositivas del carrusel principal de la página de inicio
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -297,14 +297,14 @@ export default function BannerHomePage() {
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Nuevo Slide
+              Nueva diapositiva
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingSlide ? 'Editar Slide' : 'Nuevo Slide'}</DialogTitle>
+              <DialogTitle>{editingSlide ? 'Editar diapositiva' : 'Nueva diapositiva'}</DialogTitle>
               <DialogDescription>
-                Configura el contenido y diseño del slide del banner
+                Configura el contenido y diseño de la diapositiva del banner
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -320,7 +320,7 @@ export default function BannerHomePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subtitle">Subtítulo (Badge)</Label>
+                <Label htmlFor="subtitle">Subtítulo (insignia)</Label>
                 <Input
                   id="subtitle"
                   value={formData.subtitle}
@@ -341,7 +341,7 @@ export default function BannerHomePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_file">Imagen del Slide *</Label>
+                <Label htmlFor="image_file">Imagen de la Diapositiva (ideal: 3000x1000 px, proporción 3:1; mínimo 1920x700) *</Label>
                 <Input
                   id="image_file"
                   type="file"
@@ -360,7 +360,7 @@ export default function BannerHomePage() {
                   <div className="relative h-40 bg-muted rounded overflow-hidden">
                     <Image
                       src={selectedImagePreview || formData.image_url}
-                      alt="Preview"
+                      alt="Vista previa"
                       fill
                       className="object-cover"
                     />
@@ -392,7 +392,7 @@ export default function BannerHomePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="background_color">Color de Fondo (Overlay)</Label>
+                  <Label htmlFor="background_color">Color de fondo (superposición)</Label>
                   <div className="flex gap-2">
                     <Input
                       id="background_color"
@@ -433,7 +433,7 @@ export default function BannerHomePage() {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Guardando...' : `${editingSlide ? 'Actualizar' : 'Crear'} Slide`}
+                  {isSubmitting ? 'Guardando...' : `${editingSlide ? 'Actualizar' : 'Crear'} diapositiva`}
                 </Button>
               </div>
             </form>
@@ -441,14 +441,14 @@ export default function BannerHomePage() {
         </Dialog>
       </div>
 
-      {/* Lista de Slides */}
+      {/* Lista de diapositivas */}
       <div className="space-y-4">
         {slides.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p>No hay slides configurados</p>
-              <p className="text-sm">Crea tu primer slide para el banner del home</p>
+              <p>No hay diapositivas configuradas</p>
+              <p className="text-sm">Crea tu primera diapositiva para el banner de inicio</p>
             </CardContent>
           </Card>
         ) : (

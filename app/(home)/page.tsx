@@ -365,7 +365,7 @@ export default async function HomePage() {
               </div>
               <Button asChild variant="ghost" className="hidden md:flex">
                 <Link href="/blog">
-                  Ver blog
+                  A Mesa Puesta
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -409,7 +409,7 @@ export default async function HomePage() {
             <div className="text-center mt-8 md:hidden">
               <Button asChild variant="outline">
                 <Link href="/blog">
-                  Ver blog
+                  A Mesa Puesta
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
