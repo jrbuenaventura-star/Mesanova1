@@ -230,6 +230,47 @@ export const VALID_CATEGORIES = [
   'Mesa',
   'Café-Té-Bar',
 ];
+export const BASE_CATEGORY_SLUGS = ['mesa', 'cocina', 'cafe-te-bar'] as const;
+export type BaseCategorySlug = typeof BASE_CATEGORY_SLUGS[number];
+
+const BASE_CATEGORY_ALIASES: Record<BaseCategorySlug, string[]> = {
+  mesa: ['mesa'],
+  cocina: ['cocina'],
+  'cafe-te-bar': [
+    'cafe te bar',
+    'cafe te y bar',
+    'cafe y bar',
+    'cafe bar',
+    'cafe/te/bar',
+    'cafe-te-bar',
+    'cafe, te y bar',
+  ],
+};
+
+function normalizeCategoryLabel(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' y ')
+    .replace(/[^a-z0-9/-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function parseBaseCategorySlug(value: string): BaseCategorySlug | null {
+  const normalized = normalizeCategoryLabel(value);
+  if (!normalized) return null;
+
+  for (const [slug, aliases] of Object.entries(BASE_CATEGORY_ALIASES) as Array<[BaseCategorySlug, string[]]>) {
+    if (aliases.some((alias) => normalizeCategoryLabel(alias) === normalized)) {
+      return slug;
+    }
+  }
+
+  return null;
+}
 
 export const VALID_ROTACION = ['alta', 'media', 'baja'];
 

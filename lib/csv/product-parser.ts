@@ -12,6 +12,7 @@ import {
   normalizeBoolean,
   normalizeEstado,
   normalizeHoReCa,
+  parseBaseCategorySlug,
 } from './product-template';
 
 export interface ParsedProduct {
@@ -128,6 +129,9 @@ function splitCSVRows(csvContent: string): string[] {
 function validateRow(row: ProductCSVRow, rowNumber: number): { errors: ValidationError[]; warnings: ValidationWarning[] } {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
+  const normalizedHoReCa = normalizeHoReCa(row.HoReCa);
+  const requiresHoReCaBaseCategory = normalizedHoReCa === 'SI' || normalizedHoReCa === 'EXCLUSIVO';
+  const validCategorySlugs: string[] = [];
   
   // Validar campos requeridos
   for (const field of REQUIRED_FIELDS) {
@@ -212,12 +216,23 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     
     // Si la categoría tiene valor, validar que sea válida
     if (catValue) {
-      if (!VALID_CATEGORIES.some(c => c.toLowerCase() === catValue.toLowerCase())) {
-        warnings.push({
-          field: catSet.cat,
-          message: `Categoría "${catValue}" no reconocida. Válidas: ${VALID_CATEGORIES.join(', ')}`,
-          value: catValue,
-        });
+      const categorySlug = parseBaseCategorySlug(catValue);
+      if (!categorySlug) {
+        if (requiresHoReCaBaseCategory) {
+          errors.push({
+            field: catSet.cat,
+            message: `Para HoReCa (SI/EXCLUSIVO), ${catSet.cat} debe ser una de: ${VALID_CATEGORIES.join(', ')}`,
+            value: catValue,
+          });
+        } else {
+          warnings.push({
+            field: catSet.cat,
+            message: `Categoría "${catValue}" no reconocida. Válidas: ${VALID_CATEGORIES.join(', ')}`,
+            value: catValue,
+          });
+        }
+      } else {
+        validCategorySlugs.push(categorySlug);
       }
       
       // Si hay categoría pero no subcategoría (y es requerido o parcialmente completado)
@@ -240,6 +255,14 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
         value: '',
       });
     }
+  }
+
+  if (requiresHoReCaBaseCategory && validCategorySlugs.length === 0) {
+    errors.push({
+      field: 'Categoria_1',
+      message: `Los productos HoReCa (SI/EXCLUSIVO) deben pertenecer a: ${VALID_CATEGORIES.join(', ')}`,
+      value: row.Categoria_1 || '',
+    });
   }
   
   // Validar rotación esperada

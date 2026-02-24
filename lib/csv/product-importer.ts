@@ -7,7 +7,7 @@ import {
   parseEstadoValue,
   parseHoReCaValue,
 } from './product-parser';
-import { ProductCSVRow, parseDateDDMMYYYY } from './product-template';
+import { ProductCSVRow, parseBaseCategorySlug, parseDateDDMMYYYY } from './product-template';
 
 export interface ImportResult {
   success: boolean;
@@ -26,9 +26,11 @@ export interface ImportError {
 
 interface CategoryInfo {
   siloId: string;
+  siloSlug: string;
   subcategoryId: string;
   productTypeId?: string;
 }
+const HORECA_ALLOWED_SILO_SLUGS = new Set(['mesa', 'cocina', 'cafe-te-bar']);
 
 function normalizeKeyPart(value: string): string {
   return value
@@ -37,6 +39,20 @@ function normalizeKeyPart(value: string): string {
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, ' ');
+}
+
+function getSiloCacheKeys(silo: { slug: string; name: string }): string[] {
+  const keys = new Set<string>();
+  keys.add(normalizeKeyPart(silo.name));
+  keys.add(normalizeKeyPart(silo.slug));
+
+  const baseSlugFromName = parseBaseCategorySlug(silo.name);
+  if (baseSlugFromName) keys.add(normalizeKeyPart(baseSlugFromName));
+
+  const baseSlugFromSlug = parseBaseCategorySlug(silo.slug);
+  if (baseSlugFromSlug) keys.add(normalizeKeyPart(baseSlugFromSlug));
+
+  return Array.from(keys).filter(Boolean);
 }
 
 export async function importProducts(
@@ -176,37 +192,44 @@ async function buildCategoryCache(
   // Crear mapa combinado
   if (silos && subcategories) {
     for (const silo of silos) {
+      const siloKeys = getSiloCacheKeys({ slug: silo.slug, name: silo.name });
       const siloSubs = subcategories.filter(s => s.silo_id === silo.id);
       for (const sub of siloSubs) {
-        // Cache key para 2 niveles: silo|subcategoria
-        const subKey = `${normalizeKeyPart(silo.name)}|${normalizeKeyPart(sub.name)}`;
-        if (!cache.has(subKey)) {
-          cache.set(subKey, {
-            siloId: silo.id,
-            subcategoryId: sub.id,
-          });
-        }
+        for (const siloKey of siloKeys) {
+          // Cache key para 2 niveles: silo|subcategoria
+          const subKey = `${siloKey}|${normalizeKeyPart(sub.name)}`;
+          if (!cache.has(subKey)) {
+            cache.set(subKey, {
+              siloId: silo.id,
+              siloSlug: silo.slug,
+              subcategoryId: sub.id,
+            });
+          }
 
-        // Cache key para 1 nivel: solo silo (fallback)
-        const siloKey = `${normalizeKeyPart(silo.name)}`;
-        if (!cache.has(siloKey)) {
-          cache.set(siloKey, {
-            siloId: silo.id,
-            subcategoryId: sub.id,
-          });
+          // Cache key para 1 nivel: solo silo (fallback)
+          if (!cache.has(siloKey)) {
+            cache.set(siloKey, {
+              siloId: silo.id,
+              siloSlug: silo.slug,
+              subcategoryId: sub.id,
+            });
+          }
         }
 
         // También agregar tipos si existen
         if (productTypes) {
           const subTypes = productTypes.filter(t => t.subcategory_id === sub.id);
           for (const type of subTypes) {
-            const typeKey = `${normalizeKeyPart(silo.name)}|${normalizeKeyPart(sub.name)}|${normalizeKeyPart(type.name)}`;
-            if (!cache.has(typeKey)) {
-              cache.set(typeKey, {
-                siloId: silo.id,
-                subcategoryId: sub.id,
-                productTypeId: type.id,
-              });
+            for (const siloKey of siloKeys) {
+              const typeKey = `${siloKey}|${normalizeKeyPart(sub.name)}|${normalizeKeyPart(type.name)}`;
+              if (!cache.has(typeKey)) {
+                cache.set(typeKey, {
+                  siloId: silo.id,
+                  siloSlug: silo.slug,
+                  subcategoryId: sub.id,
+                  productTypeId: type.id,
+                });
+              }
             }
           }
         }
@@ -226,30 +249,38 @@ function getCategoryInfo(
   const subField = `Subcategoria_${index}` as keyof ProductCSVRow;
   const typeField = `Tipo_producto_${index}` as keyof ProductCSVRow;
   
-  const categoria = normalizeKeyPart(data[catField] || '');
+  const categoriaRaw = data[catField] || '';
+  const categoria = normalizeKeyPart(categoriaRaw);
   const subcategoria = normalizeKeyPart(data[subField] || '');
   const tipo = normalizeKeyPart(data[typeField] || '');
+  const baseCategorySlug = parseBaseCategorySlug(categoriaRaw || '');
+  const categoryKeys = new Set<string>();
   
   if (!categoria) return null;
-  
-  // Intentar con los 3 niveles
-  if (tipo) {
-    const key = `${categoria}|${subcategoria}|${tipo}`;
-    const info = cache.get(key);
-    if (info) return info;
+  categoryKeys.add(categoria);
+  if (baseCategorySlug) {
+    categoryKeys.add(normalizeKeyPart(baseCategorySlug));
   }
   
-  // Intentar con 2 niveles
-  if (subcategoria) {
-    const key = `${categoria}|${subcategoria}`;
-    const info = cache.get(key);
-    if (info) return info;
-  }
+  for (const categoryKey of categoryKeys) {
+    // Intentar con los 3 niveles
+    if (tipo) {
+      const key = `${categoryKey}|${subcategoria}|${tipo}`;
+      const info = cache.get(key);
+      if (info) return info;
+    }
+    
+    // Intentar con 2 niveles
+    if (subcategoria) {
+      const key = `${categoryKey}|${subcategoria}`;
+      const info = cache.get(key);
+      if (info) return info;
+    }
 
-  // Intentar con 1 nivel (solo silo)
-  const siloKey = `${categoria}`;
-  const siloInfo = cache.get(siloKey);
-  if (siloInfo) return siloInfo;
+    // Intentar con 1 nivel (solo silo)
+    const siloInfo = cache.get(categoryKey);
+    if (siloInfo) return siloInfo;
+  }
   
   return null;
 }
@@ -271,6 +302,26 @@ function getAllCategoryInfos(
   return categoryInfos;
 }
 
+function assertPrimaryCategoryResolved(categoryInfos: CategoryInfo[]): void {
+  if (categoryInfos.length === 0) {
+    throw new Error('No se pudo resolver una categoría válida (Categoria_1/Subcategoria_1) para el producto.');
+  }
+}
+
+function assertHoReCaCategoryConsistency(data: ProductCSVRow, categoryInfos: CategoryInfo[]): void {
+  const horecaValue = parseHoReCaValue(data.HoReCa);
+  if (horecaValue === 'NO') return;
+
+  if (categoryInfos.length === 0) {
+    throw new Error('Los productos HoReCa (SI/EXCLUSIVO) deben tener una categoría válida: Mesa, Cocina o Café, té y bar.');
+  }
+
+  const invalidCategory = categoryInfos.find((categoryInfo) => !HORECA_ALLOWED_SILO_SLUGS.has(categoryInfo.siloSlug));
+  if (invalidCategory) {
+    throw new Error('Los productos HoReCa (SI/EXCLUSIVO) solo pueden pertenecer a Mesa, Cocina o Café, té y bar.');
+  }
+}
+
 async function createProduct(
   supabase: Awaited<ReturnType<typeof createClient>>,
   data: ProductCSVRow,
@@ -284,6 +335,8 @@ async function createProduct(
   
   // Obtener todas las categorías (hasta 3)
   const categoryInfos = getAllCategoryInfos(data, categoryCache);
+  assertPrimaryCategoryResolved(categoryInfos);
+  assertHoReCaCategoryConsistency(data, categoryInfos);
   const primaryCategory = categoryInfos[0] || null;
   
   // Parsear fecha de lanzamiento (DD/MM/YYYY -> YYYY-MM-DD)
@@ -398,7 +451,8 @@ async function updateProduct(
   }
   
   const productId = existingProduct.id;
-  const categoryInfo = getCategoryInfo(data, categoryCache);
+  const categoryInfos = getAllCategoryInfos(data, categoryCache);
+  assertHoReCaCategoryConsistency(data, categoryInfos);
   
   // Construir objeto de actualización solo con campos cambiados
   const updateData: Record<string, unknown> = {
@@ -476,13 +530,14 @@ async function updateProduct(
   );
   
   if (categoryChanges.length > 0) {
+    assertPrimaryCategoryResolved(categoryInfos);
+
     // Eliminar categorías existentes y reinsertar
     await supabase
       .from('product_categories')
       .delete()
       .eq('product_id', productId);
     
-    const categoryInfos = getAllCategoryInfos(data, categoryCache);
     if (categoryInfos.length > 0) {
       const categoryInserts = categoryInfos.map((catInfo, index) => ({
         product_id: productId,

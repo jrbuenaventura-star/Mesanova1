@@ -111,6 +111,7 @@ export default async function AdminDashboard() {
       links: [
         { href: "/admin/productos?tab=productos", label: "/productos" },
         { href: "/admin/productos?tab=productos-csv", label: "/productos/csv", icon: FileSpreadsheet },
+        { href: "/admin/productos?tab=analisis-precios-ia", label: "/productos/analisis-precios-ia", icon: BarChart3 },
       ],
     },
     {

@@ -7,12 +7,22 @@
     },
     "app/api/products/csv/import/route.ts": {
       "maxDuration": 300
+    },
+    "app/api/admin/price-intelligence/run/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/cron/price-intelligence/route.ts": {
+      "maxDuration": 300
     }
   },
   "crons": [
     {
       "path": "/api/cron/distributor-document-reminders",
       "schedule": "0 14 * * 1"
+    },
+    {
+      "path": "/api/cron/price-intelligence",
+      "schedule": "0 13 * * *"
     }
   ]
 }

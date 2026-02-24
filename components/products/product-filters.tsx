@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { X, SlidersHorizontal } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
 
 interface ProductFiltersProps {
   categories?: Array<{ slug: string; name: string }>
@@ -56,11 +57,12 @@ export function ProductFilters({
   })
 
   const availableSubcategories = useMemo(() => {
+    if (categories.length > 0 && filters.categories.length === 0) return []
     if (filters.categories.length === 0) return subcategories
     return subcategories.filter((subcategory) =>
       !subcategory.siloSlug || filters.categories.includes(subcategory.siloSlug)
     )
-  }, [filters.categories, subcategories])
+  }, [categories.length, filters.categories, subcategories])
 
   // Product types available for selected subcategories
   const availableProductTypes = useMemo(() => {
@@ -73,14 +75,13 @@ export function ProductFilters({
       ? filters.categories.filter((slug) => slug !== categorySlug)
       : [...filters.categories, categorySlug]
 
-    const validSubcategoryIds = subcategories
-      .filter((subcategory) =>
-        newCategories.length === 0 || !subcategory.siloSlug || newCategories.includes(subcategory.siloSlug)
-      )
-      .map((subcategory) => subcategory.id)
-    const newSubcategories = filters.subcategories.filter((subcategoryId) =>
-      validSubcategoryIds.includes(subcategoryId)
-    )
+    const newSubcategories = newCategories.length === 0
+      ? []
+      : filters.subcategories.filter((subcategoryId) => {
+          const subcategory = subcategories.find((item) => item.id === subcategoryId)
+          if (!subcategory) return false
+          return !subcategory.siloSlug || newCategories.includes(subcategory.siloSlug)
+        })
 
     const validTypeIds = productTypes.filter((pt) => newSubcategories.includes(pt.subcategory_id)).map((pt) => pt.id)
     const newProductTypes = filters.productTypes.filter((id) => validTypeIds.includes(id))
@@ -171,30 +172,47 @@ export function ProductFilters({
     (filters.priceRange[0] !== (priceRange?.min || 0) || filters.priceRange[1] !== (priceRange?.max || 1000000)
       ? 1
       : 0)
+  const hasCategoryTabs = categories.length > 0
+  const showSubcategories = hasCategoryTabs
+    ? filters.categories.length > 0 && availableSubcategories.length > 0
+    : availableSubcategories.length > 0
 
   const FilterContent = () => (
     <div className="space-y-6">
-      {categories.length > 0 && (
+      {hasCategoryTabs && (
         <div>
           <h3 className="font-semibold mb-3">Categorías</h3>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
-              <div key={category.slug} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`category-${category.slug}`}
-                  checked={filters.categories.includes(category.slug)}
-                  onCheckedChange={() => handleCategoryToggle(category.slug)}
-                />
-                <Label htmlFor={`category-${category.slug}`} className="text-sm cursor-pointer">
-                  {category.name}
-                </Label>
-              </div>
+              <button
+                key={category.slug}
+                type="button"
+                onClick={() => handleCategoryToggle(category.slug)}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                  filters.categories.includes(category.slug)
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:border-primary/40 hover:bg-primary/5"
+                )}
+                aria-pressed={filters.categories.includes(category.slug)}
+              >
+                {category.name}
+              </button>
             ))}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Selecciona una o más categorías.
+          </p>
         </div>
       )}
 
-      {availableSubcategories.length > 0 && (
+      {hasCategoryTabs && filters.categories.length === 0 && (
+        <p className="text-xs text-muted-foreground">
+          Selecciona una categoría para ver subcategorías.
+        </p>
+      )}
+
+      {showSubcategories && (
         <div>
           <h3 className="font-semibold mb-3">Subcategorías</h3>
           <div className="space-y-2">
