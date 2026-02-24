@@ -13,11 +13,7 @@ import {
   UserPlus,
   BarChart3,
   Heart,
-  ListChecks,
-  Gift,
   MapPin,
-  Star,
-  Award,
   Clock,
   Bell,
   Settings,
@@ -98,12 +94,7 @@ export default async function DistributorLayout({
       <NavSection title="Mi Cuenta" />
       <NavLink href="/perfil" icon={<UserCog className="h-4 w-4" />} label="Mi Perfil" />
       <NavLink href="/perfil/favoritos" icon={<Heart className="h-4 w-4" />} label="Favoritos" />
-      <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4" />} label="Listas de Deseos" />
-      <NavLink href="/perfil/listas-regalo" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
       <NavLink href="/perfil/direcciones" icon={<MapPin className="h-4 w-4" />} label="Direcciones" />
-      <NavLink href="/perfil/ordenes" icon={<ShoppingCart className="h-4 w-4" />} label="Órdenes Tienda" />
-      <NavLink href="/perfil/resenas" icon={<Star className="h-4 w-4" />} label="Mis Reseñas" />
-      <NavLink href="/perfil/puntos" icon={<Award className="h-4 w-4" />} label="Mis Puntos" />
       <NavLink href="/perfil/vistos" icon={<Clock className="h-4 w-4" />} label="Vistos Recientemente" />
       <NavLink href="/perfil/notificaciones" icon={<Bell className="h-4 w-4" />} label="Notificaciones" />
       <NavLink href="/perfil/configuracion" icon={<Settings className="h-4 w-4" />} label="Configuración" />

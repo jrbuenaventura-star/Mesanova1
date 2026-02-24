@@ -31,6 +31,16 @@ export default async function PuntosPage() {
     redirect("/auth/login?redirect=/perfil/puntos")
   }
 
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single()
+
+  if (profile?.role === "distributor") {
+    redirect("/distributor")
+  }
+
   const [points, transactions, config] = await Promise.all([
     getUserLoyaltyPoints(user.id),
     getLoyaltyTransactions(user.id),

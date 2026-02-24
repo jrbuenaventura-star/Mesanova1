@@ -47,6 +47,8 @@ export default async function PerfilLayout({ children }: { children: React.React
     .eq("id", user.id)
     .single()
 
+  const isDistributor = userProfile?.role === "distributor"
+
   const navLinks = (
     <>
       {userProfile?.role === "distributor" && (
@@ -64,12 +66,22 @@ export default async function PerfilLayout({ children }: { children: React.React
       <NavSection title="Mi Cuenta" />
       <NavLink href="/perfil" icon={<User className="h-4 w-4 text-muted-foreground" />} label="Mi Perfil" />
       <NavLink href="/perfil/favoritos" icon={<Heart className="h-4 w-4 text-muted-foreground" />} label="Favoritos" />
-      <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4 text-muted-foreground" />} label="Listas de Deseos" />
-      <NavLink href="/perfil/listas-regalo" icon={<Gift className="h-4 w-4 text-muted-foreground" />} label="Listas de Regalo" />
+      {!isDistributor && (
+        <NavLink href="/perfil/wishlists" icon={<ListChecks className="h-4 w-4 text-muted-foreground" />} label="Listas de Deseos" />
+      )}
+      {!isDistributor && (
+        <NavLink href="/perfil/listas-regalo" icon={<Gift className="h-4 w-4 text-muted-foreground" />} label="Listas de Regalo" />
+      )}
       <NavLink href="/perfil/direcciones" icon={<MapPin className="h-4 w-4 text-muted-foreground" />} label="Direcciones" />
-      <NavLink href="/perfil/ordenes" icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />} label="Mis Órdenes" />
-      <NavLink href="/perfil/resenas" icon={<Star className="h-4 w-4 text-muted-foreground" />} label="Mis Reseñas" />
-      <NavLink href="/perfil/puntos" icon={<Award className="h-4 w-4 text-muted-foreground" />} label="Mis Puntos" />
+      {!isDistributor && (
+        <NavLink href="/perfil/ordenes" icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />} label="Mis Órdenes" />
+      )}
+      {!isDistributor && (
+        <NavLink href="/perfil/resenas" icon={<Star className="h-4 w-4 text-muted-foreground" />} label="Mis Reseñas" />
+      )}
+      {!isDistributor && (
+        <NavLink href="/perfil/puntos" icon={<Award className="h-4 w-4 text-muted-foreground" />} label="Mis Puntos" />
+      )}
       <NavLink href="/perfil/vistos" icon={<Clock className="h-4 w-4 text-muted-foreground" />} label="Vistos Recientemente" />
       <NavLink href="/perfil/notificaciones" icon={<Bell className="h-4 w-4 text-muted-foreground" />} label="Notificaciones" />
       <div className="my-2 border-t" />

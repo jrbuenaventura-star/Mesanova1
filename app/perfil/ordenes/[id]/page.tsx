@@ -43,6 +43,16 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     redirect("/auth/login?redirect=/perfil/ordenes")
   }
 
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single()
+
+  if (profile?.role === "distributor") {
+    redirect("/distributor/orders")
+  }
+
   const { data: order } = await supabase
     .from("orders")
     .select(`

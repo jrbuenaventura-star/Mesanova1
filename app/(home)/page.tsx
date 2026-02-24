@@ -102,34 +102,7 @@ export default async function HomePage() {
           BLOQUE 1 – HERO
       ═══════════════════════════════════════════ */}
       {slides.length > 0 ? (
-        <section className="relative">
-          <HeroCarousel slides={slides} hideContent />
-          <div className="absolute inset-0 z-20">
-            <div className="h-full container mx-auto px-4 flex items-center">
-              <div className="max-w-2xl space-y-6 text-white">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
-                  Mesa y cocina bien pensadas
-                </h1>
-                <p className="text-lg md:text-xl opacity-90 max-w-lg">
-                  Diseño, funcionalidad y calidad para usar todos los días.
-                </p>
-                <div className="flex flex-wrap gap-4 pt-2">
-                  <Button asChild size="lg" className="text-base">
-                    <Link href="/productos">
-                      Ver productos
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="text-base bg-transparent text-white border-white/40 hover:bg-white/10">
-                    <Link href="#categorias">
-                      Ver categorías
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroCarousel slides={slides} />
       ) : (
         <section className="relative py-24 md:py-36 px-4 bg-gradient-to-br from-stone-100 via-background to-stone-50 overflow-hidden">
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
