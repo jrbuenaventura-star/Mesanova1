@@ -10,7 +10,8 @@ import Link from "next/link"
 
 interface ProductsWithFiltersProps {
   products: any[]
-  subcategories: Array<{ id: string; name: string; slug: string }>
+  categories?: Array<{ slug: string; name: string }>
+  subcategories: Array<{ id: string; name: string; slug: string; siloSlug?: string }>
   productTypes?: Array<{ id: string; name: string; slug: string; subcategory_id: string }>
   siloSlug: string
   distributor?: { discount_percentage: number } | null
@@ -18,12 +19,14 @@ interface ProductsWithFiltersProps {
 
 export function ProductsWithFilters({
   products,
+  categories = [],
   subcategories,
   productTypes = [],
   siloSlug,
   distributor = null,
 }: ProductsWithFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
+    categories: [],
     subcategories: [],
     productTypes: [],
     materials: [],
@@ -66,6 +69,17 @@ export function ProductsWithFilters({
   // Aplicar filtros a los productos
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      // Filtro por categorías
+      if (filters.categories.length > 0) {
+        const productCategorySlugs = product.categories
+          ?.map((c: any) => c.subcategory?.silo?.slug)
+          .filter(Boolean) || []
+        const hasMatchingCategory = filters.categories.some((categorySlug) =>
+          productCategorySlugs.includes(categorySlug)
+        )
+        if (!hasMatchingCategory) return false
+      }
+
       // Filtro por subcategorías
       if (filters.subcategories.length > 0) {
         const productSubcategories = product.categories
@@ -137,6 +151,7 @@ export function ProductsWithFilters({
     <div className="grid gap-6 lg:grid-cols-4">
       <div className="lg:col-span-1">
         <ProductFilters
+          categories={categories}
           subcategories={subcategories}
           productTypes={productTypes}
           materials={uniqueValues.materials}

@@ -16,6 +16,12 @@ const silosIconMap = {
   "termos-neveras": Thermometer,
   profesional: Briefcase,
 }
+const HORECA_CATEGORY_SLUGS = ["mesa", "cocina", "cafe-te-bar"] as const
+const HORECA_CATEGORY_FALLBACK_NAMES: Record<(typeof HORECA_CATEGORY_SLUGS)[number], string> = {
+  mesa: "Mesa",
+  cocina: "Cocina",
+  "cafe-te-bar": "Café, té y bar",
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ silo: string }> }) {
   const { silo } = await params
@@ -48,13 +54,42 @@ export default async function SiloPage({
 
   // Para HoReCa (silo "profesional"), mostrar productos con horeca = 'SI' o 'EXCLUSIVO'
   const isHoReCaSilo = silo === 'profesional'
+  const silosBySlug = new Map((silos || []).map((item: any) => [item.slug, item]))
+  const categoriesForFilters = isHoReCaSilo
+    ? HORECA_CATEGORY_SLUGS.map((categorySlug) => ({
+        slug: categorySlug,
+        name: silosBySlug.get(categorySlug)?.name || HORECA_CATEGORY_FALLBACK_NAMES[categorySlug],
+      }))
+    : []
+  const subcategoriesForFilters = isHoReCaSilo
+    ? HORECA_CATEGORY_SLUGS.flatMap((categorySlug) => {
+        const categorySilo = silosBySlug.get(categorySlug)
+        const orderedSubcategories = [...(categorySilo?.subcategories || [])].sort(
+          (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+        )
+        return orderedSubcategories.map((subcategory: any) => ({
+          id: subcategory.id,
+          name: subcategory.name,
+          slug: subcategory.slug,
+          siloSlug: categorySlug,
+        }))
+      })
+    : [...(siloData.subcategories || [])]
+        .sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0))
+        .map((subcategory: any) => ({
+          id: subcategory.id,
+          name: subcategory.name,
+          slug: subcategory.slug,
+          siloSlug: silo,
+        }))
+
   const products = isHoReCaSilo
     ? await getProductsForHoReCa(100)
     : await getProductsBySilo(silo, 200)
   const distributorForPricing = await getCurrentDistributorPricingContext()
 
   // Load product types for this silo's subcategories
-  const subcategoryIds = (siloData.subcategories || []).map((s: any) => s.id)
+  const subcategoryIds = subcategoriesForFilters.map((s: any) => s.id)
   let productTypes: any[] = []
   if (subcategoryIds.length > 0) {
     const supabase = await createClient()
@@ -92,7 +127,8 @@ export default async function SiloPage({
 
           <ProductsWithFilters
             products={products}
-            subcategories={siloData.subcategories || []}
+            categories={categoriesForFilters}
+            subcategories={subcategoriesForFilters}
             productTypes={productTypes}
             siloSlug={silo}
             distributor={distributorForPricing}

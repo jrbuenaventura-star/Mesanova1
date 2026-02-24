@@ -140,23 +140,33 @@ export async function getProductsBySubcategory(subcategorySlug: string, limit = 
 // Obtener productos para la sección HoReCa (solo productos con horeca = 'SI' o 'EXCLUSIVO')
 export async function getProductsForHoReCa(limit = 50) {
   const supabase = await createClient()
+  const horecaCategorySlugs = ["mesa", "cocina", "cafe-te-bar"]
 
   const { data, error } = await supabase
     .from("products")
     .select(`
       *,
-      product_categories (
-        subcategory:subcategories (
+      categories:product_categories!inner (
+        *,
+        subcategory:subcategories!inner (
           *,
-          silo:silos (*)
+          silo:silos!inner (
+            slug,
+            name
+          )
         )
       ),
       product_product_types(
         product_type_id,
         product_type:product_types(id, name, slug, subcategory_id)
+      ),
+      warehouse_stock:product_warehouse_stock(
+        available_quantity,
+        warehouse:warehouses(show_in_frontend)
       )
     `)
     .in("horeca", ["SI", "EXCLUSIVO"])
+    .in("categories.subcategory.silo.slug", horecaCategorySlugs)
     .eq("is_active", true)
     .order("pdt_descripcion")
     .limit(limit)
