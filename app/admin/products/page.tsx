@@ -23,8 +23,7 @@ export default async function ProductsAdminPage() {
     .from("products")
     .select(`
       *,
-      product_categories(subcategory_id),
-      product_product_types(product_type_id)
+      product_categories(subcategory_id)
     `)
     .order("created_at", { ascending: false })
 

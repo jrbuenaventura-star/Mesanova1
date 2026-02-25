@@ -37,6 +37,7 @@ interface ProductWithJoins {
   descontinuado?: boolean
   pedido_en_camino?: boolean
   imagen_principal_url?: string
+  product_type_id?: string | null
   product_categories?: { subcategory_id: string }[]
   product_product_types?: { product_type_id: string }[]
   [key: string]: any
@@ -105,7 +106,10 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
     // Category filter chain
     let matchesCategory = true
     const productSubcatIds = product.product_categories?.map(c => c.subcategory_id) || []
-    const productTypeIds = product.product_product_types?.map(t => t.product_type_id) || []
+    const productTypeIdsFromJoin = product.product_product_types?.map(t => t.product_type_id) || []
+    const productTypeIds = productTypeIdsFromJoin.length > 0
+      ? productTypeIdsFromJoin
+      : (product.product_type_id ? [product.product_type_id] : [])
 
     if (filterSilo !== "all") {
       const siloSubcatIds = subcategories.filter(s => (s as any).silo?.id === filterSilo || s.silo_id === filterSilo).map(s => s.id)
