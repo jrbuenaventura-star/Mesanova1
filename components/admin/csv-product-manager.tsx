@@ -82,8 +82,10 @@ interface ValidationResult {
   };
   globalErrors: string[];
   products: ParsedProduct[];
+  errorProducts?: ParsedProduct[];
   diffs: ProductDiff[];
   hasMore: boolean;
+  hasMoreErrors?: boolean;
 }
 
 interface ImportResult {
@@ -276,6 +278,10 @@ export function CSVProductManager() {
   const downloadExport = async () => {
     window.open('/api/products/csv/export', '_blank');
   };
+
+  const invalidPreviewProducts = validationResult
+    ? validationResult.errorProducts ?? validationResult.products.filter((product) => !product.isValid)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -516,11 +522,18 @@ export function CSVProductManager() {
                       <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
                       <p>No hay errores de validación</p>
                     </div>
+                  ) : invalidPreviewProducts.length === 0 ? (
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertTitle>No se pudo cargar el detalle de errores</AlertTitle>
+                      <AlertDescription>
+                        Hay filas inválidas en el archivo, pero no llegaron al preview.
+                        Revalida el archivo para recargar el detalle.
+                      </AlertDescription>
+                    </Alert>
                   ) : (
                     <Accordion type="single" collapsible className="w-full">
-                      {validationResult.products
-                        .filter((p) => !p.isValid)
-                        .map((product) => (
+                      {invalidPreviewProducts.map((product) => (
                           <AccordionItem key={product.row} value={`row-${product.row}`}>
                             <AccordionTrigger>
                               <div className="flex items-center gap-4">
@@ -553,6 +566,11 @@ export function CSVProductManager() {
                           </AccordionItem>
                         ))}
                     </Accordion>
+                  )}
+                  {validationResult.hasMoreErrors && (
+                    <p className="text-center text-sm text-muted-foreground mt-4">
+                      Mostrando los primeros 100 errores...
+                    </p>
                   )}
                 </CardContent>
               </Card>

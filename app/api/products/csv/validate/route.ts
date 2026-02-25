@@ -66,13 +66,20 @@ export async function POST(request: Request) {
       unchanged: diffs.filter(d => d.changeType === 'unchanged').length,
     };
     
+    const previewProducts = parseResult.products.slice(0, 100);
+    const previewErrorProducts = parseResult.products
+      .filter((product) => !product.isValid)
+      .slice(0, 100);
+
     return NextResponse.json({
       success: parseResult.success,
       stats,
       globalErrors: parseResult.globalErrors,
-      products: parseResult.products.slice(0, 100), // Limitar preview a 100 productos
+      products: previewProducts,
+      errorProducts: previewErrorProducts,
       diffs: diffs.slice(0, 100),
-      hasMore: parseResult.products.length > 100,
+      hasMore: parseResult.products.length > previewProducts.length,
+      hasMoreErrors: parseResult.invalidRows > previewErrorProducts.length,
     });
   } catch (error) {
     console.error('Error validando CSV:', error);
