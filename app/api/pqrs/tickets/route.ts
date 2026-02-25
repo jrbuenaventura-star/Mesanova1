@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sendPQRSNotification, getNewTicketNotificationEmail } from '@/lib/email/pqrs-notifications'
+import { DELIVERY_DISPATCH_EMAIL } from '@/lib/delivery/constants'
 
 type TicketAttachmentType = 'evidencia_fotografica' | 'foto_guia' | 'adjunto_general'
 
@@ -403,6 +404,29 @@ export async function POST(request: Request) {
         } catch (notificationError) {
           console.error('Error sending ticket notification email:', notificationError)
         }
+      }
+    }
+
+    if (isReclamo) {
+      const dispatchEmail = process.env.PQRS_CLAIMS_DISPATCH_EMAIL || DELIVERY_DISPATCH_EMAIL
+      const dispatchHtml = getNewTicketNotificationEmail(
+        ticket.ticket_number,
+        tipo,
+        asunto,
+        descripcion,
+        prioridad,
+        profile.full_name,
+        profile.email
+      )
+
+      try {
+        await sendPQRSNotification({
+          to: dispatchEmail,
+          subject: `Reclamación recibida ${ticket.ticket_number}: ${asunto}`,
+          html: dispatchHtml,
+        })
+      } catch (dispatchError) {
+        console.error('Error sending claims dispatch notification:', dispatchError)
       }
     }
 

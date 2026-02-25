@@ -1,10 +1,12 @@
 import AdminOrdersPage from "@/app/admin/orders/page"
 import OrdersApprovalPage from "@/app/admin/orders/approval/page"
+import DeliveryConfirmationsPage from "@/app/admin/orders/delivery-confirmations/page"
 import { AdminSectionTabs, type AdminSectionTab } from "@/components/admin/admin-section-tabs"
 
 const ORDENES_TABS: AdminSectionTab[] = [
   { value: "ordenes", label: "Órdenes" },
   { value: "aprobar-ordenes", label: "Aprobar Órdenes" },
+  { value: "confirmacion-entrega-qr", label: "Confirmación Entrega QR" },
 ]
 
 export default async function AdminOrdenesTabsPage({
@@ -24,7 +26,9 @@ export default async function AdminOrdenesTabsPage({
 
       <AdminSectionTabs basePath="/admin/ordenes" activeTab={currentTab} tabs={ORDENES_TABS} />
 
-      {currentTab === "ordenes" ? <AdminOrdersPage /> : <OrdersApprovalPage />}
+      {currentTab === "ordenes" && <AdminOrdersPage />}
+      {currentTab === "aprobar-ordenes" && <OrdersApprovalPage />}
+      {currentTab === "confirmacion-entrega-qr" && <DeliveryConfirmationsPage />}
     </div>
   )
 }

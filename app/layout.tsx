@@ -13,6 +13,7 @@ import { CrossDomainLinker } from "@/components/analytics/cross-domain-linker"
 import { ClientifyTracking } from "@/components/clientify/clientify-tracking"
 import { WhatsAppWidget } from "@/components/whatsapp-widget"
 import { LeadCapturePopup } from "@/components/clientify/lead-capture-popup"
+import { DeliveryPwaRegister } from "@/components/delivery/delivery-pwa-register"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  manifest: "/manifest.webmanifest",
 }
 
 export default function RootLayout({
@@ -92,6 +94,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {pixelId && <MetaPixel pixelId={pixelId} />}
         <CrossDomainLinker />
         <ClientifyTracking />
+        <DeliveryPwaRegister />
         <CartProvider>
           <SiteHeader />
           {children}
