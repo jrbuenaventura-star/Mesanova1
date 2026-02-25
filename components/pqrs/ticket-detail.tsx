@@ -28,6 +28,9 @@ interface Attachment {
   ruta_storage: string
   tamano_bytes: number
   fecha_subida: string
+  metadata?: {
+    tipo_adjunto?: string
+  }
 }
 
 interface TicketDetail {
@@ -44,10 +47,25 @@ interface TicketDetail {
   fecha_resolucion?: string
   comentarios: Comment[]
   archivos: Attachment[]
+  metadata?: {
+    reclamo?: {
+      numero_factura?: string
+      referencia_producto?: string
+      cantidad_productos_defectuosos?: number
+    }
+  }
 }
 
 interface TicketDetailProps {
   ticketId: string
+}
+
+function getAttachmentTypeLabel(type?: string): string | null {
+  if (!type) return null
+  if (type === 'evidencia_fotografica') return 'Evidencia fotográfica'
+  if (type === 'foto_guia') return 'Foto de la guía'
+  if (type === 'adjunto_general') return 'Adjunto general'
+  return null
 }
 
 export function TicketDetail({ ticketId }: TicketDetailProps) {
@@ -168,6 +186,8 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
     )
   }
 
+  const reclamoData = ticket.tipo === 'reclamo' ? ticket.metadata?.reclamo : null
+
   return (
     <div className="space-y-6">
       <Card>
@@ -195,6 +215,20 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
             <h3 className="font-semibold mb-2">Descripción</h3>
             <p className="text-muted-foreground whitespace-pre-wrap">{ticket.descripcion}</p>
           </div>
+
+          {reclamoData && (
+            <div className="rounded-lg border p-4">
+              <h3 className="font-semibold mb-3">Datos de la Reclamación</h3>
+              <div className="text-sm space-y-1">
+                <p><strong>Número de factura:</strong> {reclamoData.numero_factura || '-'}</p>
+                <p><strong>Referencia del producto:</strong> {reclamoData.referencia_producto || '-'}</p>
+                <p>
+                  <strong>Cantidad de productos defectuosos:</strong>{' '}
+                  {reclamoData.cantidad_productos_defectuosos ?? '-'}
+                </p>
+              </div>
+            </div>
+          )}
 
           {ticket.resolucion && (
             <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
@@ -229,6 +263,11 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
                       <p className="text-sm text-muted-foreground">
                         {(archivo.tamano_bytes / 1024).toFixed(2)} KB
                       </p>
+                      {getAttachmentTypeLabel(archivo.metadata?.tipo_adjunto) && (
+                        <Badge variant="outline" className="mt-1">
+                          {getAttachmentTypeLabel(archivo.metadata?.tipo_adjunto)}
+                        </Badge>
+                      )}
                     </div>
                     <Button 
                       variant="ghost" 

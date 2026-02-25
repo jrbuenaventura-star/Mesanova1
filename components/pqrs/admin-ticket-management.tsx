@@ -25,7 +25,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, MessageSquare, Plus, CheckCircle, UserPlus, Eye, EyeOff } from 'lucide-react'
+import { Loader2, MessageSquare, Plus, CheckCircle, UserPlus, Eye, EyeOff, Paperclip, Download } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -67,12 +67,27 @@ interface TicketDetail {
   fecha_creacion: string
   creado_por_nombre: string
   creado_por_email: string
+  metadata?: {
+    reclamo?: {
+      numero_factura?: string
+      referencia_producto?: string
+      cantidad_productos_defectuosos?: number
+    }
+  }
   asignado?: {
     id: string
     full_name: string
   }
   tareas: Task[]
   comentarios: Comment[]
+  archivos?: {
+    id: string
+    nombre_archivo: string
+    tamano_bytes: number
+    metadata?: {
+      tipo_adjunto?: string
+    }
+  }[]
 }
 
 interface AdminTicketManagementProps {
@@ -88,6 +103,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
   const [esInterno, setEsInterno] = useState(false)
   const [enviandoComentario, setEnviandoComentario] = useState(false)
   const [actualizando, setActualizando] = useState(false)
+  const [descargando, setDescargando] = useState<string | null>(null)
 
   const [nuevaTarea, setNuevaTarea] = useState({
     titulo: '',
@@ -127,6 +143,33 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
     fetchTicket()
     fetchSuperadmins()
   }, [ticketId])
+
+  const handleDescargarArchivo = async (archivoId: string, nombreArchivo: string) => {
+    setDescargando(archivoId)
+    try {
+      const response = await fetch(`/api/pqrs/attachments/${archivoId}/download`)
+      const data = await response.json()
+
+      if (response.ok && data.url) {
+        const link = document.createElement('a')
+        link.href = data.url
+        link.download = nombreArchivo
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        throw new Error(data.error || 'Error al descargar archivo')
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al descargar archivo',
+        variant: 'destructive',
+      })
+    } finally {
+      setDescargando(null)
+    }
+  }
 
   const handleActualizarEstado = async (nuevoEstado: string, resolucion?: string) => {
     setActualizando(true)
@@ -318,6 +361,16 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
     return <div>Ticket no encontrado</div>
   }
 
+  const reclamoData = ticket.tipo === 'reclamo' ? ticket.metadata?.reclamo : null
+
+  const getAttachmentTypeLabel = (type?: string) => {
+    if (!type) return null
+    if (type === 'evidencia_fotografica') return 'Evidencia fotográfica'
+    if (type === 'foto_guia') return 'Foto de la guía'
+    if (type === 'adjunto_general') return 'Adjunto general'
+    return null
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -356,7 +409,68 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
             <p className="text-muted-foreground whitespace-pre-wrap">{ticket.descripcion}</p>
           </div>
 
+          {reclamoData && (
+            <>
+              <Separator />
+              <div className="rounded-lg border p-4">
+                <h3 className="font-semibold mb-3">Datos de la Reclamación</h3>
+                <div className="text-sm space-y-1">
+                  <p><strong>Número de factura:</strong> {reclamoData.numero_factura || '-'}</p>
+                  <p><strong>Referencia del producto:</strong> {reclamoData.referencia_producto || '-'}</p>
+                  <p>
+                    <strong>Cantidad de productos defectuosos:</strong>{' '}
+                    {reclamoData.cantidad_productos_defectuosos ?? '-'}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator />
+
+          {ticket.archivos && ticket.archivos.length > 0 && (
+            <>
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Paperclip className="h-4 w-4" />
+                  Archivos Adjuntos
+                </h3>
+                <div className="space-y-2">
+                  {ticket.archivos.map((archivo) => (
+                    <div
+                      key={archivo.id}
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">{archivo.nombre_archivo}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(archivo.tamano_bytes / 1024).toFixed(2)} KB
+                        </p>
+                        {getAttachmentTypeLabel(archivo.metadata?.tipo_adjunto) && (
+                          <Badge variant="outline" className="mt-1">
+                            {getAttachmentTypeLabel(archivo.metadata?.tipo_adjunto)}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDescargarArchivo(archivo.id, archivo.nombre_archivo)}
+                        disabled={descargando === archivo.id}
+                       aria-label="Descargar">
+                        {descargando === archivo.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
