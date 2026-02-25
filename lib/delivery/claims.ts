@@ -40,31 +40,85 @@ function getClaimEmailHtml(input: CreateDeliveryClaimInput, ticketNumber: string
 }
 
 async function resolveSystemCreator(supabaseAdmin: SupabaseClient) {
-  if (process.env.DELIVERY_SYSTEM_USER_ID) {
-    const { data: profileByEnv } = await supabaseAdmin
+  const selectProfile = () =>
+    supabaseAdmin
       .from("user_profiles")
-      .select("id, full_name, email, role")
+      .select("id, full_name, role")
+
+  if (process.env.DELIVERY_SYSTEM_USER_ID) {
+    const { data: profileByEnv, error: profileByEnvError } = await selectProfile()
       .eq("id", process.env.DELIVERY_SYSTEM_USER_ID)
-      .single()
+      .maybeSingle()
 
     if (profileByEnv) {
-      return profileByEnv
+      return {
+        ...profileByEnv,
+        email: null,
+      }
+    }
+
+    if (profileByEnvError && profileByEnvError.code !== "PGRST116") {
+      console.warn("Failed to resolve DELIVERY_SYSTEM_USER_ID profile", profileByEnvError)
     }
   }
 
-  const { data: profile } = await supabaseAdmin
-    .from("user_profiles")
-    .select("id, full_name, email, role")
+  const { data: profile, error: superadminError } = await selectProfile()
     .eq("role", "superadmin")
     .order("created_at", { ascending: true })
     .limit(1)
-    .single()
+    .maybeSingle()
 
-  if (!profile) {
-    throw new Error("No system user available to create delivery claim ticket")
+  if (profile) {
+    return {
+      ...profile,
+      email: null,
+    }
   }
 
-  return profile
+  if (superadminError && superadminError.code !== "PGRST116") {
+    console.warn("Failed to resolve superadmin system user", superadminError)
+  }
+
+  // Fallback for environments without seeded superadmin profiles.
+  const { data: anyProfile, error: anyProfileError } = await selectProfile()
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (anyProfile) {
+    return {
+      ...anyProfile,
+      email: null,
+    }
+  }
+
+  if (anyProfileError && anyProfileError.code !== "PGRST116") {
+    console.warn("Failed to resolve fallback system user", anyProfileError)
+  }
+
+  const { data: authUsersData, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1,
+  })
+
+  const authUser = authUsersData?.users?.[0]
+  if (authUser) {
+    return {
+      id: authUser.id,
+      full_name:
+        typeof authUser.user_metadata?.full_name === "string"
+          ? authUser.user_metadata.full_name
+          : null,
+      email: authUser.email || null,
+      role: "system",
+    }
+  }
+
+  if (authUsersError) {
+    console.warn("Failed to resolve fallback auth user", authUsersError)
+  }
+
+  throw new Error("No system user available to create delivery claim ticket")
 }
 
 async function uploadClaimAttachment(params: {
