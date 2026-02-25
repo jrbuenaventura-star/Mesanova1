@@ -43,10 +43,6 @@ export async function getProductsBySilo(siloSlug: string, limit = 100, includeHo
           )
         )
       ),
-      product_product_types(
-        product_type_id,
-        product_type:product_types(id, name, slug, subcategory_id)
-      ),
       warehouse_stock:product_warehouse_stock(
         available_quantity,
         warehouse:warehouses(show_in_frontend)
@@ -155,10 +151,6 @@ export async function getProductsForHoReCa(limit = 50) {
             name
           )
         )
-      ),
-      product_product_types(
-        product_type_id,
-        product_type:product_types(id, name, slug, subcategory_id)
       ),
       warehouse_stock:product_warehouse_stock(
         available_quantity,

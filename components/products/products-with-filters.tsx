@@ -93,9 +93,12 @@ export function ProductsWithFilters({
 
       // Filtro por tipos de producto
       if (filters.productTypes.length > 0) {
-        const productTypeIds = product.product_product_types
+        const productTypeIdsFromJoin = product.product_product_types
           ?.map((pt: any) => pt.product_type?.id || pt.product_type_id)
           .filter(Boolean) || []
+        const productTypeIds = productTypeIdsFromJoin.length > 0
+          ? productTypeIdsFromJoin
+          : (product.product_type_id ? [product.product_type_id] : [])
         const hasMatchingType = filters.productTypes.some((typeId) =>
           productTypeIds.includes(typeId)
         )
