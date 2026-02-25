@@ -94,6 +94,7 @@ export async function importProducts(
   }
   
   const importId = importRecord.id;
+  const slugRegistry = await buildSlugRegistry(supabase);
   
   // Pre-cargar categorías
   const categoryCache = await buildCategoryCache(supabase);
@@ -117,13 +118,37 @@ export async function importProducts(
       if (diff.changeType === 'create') {
         if (importMode === 'update') {
           // En modo update, también se crean nuevos
-          await createProduct(supabase, product.data, categoryCache, userId, importId, product.row);
+          await createProduct(
+            supabase,
+            product.data,
+            categoryCache,
+            slugRegistry,
+            userId,
+            importId,
+            product.row
+          );
           created++;
         } else if (importMode === 'add_only') {
-          await createProduct(supabase, product.data, categoryCache, userId, importId, product.row);
+          await createProduct(
+            supabase,
+            product.data,
+            categoryCache,
+            slugRegistry,
+            userId,
+            importId,
+            product.row
+          );
           created++;
         } else {
-          await createProduct(supabase, product.data, categoryCache, userId, importId, product.row);
+          await createProduct(
+            supabase,
+            product.data,
+            categoryCache,
+            slugRegistry,
+            userId,
+            importId,
+            product.row
+          );
           created++;
         }
       } else if (diff.changeType === 'update') {
@@ -167,6 +192,23 @@ export async function importProducts(
     skipped,
     errors,
   };
+}
+
+async function buildSlugRegistry(
+  supabase: Awaited<ReturnType<typeof createClient>>
+): Promise<Set<string>> {
+  const registry = new Set<string>();
+  const { data } = await supabase
+    .from('products')
+    .select('slug')
+    .not('slug', 'is', null);
+
+  for (const row of data || []) {
+    const slug = typeof row.slug === 'string' ? row.slug.trim() : '';
+    if (slug) registry.add(slug);
+  }
+
+  return registry;
 }
 
 async function buildCategoryCache(
@@ -326,12 +368,13 @@ async function createProduct(
   supabase: Awaited<ReturnType<typeof createClient>>,
   data: ProductCSVRow,
   categoryCache: Map<string, CategoryInfo>,
+  slugRegistry: Set<string>,
   userId: string,
   importId: string,
   rowNumber: number
 ): Promise<void> {
-  // Generar slug
-  const slug = generateSlug(data.Producto);
+  // Generar slug único para evitar choque con products_slug_key.
+  const slug = generateUniqueSlug(data.Producto, data.Ref, slugRegistry);
   
   // Obtener todas las categorías (hasta 3)
   const categoryInfos = getAllCategoryInfos(data, categoryCache);
@@ -356,7 +399,7 @@ async function createProduct(
       precio_dist: parseNumericValue(data.Precio_Dist),
       desc_dist: parseNumericValue(data.Desc_Dist) || 0,
       upp_existencia: parseNumericValue(data.Existencia_inv) || 0,
-      pedido_en_camino: parseNumericValue(data.Pedido_en_camino),
+      pedido_en_camino: parsePedidoEnCaminoValue(data.Pedido_en_camino),
       descontinuado: parseBooleanValue(data.Descontinuado),
       pdt_empaque: data.Inner_pack || null,
       outer_pack: parseNumericValue(data.Outer_pack) as number | null,
@@ -397,6 +440,8 @@ async function createProduct(
   if (error) {
     throw new Error(`Error creando producto: ${error.message}`);
   }
+
+  slugRegistry.add(slug);
   
   // Asociar con todas las categorías (hasta 3)
   if (product && categoryInfos.length > 0) {
@@ -473,7 +518,7 @@ async function updateProduct(
     Precio_Dist: { dbField: 'precio_dist', transform: parseNumericValue },
     Desc_Dist: { dbField: 'desc_dist', transform: (v) => parseNumericValue(v) || 0 },
     Existencia_inv: { dbField: 'upp_existencia', transform: (v) => parseNumericValue(v) || 0 },
-    Pedido_en_camino: { dbField: 'pedido_en_camino', transform: parseNumericValue },
+    Pedido_en_camino: { dbField: 'pedido_en_camino', transform: parsePedidoEnCaminoValue },
     Descontinuado: { dbField: 'descontinuado', transform: parseBooleanValue },
     Inner_pack: { dbField: 'pdt_empaque' },
     Outer_pack: { dbField: 'outer_pack', transform: parseNumericValue },
@@ -638,6 +683,39 @@ function generateSlug(name: string): string {
     .replace(/\s+/g, '-') // Espacios a guiones
     .replace(/-+/g, '-') // Múltiples guiones a uno
     .replace(/^-|-$/g, ''); // Remover guiones inicio/fin
+}
+
+function parsePedidoEnCaminoValue(value: string): boolean {
+  const numeric = parseNumericValue(value);
+  if (numeric !== null) {
+    return numeric > 0;
+  }
+  return parseBooleanValue(value);
+}
+
+function generateUniqueSlug(name: string, ref: string, slugRegistry: Set<string>): string {
+  const baseSlug = generateSlug(name) || generateSlug(ref) || 'producto';
+  const refSlug = generateSlug(ref);
+
+  const candidates: string[] = [baseSlug];
+  if (refSlug && !baseSlug.endsWith(`-${refSlug}`)) {
+    candidates.push(`${baseSlug}-${refSlug}`);
+  }
+
+  for (const candidate of candidates) {
+    if (!slugRegistry.has(candidate)) {
+      return candidate;
+    }
+  }
+
+  let counter = 2;
+  let candidate = `${baseSlug}-${counter}`;
+  while (slugRegistry.has(candidate)) {
+    counter += 1;
+    candidate = `${baseSlug}-${counter}`;
+  }
+
+  return candidate;
 }
 
 export async function getExistingProductsMap(

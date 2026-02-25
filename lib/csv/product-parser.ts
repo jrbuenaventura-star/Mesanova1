@@ -243,6 +243,7 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
   
   // Validar campos numéricos
   for (const field of NUMERIC_FIELDS) {
+    if (field === 'Pedido_en_camino') continue;
     const value = row[field];
     if (value && value.trim() !== '') {
       const numValue = normalizeNumeric(value);
@@ -259,6 +260,22 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
           value,
         });
       }
+    }
+  }
+
+  // Pedido_en_camino: aceptar SI/NO o cantidad numérica
+  if (row.Pedido_en_camino && row.Pedido_en_camino.trim() !== '') {
+    const raw = row.Pedido_en_camino.trim();
+    const numericValue = normalizeNumeric(raw);
+    const upper = raw.toUpperCase();
+    const validBooleanLike = ['SI', 'SÍ', 'NO', 'TRUE', 'FALSE', '1', '0', 'YES', 'ACTIVO', 'INACTIVO', 'ACTIVE', 'INACTIVE'];
+
+    if (numericValue === null && !validBooleanLike.includes(upper)) {
+      errors.push({
+        field: 'Pedido_en_camino',
+        message: 'El campo Pedido_en_camino debe ser SI/NO o una cantidad numérica',
+        value: row.Pedido_en_camino,
+      });
     }
   }
   
@@ -752,6 +769,21 @@ export function compareWithExisting(
 
 function normalizeValue(value: string, field: keyof ProductCSVRow): string {
   if (!value) return '';
+
+  if (field === 'Pedido_en_camino') {
+    const numericValue = normalizeNumeric(value);
+    if (numericValue !== null) {
+      return numericValue > 0 ? 'true' : 'false';
+    }
+    const upper = value.toUpperCase().trim();
+    if (upper === 'SI' || upper === 'SÍ' || upper === 'TRUE' || upper === '1' || upper === 'YES' || upper === 'ACTIVO' || upper === 'ACTIVE') {
+      return 'true';
+    }
+    if (upper === 'NO' || upper === 'FALSE' || upper === '0' || upper === 'INACTIVO' || upper === 'INACTIVE') {
+      return 'false';
+    }
+    return value.trim().toLowerCase();
+  }
   
   // Para booleanos
   if (BOOLEAN_FIELDS.includes(field)) {
