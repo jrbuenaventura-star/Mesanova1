@@ -75,6 +75,16 @@ function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
+
+  const nextSignificantChar = (startIndex: number) => {
+    for (let j = startIndex; j < line.length; j++) {
+      const candidate = line[j];
+      if (candidate !== ' ' && candidate !== '\t') {
+        return candidate;
+      }
+    }
+    return undefined;
+  };
   
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
@@ -84,9 +94,30 @@ function parseCSVLine(line: string): string[] {
       if (inQuotes && nextChar === '"') {
         current += '"';
         i++;
-      } else {
-        inQuotes = !inQuotes;
+        continue;
       }
+
+      if (inQuotes) {
+        // Treat as a closing quote only when followed by delimiter/EOL (ignoring spaces).
+        const nextNonWhitespace = nextSignificantChar(i + 1);
+        if (nextNonWhitespace === ',' || nextNonWhitespace === undefined) {
+          inQuotes = false;
+          continue;
+        }
+
+        // Tolerate stray quotes inside quoted values (e.g. inch marks 12").
+        current += char;
+        continue;
+      }
+
+      // Start quoted mode only at the beginning of the field (ignoring spaces).
+      if (current.trim() === '') {
+        inQuotes = true;
+        continue;
+      }
+
+      // Tolerate stray quotes in unquoted values.
+      current += char;
     } else if (char === ',' && !inQuotes) {
       result.push(current.trim());
       current = '';
@@ -102,7 +133,18 @@ function parseCSVLine(line: string): string[] {
 function splitCSVRows(csvContent: string): string[] {
   const rows: string[] = [];
   let current = '';
+  let currentField = '';
   let inQuotes = false;
+
+  const nextSignificantChar = (startIndex: number) => {
+    for (let j = startIndex; j < csvContent.length; j++) {
+      const candidate = csvContent[j];
+      if (candidate !== ' ' && candidate !== '\t') {
+        return candidate;
+      }
+    }
+    return undefined;
+  };
 
   for (let i = 0; i < csvContent.length; i++) {
     const char = csvContent[i];
@@ -110,12 +152,50 @@ function splitCSVRows(csvContent: string): string[] {
 
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
-        current += '"';
+        current += '""';
+        currentField += '""';
         i++;
         continue;
       }
-      inQuotes = !inQuotes;
+
+      if (inQuotes) {
+        // Closing quote before delimiter/newline/EOL (ignoring spaces).
+        const nextNonWhitespace = nextSignificantChar(i + 1);
+        if (
+          nextNonWhitespace === ',' ||
+          nextNonWhitespace === '\n' ||
+          nextNonWhitespace === '\r' ||
+          nextNonWhitespace === undefined
+        ) {
+          inQuotes = false;
+          current += char;
+          currentField += char;
+          continue;
+        }
+
+        // Tolerate stray quotes inside quoted values.
+        current += char;
+        currentField += char;
+        continue;
+      }
+
+      // Opening quote only at field start (ignoring spaces).
+      if (currentField.trim() === '') {
+        inQuotes = true;
+        current += char;
+        currentField += char;
+        continue;
+      }
+
+      // Stray quote in unquoted field.
       current += char;
+      currentField += char;
+      continue;
+    }
+
+    if (!inQuotes && char === ',') {
+      current += char;
+      currentField = '';
       continue;
     }
 
@@ -128,10 +208,12 @@ function splitCSVRows(csvContent: string): string[] {
         rows.push(current);
       }
       current = '';
+      currentField = '';
       continue;
     }
 
     current += char;
+    currentField += char;
   }
 
   if (current.trim() !== '') {
