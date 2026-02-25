@@ -18,15 +18,23 @@ import Image from "next/image"
 import Link from "next/link"
 import type { ProductWithCategories, Silo, Collection } from "@/lib/db/types"
 
+type EditorProduct = ProductWithCategories & {
+  product_type?: {
+    id: string
+    name: string
+    subcategory_id?: string
+  } | null
+}
+
 interface Props {
-  product: ProductWithCategories
+  product: EditorProduct
   silos: Silo[]
   collections: Collection[]
 }
 
 export function AdvancedProductEditor({ product: initialProduct, silos, collections }: Props) {
   const router = useRouter()
-  const [product, setProduct] = useState(initialProduct)
+  const [product, setProduct] = useState<EditorProduct>(initialProduct)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSilo, setSelectedSilo] = useState<string>("none")
   const [subcategories, setSubcategories] = useState<any[]>([])
@@ -100,39 +108,55 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
     }
   }
 
-  // Agregar tipo de producto
-  const handleAddProductType = async (productTypeId: string) => {
+  // Asignar tipo de producto (modelo actual: products.product_type_id)
+  const handleSetProductType = async (productTypeId: string) => {
+    if (product.id === "new") {
+      toast({ title: "Aviso", description: "Primero debes crear el producto antes de asignar tipo", variant: "destructive" })
+      return
+    }
+
     try {
-      const { error } = await supabase.from("product_product_types").insert({
-        product_id: product.id,
-        product_type_id: productTypeId,
-      })
+      const { data: selectedType, error: typeError } = await supabase
+        .from("product_types")
+        .select("id, name, subcategory_id")
+        .eq("id", productTypeId)
+        .single()
+
+      if (typeError) throw typeError
+
+      const { error } = await supabase
+        .from("products")
+        .update({ product_type_id: productTypeId })
+        .eq("id", product.id)
 
       if (error) throw error
 
-      // Recargar tipos
-      const { data } = await supabase
-        .from("product_product_types")
-        .select("*, product_type:product_types(*)")
-        .eq("product_id", product.id)
-
-      setProduct({ ...product, product_types: data || [] })
-      toast({ title: "Tipo de producto agregado" })
+      setProduct({ ...product, product_type_id: productTypeId, product_type: selectedType })
+      toast({ title: "Tipo de producto actualizado" })
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" })
     }
   }
 
-  // Remover tipo de producto
-  const handleRemoveProductType = async (typeId: string) => {
+  // Limpiar tipo de producto
+  const handleClearProductType = async () => {
+    if (product.id === "new") {
+      setProduct({ ...product, product_type_id: undefined, product_type: null })
+      return
+    }
+
     try {
-      const { error } = await supabase.from("product_product_types").delete().eq("id", typeId)
+      const { error } = await supabase
+        .from("products")
+        .update({ product_type_id: null })
+        .eq("id", product.id)
 
       if (error) throw error
 
       setProduct({
         ...product,
-        product_types: product.product_types?.filter((t) => t.id !== typeId),
+        product_type_id: undefined,
+        product_type: null,
       })
       toast({ title: "Tipo de producto removido" })
     } catch (error: any) {
@@ -219,6 +243,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
         marca: product.marca,
         linea_producto: product.linea_producto,
         collection_id: product.collection_id,
+        product_type_id: product.product_type_id || null,
         is_active: product.is_active,
         is_featured: product.is_featured,
         is_new: product.is_new,
@@ -263,6 +288,9 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
       setIsLoading(false)
     }
   }
+
+  const assignedProductType =
+    product.product_type || productTypes.find((type) => type.id === product.product_type_id) || null
 
   return (
     <div className="space-y-6">
@@ -528,23 +556,21 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
 
               {/* Tipos de producto actuales */}
               <div className="space-y-2 pt-4 border-t">
-                <Label>Tipos de Producto Asignados</Label>
+                <Label>Tipo de Producto Asignado</Label>
                 <div className="flex flex-wrap gap-2">
-                  {product.product_types && product.product_types.length > 0 ? (
-                    product.product_types.map((type) => (
-                      <Badge key={type.id} variant="outline" className="text-sm">
-                        {type.product_type?.name}
-                        <button
-                          onClick={() => handleRemoveProductType(type.id)}
-                          className="ml-2 hover:text-destructive"
-                          type="button"
-                         aria-label="Eliminar">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))
+                  {assignedProductType ? (
+                    <Badge variant="outline" className="text-sm">
+                      {assignedProductType.name}
+                      <button
+                        onClick={() => void handleClearProductType()}
+                        className="ml-2 hover:text-destructive"
+                        type="button"
+                       aria-label="Eliminar">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No hay tipos asignados</p>
+                    <p className="text-sm text-muted-foreground">No hay tipo asignado</p>
                   )}
                 </div>
               </div>
@@ -552,12 +578,22 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
               {/* Agregar tipos de producto */}
               {productTypes.length > 0 && (
                 <div className="space-y-2 pt-4 border-t">
-                  <Label>Agregar Tipo de Producto</Label>
-                  <Select onValueChange={handleAddProductType}>
+                  <Label>Seleccionar Tipo de Producto</Label>
+                  <Select
+                    value={product.product_type_id || "none"}
+                    onValueChange={(value) => {
+                      if (value === "none") {
+                        void handleClearProductType()
+                        return
+                      }
+                      void handleSetProductType(value)
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona un tipo" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">Sin tipo de producto</SelectItem>
                       {productTypes.map((type) => (
                         <SelectItem key={type.id} value={type.id}>
                           {type.name}

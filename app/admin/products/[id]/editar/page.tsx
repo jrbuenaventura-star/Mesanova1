@@ -39,10 +39,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           silo:silos(*)
         )
       ),
-      product_types:product_product_types(
-        *,
-        product_type:product_types(*)
-      ),
+      product_type:product_types(*),
       media:product_media(*)
     `,
     )
