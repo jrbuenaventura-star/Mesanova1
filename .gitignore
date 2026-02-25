@@ -4,6 +4,7 @@ node_modules
 .env.*
 *.log
 .DS_Store
+supabase/.temp/
 
 package-lock.json
 .vercel
