@@ -7,7 +7,7 @@ import {
   parseEstadoValue,
   parseHoReCaValue,
 } from './product-parser';
-import { ProductCSVRow, parseBaseCategorySlug, parseDateDDMMYYYY } from './product-template';
+import { IMAGE_ALT_FIELDS, IMAGE_FIELDS, ProductCSVRow, parseBaseCategorySlug, parseDateDDMMYYYY } from './product-template';
 
 export interface ImportResult {
   success: boolean;
@@ -411,9 +411,9 @@ async function createProduct(
       .insert(categoryInserts);
   }
   
-  // Insertar imágenes adicionales
+  // Insertar imágenes del producto (incluye principal y adicionales)
   if (product) {
-    await insertProductImages(supabase, product.id, data);
+    await syncProductImages(supabase, product.id, data);
   }
   
   // Crear log de cambio
@@ -560,15 +560,11 @@ async function updateProduct(
   }
   
   // Actualizar imágenes si cambiaron
-  const imageChanges = diff.changes.filter(c => c.field.startsWith('Image_'));
+  const imageChanges = diff.changes.filter(
+    (c) => c.field.startsWith('Image_') || c.field.startsWith('SEO_Alt_Text_')
+  );
   if (imageChanges.length > 0) {
-    // Eliminar imágenes existentes y reinsertar
-    await supabase
-      .from('product_media')
-      .delete()
-      .eq('product_id', productId);
-    
-    await insertProductImages(supabase, productId, data);
+    await syncProductImages(supabase, productId, data);
   }
   
   // Crear log de cambio
@@ -593,32 +589,43 @@ async function updateProduct(
     });
 }
 
-async function insertProductImages(
+async function syncProductImages(
   supabase: Awaited<ReturnType<typeof createClient>>,
   productId: string,
   data: ProductCSVRow
 ): Promise<void> {
-  const images: { product_id: string; media_type: string; url: string; order_index: number }[] = [];
-  
-  const imageFields: (keyof ProductCSVRow)[] = [
-    'Image_2', 'Image_3', 'Image_4', 'Image_5',
-    'Image_6', 'Image_7', 'Image_8', 'Image_9', 'Image_10',
-  ];
-  
-  for (let i = 0; i < imageFields.length; i++) {
-    const url = data[imageFields[i]];
-    if (url && url.trim() !== '') {
-      images.push({
-        product_id: productId,
-        media_type: 'image',
-        url: url.trim(),
-        order_index: i + 2, // Image_1 es principal, estas empiezan en 2
-      });
-    }
+  const { error: deleteError } = await supabase
+    .from('product_media')
+    .delete()
+    .eq('product_id', productId)
+    .eq('media_type', 'image');
+
+  if (deleteError) {
+    throw new Error(`Error limpiando imágenes existentes: ${deleteError.message}`);
   }
-  
+
+  const images: { product_id: string; media_type: string; url: string; order_index: number; alt_text: string | null }[] = [];
+  for (let i = 0; i < IMAGE_FIELDS.length; i++) {
+    const imageField = IMAGE_FIELDS[i];
+    const altField = IMAGE_ALT_FIELDS[i];
+    const url = (data[imageField] || '').trim();
+    if (!url) continue;
+
+    const altText = (data[altField] || '').trim();
+    images.push({
+      product_id: productId,
+      media_type: 'image',
+      url,
+      order_index: i + 1,
+      alt_text: altText || null,
+    });
+  }
+
   if (images.length > 0) {
-    await supabase.from('product_media').insert(images);
+    const { error: insertError } = await supabase.from('product_media').insert(images);
+    if (insertError) {
+      throw new Error(`Error guardando imágenes: ${insertError.message}`);
+    }
   }
 }
 
@@ -638,7 +645,10 @@ export async function getExistingProductsMap(
 ): Promise<Map<string, Record<string, unknown>>> {
   const { data: products } = await supabase
     .from('products')
-    .select('*');
+    .select(`
+      *,
+      product_media(url, alt_text, order_index, media_type)
+    `);
   
   const map = new Map<string, Record<string, unknown>>();
   if (products) {
@@ -657,14 +667,15 @@ export async function exportProductsToCSV(
     .from('products')
     .select(`
       *,
-      product_categories!inner(
+      product_categories(
+        is_primary,
         subcategory:subcategories(
           name,
           silo:silos(name)
         )
       ),
       product_type:product_types(name),
-      product_media(url, order_index)
+      product_media(url, alt_text, order_index, media_type)
     `)
     .order('pdt_codigo');
   
@@ -677,8 +688,32 @@ export async function exportProductsToCSV(
   const rows: string[] = [CSV_HEADERS.join(',')];
   
   for (const product of products) {
-    const category = product.product_categories?.[0]?.subcategory;
-    const images = product.product_media?.sort((a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index) || [];
+    const categories =
+      product.product_categories
+        ?.slice()
+        .sort((a: { is_primary?: boolean }, b: { is_primary?: boolean }) => {
+          const aPrimary = a.is_primary ? 1 : 0;
+          const bPrimary = b.is_primary ? 1 : 0;
+          return bPrimary - aPrimary;
+        }) || [];
+
+    const category1 = categories[0]?.subcategory;
+    const category2 = categories[1]?.subcategory;
+
+    const imageMedia =
+      product.product_media
+        ?.filter((m: { media_type?: string | null }) => m.media_type === 'image' || !m.media_type)
+        .sort((a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index) || [];
+
+    const imageByOrder = new Map<number, { url?: string | null; alt_text?: string | null }>();
+    for (const media of imageMedia) {
+      if (!imageByOrder.has(media.order_index)) {
+        imageByOrder.set(media.order_index, media);
+      }
+    }
+
+    const image1Url = product.imagen_principal_url || imageByOrder.get(1)?.url || '';
+    const image1Alt = imageByOrder.get(1)?.alt_text || '';
     
     const row: string[] = [
       escapeCSV(product.pdt_codigo || ''),
@@ -697,9 +732,12 @@ export async function exportProductsToCSV(
       escapeCSV(product.pdt_empaque || ''),
       String(product.outer_pack || ''),
       escapeCSV(product.nombre_coleccion || ''),
-      escapeCSV(category?.silo?.name || ''),
-      escapeCSV(category?.name || ''),
+      escapeCSV(category1?.silo?.name || ''),
+      escapeCSV(category1?.name || ''),
       escapeCSV(product.product_type?.name || ''),
+      escapeCSV(category2?.silo?.name || ''),
+      escapeCSV(category2?.name || ''),
+      '',
       escapeCSV(product.material || ''),
       escapeCSV(product.color || ''),
       escapeCSV(product.dimensiones || ''),
@@ -720,10 +758,16 @@ export async function exportProductsToCSV(
       escapeCSV(product.video_url || ''),
       escapeCSV(product.ficha_tecnica_url || ''),
       escapeCSV(product.fecha_lanzamiento || ''),
-      escapeCSV(product.imagen_principal_url || ''),
+      escapeCSV(product.horeca || ''),
+      escapeCSV(image1Url),
       ...Array.from({ length: 9 }, (_, i) => {
-        const img = images.find((m: { order_index: number }) => m.order_index === i + 2);
+        const img = imageByOrder.get(i + 2);
         return escapeCSV(img?.url || '');
+      }),
+      escapeCSV(image1Alt),
+      ...Array.from({ length: 9 }, (_, i) => {
+        const img = imageByOrder.get(i + 2);
+        return escapeCSV(img?.alt_text || '');
       }),
     ];
     

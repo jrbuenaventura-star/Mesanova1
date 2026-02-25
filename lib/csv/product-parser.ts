@@ -4,6 +4,8 @@ import {
   REQUIRED_FIELDS,
   BOOLEAN_FIELDS,
   NUMERIC_FIELDS,
+  IMAGE_FIELDS,
+  IMAGE_ALT_FIELDS,
   VALID_CATEGORIES,
   VALID_ROTACION,
   HORECA_VALUES,
@@ -14,6 +16,19 @@ import {
   normalizeHoReCa,
   parseBaseCategorySlug,
 } from './product-template';
+
+const IMAGE_FIELD_TO_ALT_FIELD: Record<(typeof IMAGE_FIELDS)[number], (typeof IMAGE_ALT_FIELDS)[number]> = {
+  Image_1: 'SEO_Alt_Text_1',
+  Image_2: 'SEO_Alt_Text_2',
+  Image_3: 'SEO_Alt_Text_3',
+  Image_4: 'SEO_Alt_Text_4',
+  Image_5: 'SEO_Alt_Text_5',
+  Image_6: 'SEO_Alt_Text_6',
+  Image_7: 'SEO_Alt_Text_7',
+  Image_8: 'SEO_Alt_Text_8',
+  Image_9: 'SEO_Alt_Text_9',
+  Image_10: 'SEO_Alt_Text_10',
+};
 
 export interface ParsedProduct {
   row: number;
@@ -334,24 +349,36 @@ function validateRow(row: ProductCSVRow, rowNumber: number): { errors: Validatio
     }
   }
   
-  // Validar URLs de imágenes
-  const imageFields: (keyof ProductCSVRow)[] = [
-    'Image_1', 'Image_2', 'Image_3', 'Image_4', 'Image_5',
-    'Image_6', 'Image_7', 'Image_8', 'Image_9', 'Image_10',
-  ];
-  
-  for (const field of imageFields) {
-    const value = row[field];
+  // Validar URLs de imágenes y su alt text SEO correspondiente
+  for (const imageField of IMAGE_FIELDS) {
+    const value = row[imageField];
+    const altField = IMAGE_FIELD_TO_ALT_FIELD[imageField];
+    const altValue = row[altField];
+
     if (value && value.trim() !== '') {
       try {
         new URL(value);
       } catch {
         errors.push({
-          field,
+          field: imageField,
           message: 'URL de imagen inválida',
           value,
         });
       }
+
+      if (!altValue || altValue.trim() === '') {
+        errors.push({
+          field: altField,
+          message: `El campo ${altField} es obligatorio cuando ${imageField} tiene URL`,
+          value: altValue || '',
+        });
+      }
+    } else if (altValue && altValue.trim() !== '') {
+      warnings.push({
+        field: altField,
+        message: `El campo ${altField} tiene valor pero ${imageField} está vacío`,
+        value: altValue,
+      });
     }
   }
   
@@ -581,13 +608,33 @@ export function compareWithExisting(
         Image_8: '_image_8',
         Image_9: '_image_9',
         Image_10: '_image_10',
+        SEO_Alt_Text_1: '_alt_1',
+        SEO_Alt_Text_2: '_alt_2',
+        SEO_Alt_Text_3: '_alt_3',
+        SEO_Alt_Text_4: '_alt_4',
+        SEO_Alt_Text_5: '_alt_5',
+        SEO_Alt_Text_6: '_alt_6',
+        SEO_Alt_Text_7: '_alt_7',
+        SEO_Alt_Text_8: '_alt_8',
+        SEO_Alt_Text_9: '_alt_9',
+        SEO_Alt_Text_10: '_alt_10',
       };
       
       for (const [csvField, dbField] of Object.entries(fieldMappings)) {
-        if (dbField.startsWith('_')) continue; // Skip special fields
-        
+        if (dbField.startsWith('_') && !dbField.startsWith('_image_') && !dbField.startsWith('_alt_')) continue;
+
         const newValue = newProduct.data[csvField as keyof ProductCSVRow] || '';
-        const oldValue = String(existing[dbField] || '');
+        let oldValue = '';
+
+        if (dbField.startsWith('_image_')) {
+          const orderIndex = Number(dbField.replace('_image_', ''));
+          oldValue = getExistingProductMediaValue(existing, orderIndex, 'url');
+        } else if (dbField.startsWith('_alt_')) {
+          const orderIndex = Number(dbField.replace('_alt_', ''));
+          oldValue = getExistingProductMediaValue(existing, orderIndex, 'alt_text');
+        } else {
+          oldValue = String(existing[dbField] || '');
+        }
         
         // Normalize values for comparison
         const normalizedNew = normalizeValue(newValue, csvField as keyof ProductCSVRow);
@@ -639,6 +686,36 @@ function normalizeValue(value: string, field: keyof ProductCSVRow): string {
   }
   
   return value.trim().toLowerCase();
+}
+
+type ExistingProductMedia = {
+  order_index?: number | null;
+  media_type?: string | null;
+  url?: string | null;
+  alt_text?: string | null;
+};
+
+function getExistingProductMediaValue(
+  existing: Record<string, unknown>,
+  orderIndex: number,
+  valueField: 'url' | 'alt_text'
+): string {
+  const media = Array.isArray(existing.product_media)
+    ? (existing.product_media as ExistingProductMedia[])
+    : [];
+
+  const mediaByOrder = media.find((m) => (m.media_type === 'image' || !m.media_type) && Number(m.order_index) === orderIndex);
+  const mediaValue = mediaByOrder?.[valueField];
+  if (typeof mediaValue === 'string') {
+    return mediaValue;
+  }
+
+  if (valueField === 'url' && orderIndex === 1) {
+    const primaryUrl = existing.imagen_principal_url;
+    return typeof primaryUrl === 'string' ? primaryUrl : '';
+  }
+
+  return '';
 }
 
 export function parseBooleanValue(value: string): boolean {

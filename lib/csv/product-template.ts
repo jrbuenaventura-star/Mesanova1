@@ -79,7 +79,43 @@ export interface ProductCSVRow {
   Image_8: string;
   Image_9: string;
   Image_10: string;
+  SEO_Alt_Text_1: string;
+  SEO_Alt_Text_2: string;
+  SEO_Alt_Text_3: string;
+  SEO_Alt_Text_4: string;
+  SEO_Alt_Text_5: string;
+  SEO_Alt_Text_6: string;
+  SEO_Alt_Text_7: string;
+  SEO_Alt_Text_8: string;
+  SEO_Alt_Text_9: string;
+  SEO_Alt_Text_10: string;
 }
+
+export const IMAGE_FIELDS = [
+  'Image_1',
+  'Image_2',
+  'Image_3',
+  'Image_4',
+  'Image_5',
+  'Image_6',
+  'Image_7',
+  'Image_8',
+  'Image_9',
+  'Image_10',
+] as const;
+
+export const IMAGE_ALT_FIELDS = [
+  'SEO_Alt_Text_1',
+  'SEO_Alt_Text_2',
+  'SEO_Alt_Text_3',
+  'SEO_Alt_Text_4',
+  'SEO_Alt_Text_5',
+  'SEO_Alt_Text_6',
+  'SEO_Alt_Text_7',
+  'SEO_Alt_Text_8',
+  'SEO_Alt_Text_9',
+  'SEO_Alt_Text_10',
+] as const;
 
 export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Ref',
@@ -125,16 +161,8 @@ export const CSV_HEADERS: (keyof ProductCSVRow)[] = [
   'Ficha_Tecnica_URL',
   'Fecha_Lanzamiento',
   'HoReCa',
-  'Image_1',
-  'Image_2',
-  'Image_3',
-  'Image_4',
-  'Image_5',
-  'Image_6',
-  'Image_7',
-  'Image_8',
-  'Image_9',
-  'Image_10',
+  ...IMAGE_FIELDS,
+  ...IMAGE_ALT_FIELDS,
 ];
 
 export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
@@ -191,6 +219,16 @@ export const CSV_HEADER_DESCRIPTIONS: Record<keyof ProductCSVRow, string> = {
   Image_8: 'URL de imagen 8',
   Image_9: 'URL de imagen 9',
   Image_10: 'URL de imagen 10',
+  SEO_Alt_Text_1: 'Texto alternativo SEO para Image_1',
+  SEO_Alt_Text_2: 'Texto alternativo SEO para Image_2',
+  SEO_Alt_Text_3: 'Texto alternativo SEO para Image_3',
+  SEO_Alt_Text_4: 'Texto alternativo SEO para Image_4',
+  SEO_Alt_Text_5: 'Texto alternativo SEO para Image_5',
+  SEO_Alt_Text_6: 'Texto alternativo SEO para Image_6',
+  SEO_Alt_Text_7: 'Texto alternativo SEO para Image_7',
+  SEO_Alt_Text_8: 'Texto alternativo SEO para Image_8',
+  SEO_Alt_Text_9: 'Texto alternativo SEO para Image_9',
+  SEO_Alt_Text_10: 'Texto alternativo SEO para Image_10',
 };
 
 export const REQUIRED_FIELDS: (keyof ProductCSVRow)[] = [
@@ -341,6 +379,16 @@ function generateExampleRow(): string {
     Image_8: '',
     Image_9: '',
     Image_10: '',
+    SEO_Alt_Text_1: 'Tabla de cortar en bambu vista frontal',
+    SEO_Alt_Text_2: 'Tabla de cortar en bambu vista detalle',
+    SEO_Alt_Text_3: '',
+    SEO_Alt_Text_4: '',
+    SEO_Alt_Text_5: '',
+    SEO_Alt_Text_6: '',
+    SEO_Alt_Text_7: '',
+    SEO_Alt_Text_8: '',
+    SEO_Alt_Text_9: '',
+    SEO_Alt_Text_10: '',
   };
   
   return CSV_HEADERS.map(h => {

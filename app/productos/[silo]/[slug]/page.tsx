@@ -73,15 +73,38 @@ export default async function ProductPage({ params }: ProductPageProps) {
     getProductRatingStats(product.id),
   ])
 
-  const images = [
-    {
-      url: product.imagen_principal_url || "/placeholder.svg?height=600&width=600",
-      alt: product.nombre_comercial || product.pdt_descripcion,
-    },
-    ...(product.media
-      ?.filter((m) => m.media_type === "image")
-      .map((m) => ({ url: m.url, alt: m.alt_text || product.nombre_comercial || "" })) || []),
-  ]
+  const imageMedia = (product.media || [])
+    .filter((m) => m.media_type === "image")
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+
+  const primaryMedia = imageMedia.find(
+    (m) => m.order_index === 1 || (!!product.imagen_principal_url && m.url === product.imagen_principal_url)
+  )
+
+  const images: { url: string; alt: string }[] = []
+  const seenImageUrls = new Set<string>()
+
+  const addImage = (url: string | null | undefined, alt: string | null | undefined) => {
+    if (!url) return
+    if (seenImageUrls.has(url)) return
+    seenImageUrls.add(url)
+    images.push({
+      url,
+      alt: alt || product.nombre_comercial || product.pdt_descripcion || "",
+    })
+  }
+
+  addImage(product.imagen_principal_url, primaryMedia?.alt_text)
+  for (const media of imageMedia) {
+    addImage(media.url, media.alt_text)
+  }
+
+  if (images.length === 0) {
+    images.push({
+      url: "/placeholder.svg?height=600&width=600",
+      alt: product.nombre_comercial || product.pdt_descripcion || "Imagen del producto",
+    })
+  }
 
   const videos = product.media?.filter((m) => m.media_type === "video") || []
 
