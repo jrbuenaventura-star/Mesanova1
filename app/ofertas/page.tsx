@@ -22,16 +22,17 @@ export default async function OfertasPage() {
     .from("products")
     .select(`
       *,
-      categories(
+      categories:product_categories(
+        is_primary,
         subcategory:subcategories(
           name,
           silo:silos(name, slug)
         )
       ),
-      warehouse_stock(available_quantity)
+      warehouse_stock:product_warehouse_stock(available_quantity)
     `)
-    .eq("is_on_sale", true)
     .eq("is_active", true)
+    .gt("descuento_porcentaje", 0)
     .order("created_at", { ascending: false })
     .limit(12)
   return (
