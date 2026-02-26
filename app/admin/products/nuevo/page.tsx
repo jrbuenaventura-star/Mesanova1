@@ -32,6 +32,7 @@ export default async function NewProductPage() {
     valorinv: 0,
     ubicacion: "",
     precio: 0,
+    horeca: "NO",
     nombre_comercial: "",
     descripcion_larga: "",
     caracteristicas: "",

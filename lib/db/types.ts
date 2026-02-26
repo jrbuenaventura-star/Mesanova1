@@ -73,6 +73,7 @@ export interface Product {
   codigo_barras?: string
   descuento_porcentaje?: number
   precio_antes?: number
+  horeca?: 'NO' | 'SI' | 'EXCLUSIVO'
   pedido_en_camino?: number
   descontinuado?: boolean
   product_type_id?: string

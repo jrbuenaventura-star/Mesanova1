@@ -26,6 +26,38 @@ type EditorProduct = ProductWithCategories & {
   } | null
 }
 
+type HorecaValue = "NO" | "SI" | "EXCLUSIVO"
+
+type HorecaChannels = {
+  retail: boolean
+  horeca: boolean
+}
+
+function normalizeHorecaValue(value: string | null | undefined): HorecaValue {
+  const normalized = (value || "NO").toUpperCase().trim()
+  if (normalized === "SI" || normalized === "EXCLUSIVO" || normalized === "NO") {
+    return normalized
+  }
+  return "NO"
+}
+
+function getChannelsFromHoreca(value: string | null | undefined): HorecaChannels {
+  const horecaValue = normalizeHorecaValue(value)
+  if (horecaValue === "SI") {
+    return { retail: true, horeca: true }
+  }
+  if (horecaValue === "EXCLUSIVO") {
+    return { retail: false, horeca: true }
+  }
+  return { retail: true, horeca: false }
+}
+
+function getHorecaFromChannels(channels: HorecaChannels): HorecaValue {
+  if (channels.retail && channels.horeca) return "SI"
+  if (!channels.retail && channels.horeca) return "EXCLUSIVO"
+  return "NO"
+}
+
 interface Props {
   product: EditorProduct
   silos: Silo[]
@@ -34,7 +66,10 @@ interface Props {
 
 export function AdvancedProductEditor({ product: initialProduct, silos, collections }: Props) {
   const router = useRouter()
-  const [product, setProduct] = useState<EditorProduct>(initialProduct)
+  const [product, setProduct] = useState<EditorProduct>({
+    ...initialProduct,
+    horeca: normalizeHorecaValue(initialProduct.horeca),
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [selectedSilo, setSelectedSilo] = useState<string>("none")
   const [subcategories, setSubcategories] = useState<any[]>([])
@@ -43,6 +78,33 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
   const [newVideoUrl, setNewVideoUrl] = useState("")
 
   const supabase = createClient()
+  const horecaChannels = getChannelsFromHoreca(product.horeca)
+  const horecaLabels: Record<HorecaValue, string> = {
+    NO: "Solo Retail",
+    SI: "Retail + HoReCa",
+    EXCLUSIVO: "Solo HoReCa",
+  }
+
+  const handleToggleHorecaChannel = (channel: keyof HorecaChannels, checked: boolean) => {
+    const nextChannels = {
+      ...horecaChannels,
+      [channel]: checked,
+    }
+
+    if (!nextChannels.retail && !nextChannels.horeca) {
+      toast({
+        title: "Selección inválida",
+        description: "Debes seleccionar al menos un canal (Retail o HoReCa).",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setProduct({
+      ...product,
+      horeca: getHorecaFromChannels(nextChannels),
+    })
+  }
 
   // Cargar subcategorías cuando se selecciona un silo
   const handleSiloChange = async (siloId: string) => {
@@ -248,6 +310,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
         is_featured: product.is_featured,
         is_new: product.is_new,
         is_on_sale: product.is_on_sale,
+        horeca: normalizeHorecaValue(product.horeca),
         imagen_principal_url: product.imagen_principal_url,
         upp_existencia: product.upp_existencia || 0,
       }
@@ -512,6 +575,34 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
               </div>
 
               {/* Agregar nueva categoría */}
+              <div className="space-y-3 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <Label>Canales de Venta</Label>
+                  <Badge variant="outline">{horecaLabels[normalizeHorecaValue(product.horeca)]}</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Selección múltiple: define si el producto se publica en Retail, HoReCa o ambos.
+                </p>
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="channel-retail"
+                      checked={horecaChannels.retail}
+                      onCheckedChange={(checked) => handleToggleHorecaChannel("retail", checked === true)}
+                    />
+                    <Label htmlFor="channel-retail">Retail</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="channel-horeca"
+                      checked={horecaChannels.horeca}
+                      onCheckedChange={(checked) => handleToggleHorecaChannel("horeca", checked === true)}
+                    />
+                    <Label htmlFor="channel-horeca">HoReCa</Label>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4 pt-4 border-t">
                 <Label>Agregar Categoría</Label>
                 <div className="grid grid-cols-2 gap-4">
