@@ -19,12 +19,12 @@ export async function GET(
       .from('pqrs_tickets')
       .select(`
         *,
-        asignado:user_profiles!pqrs_tickets_asignado_a_fkey(id, full_name, email),
+        asignado:user_profiles!pqrs_tickets_asignado_a_fkey(id, full_name),
         tareas:pqrs_tasks(*,
-          asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name, email),
-          asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name, email)
+          asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name),
+          asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name)
         ),
-        comentarios:pqrs_comments(*, usuario:user_profiles(id, full_name, email)),
+        comentarios:pqrs_comments(*, usuario:user_profiles(id, full_name)),
         archivos:pqrs_attachments(*)
       `)
       .eq('id', id)
@@ -200,7 +200,7 @@ export async function PATCH(
       await supabase.from('pqrs_comments').insert(comentarios)
     }
 
-    if (estado && estado !== ticketActual.estado) {
+    if (estado && estado !== ticketActual.estado && ticketActual.creado_por_email) {
       const emailHtml = getTicketStatusChangeEmail(
         ticketActual.ticket_number,
         ticketActual.asunto,
@@ -209,11 +209,15 @@ export async function PATCH(
         resolucion
       )
 
-      await sendPQRSNotification({
-        to: ticketActual.creado_por_email,
-        subject: `Actualización de Ticket ${ticketActual.ticket_number}`,
-        html: emailHtml,
-      })
+      try {
+        await sendPQRSNotification({
+          to: ticketActual.creado_por_email,
+          subject: `Actualización de Ticket ${ticketActual.ticket_number}`,
+          html: emailHtml,
+        })
+      } catch (notificationError) {
+        console.error('Error sending ticket status notification:', notificationError)
+      }
     }
 
     return NextResponse.json({ ticket })

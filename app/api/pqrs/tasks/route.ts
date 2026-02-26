@@ -40,8 +40,8 @@ export async function POST(request: Request) {
       })
       .select(`
         *,
-        asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name, email),
-        asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name, email)
+        asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name),
+        asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name)
       `)
       .single()
 
@@ -66,7 +66,12 @@ export async function POST(request: Request) {
       .eq('id', ticket_id)
       .single()
 
-    if (ticketInfo && task.asignado?.email) {
+    const taskAssigneeEmail =
+      typeof body?.asignado_email === 'string' && body.asignado_email.trim()
+        ? body.asignado_email.trim()
+        : null
+
+    if (ticketInfo && taskAssigneeEmail) {
       const emailHtml = getTaskAssignmentEmail(
         ticketInfo.ticket_number,
         titulo,
@@ -75,7 +80,7 @@ export async function POST(request: Request) {
       )
 
       await sendPQRSNotification({
-        to: task.asignado.email,
+        to: taskAssigneeEmail,
         subject: `Nueva Tarea Asignada: ${titulo}`,
         html: emailHtml,
       })
@@ -128,8 +133,8 @@ export async function PATCH(request: Request) {
       .eq('id', id)
       .select(`
         *,
-        asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name, email),
-        asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name, email)
+        asignado:user_profiles!pqrs_tasks_asignado_a_fkey(id, full_name),
+        asignado_por_usuario:user_profiles!pqrs_tasks_asignado_por_fkey(id, full_name)
       `)
       .single()
 

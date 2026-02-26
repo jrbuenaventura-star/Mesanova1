@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         comentario,
         es_interno,
       })
-      .select('*, usuario:user_profiles(id, full_name, email)')
+      .select('*, usuario:user_profiles(id, full_name)')
       .single()
 
     if (error) {

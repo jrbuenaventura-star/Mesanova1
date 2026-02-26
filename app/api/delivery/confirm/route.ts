@@ -215,7 +215,9 @@ export async function POST(request: Request) {
 
     const { data: qr, error: qrError } = await supabaseAdmin
       .from("delivery_qr_tokens")
-      .select("id, order_id, warehouse_id, transporter_id, status, expires_at, delivery_batch_id")
+      .select(
+        "id, order_id, customer_id, warehouse_id, transporter_id, status, expires_at, delivery_batch_id"
+      )
       .eq("id", session.qr_id)
       .single()
 
@@ -364,6 +366,7 @@ export async function POST(request: Request) {
         orderId: qr.order_id,
         warehouseId: qr.warehouse_id,
         transporterId: qr.transporter_id,
+        customerId: qr.customer_id,
         invoiceNumber: body.incidentInvoiceNumber,
         productReference: body.incidentProductReference,
         defectiveQuantity: body.incidentDefectiveQuantity,

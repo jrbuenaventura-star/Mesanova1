@@ -18,6 +18,8 @@ type TicketCreatePayload = {
   fotoGuiaFiles: File[]
 }
 
+type TicketActorRole = 'superadmin' | 'distributor' | 'aliado' | null
+
 function asTrimmedString(value: FormDataEntryValue | unknown): string {
   if (typeof value === 'string') {
     return value.trim()
@@ -38,6 +40,50 @@ function assertImageFiles(files: File[], fieldLabel: string): string | null {
     }
   }
   return null
+}
+
+async function resolveTicketActorContext(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  authEmail: string | null
+) {
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('role, full_name')
+    .eq('id', userId)
+    .maybeSingle()
+
+  let role = (profile?.role as TicketActorRole) || null
+  let fullName = profile?.full_name || null
+
+  if (!['superadmin', 'distributor', 'aliado'].includes(role || '')) {
+    const [{ data: distributor }, { data: aliado }] = await Promise.all([
+      supabase
+        .from('distributors')
+        .select('company_name')
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('aliados')
+        .select('company_name')
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ])
+
+    if (distributor) {
+      role = 'distributor'
+      if (!fullName) fullName = distributor.company_name || null
+    } else if (aliado) {
+      role = 'aliado'
+      if (!fullName) fullName = aliado.company_name || null
+    }
+  }
+
+  return {
+    role,
+    fullName,
+    email: authEmail || null,
+  }
 }
 
 async function parseTicketCreatePayload(request: Request): Promise<TicketCreatePayload> {
@@ -144,7 +190,7 @@ export async function GET(request: Request) {
       .from('pqrs_tickets')
       .select(`
         *,
-        asignado:user_profiles!pqrs_tickets_asignado_a_fkey(id, full_name, email),
+        asignado:user_profiles!pqrs_tickets_asignado_a_fkey(id, full_name),
         tareas:pqrs_tasks(count)
       `)
       .order('fecha_creacion', { ascending: false })
@@ -233,13 +279,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role, full_name, email')
-      .eq('id', user.id)
-      .single()
+    const actor = await resolveTicketActorContext(supabase, user.id, user.email || null)
 
-    if (!profile || !['distributor', 'aliado'].includes(profile.role)) {
+    if (!actor.role || !['distributor', 'aliado'].includes(actor.role)) {
       return NextResponse.json({ error: 'No tienes permisos para crear tickets' }, { status: 403 })
     }
 
@@ -322,9 +364,9 @@ export async function POST(request: Request) {
         descripcion,
         prioridad,
         creado_por: user.id,
-        creado_por_nombre: profile.full_name,
-        creado_por_email: profile.email,
-        creado_por_rol: profile.role,
+        creado_por_nombre: actor.fullName,
+        creado_por_email: actor.email,
+        creado_por_rol: actor.role,
         metadata,
       })
       .select()
@@ -372,32 +414,33 @@ export async function POST(request: Request) {
     await supabase.from('pqrs_comments').insert({
       ticket_id: ticket.id,
       usuario_id: user.id,
-      usuario_nombre: profile.full_name,
-      usuario_rol: profile.role,
+      usuario_nombre: actor.fullName,
+      usuario_rol: actor.role,
       comentario: `Ticket creado: ${asunto}`,
       tipo_cambio: 'creacion',
     })
 
-    const { data: superadmins } = await supabase
-      .from('user_profiles')
-      .select('email, full_name')
-      .eq('role', 'superadmin')
+    const adminNotificationTargets = (process.env.PQRS_ADMIN_NOTIFICATION_EMAILS || '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+    const actorEmailForNotifications = actor.email ?? 'no-disponible@mesanova.local'
 
-    if (superadmins && superadmins.length > 0) {
+    if (adminNotificationTargets.length > 0) {
       const emailHtml = getNewTicketNotificationEmail(
         ticket.ticket_number,
         tipo,
         asunto,
         descripcion,
         prioridad,
-        profile.full_name,
-        profile.email
+        actor.fullName,
+        actorEmailForNotifications
       )
 
-      for (const admin of superadmins) {
+      for (const email of adminNotificationTargets) {
         try {
           await sendPQRSNotification({
-            to: admin.email,
+            to: email,
             subject: `Nuevo Ticket ${ticket.ticket_number}: ${asunto}`,
             html: emailHtml,
           })
@@ -415,8 +458,8 @@ export async function POST(request: Request) {
         asunto,
         descripcion,
         prioridad,
-        profile.full_name,
-        profile.email
+        actor.fullName,
+        actorEmailForNotifications
       )
 
       try {

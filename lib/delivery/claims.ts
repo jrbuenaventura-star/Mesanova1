@@ -9,6 +9,7 @@ type CreateDeliveryClaimInput = {
   orderId: string
   warehouseId: string
   transporterId?: string | null
+  customerId?: string | null
   invoiceNumber: string
   productReference: string
   defectiveQuantity: number
@@ -17,6 +18,23 @@ type CreateDeliveryClaimInput = {
   claimantContact?: string | null
   evidenceFiles: File[]
   guideFile: File
+}
+
+type ClaimTicketOwner = {
+  userId: string
+  fullName: string | null
+  email: string | null
+  role: string
+  distributorId: string | null
+  source: string
+}
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+function isUuidLike(value: string | null | undefined) {
+  if (!value) return false
+  return UUID_PATTERN.test(value.trim())
 }
 
 function getClaimEmailHtml(input: CreateDeliveryClaimInput, ticketNumber: string) {
@@ -37,6 +55,206 @@ function getClaimEmailHtml(input: CreateDeliveryClaimInput, ticketNumber: string
       </body>
     </html>
   `
+}
+
+async function resolveOwnerFromUserId(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  source: string
+): Promise<ClaimTicketOwner | null> {
+  const { data: profile } = await supabaseAdmin
+    .from("user_profiles")
+    .select("id, full_name, role")
+    .eq("id", userId)
+    .maybeSingle()
+
+  const { data: distributor } = await supabaseAdmin
+    .from("distributors")
+    .select("id, company_name, contact_email")
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  if (!profile && !distributor) {
+    return null
+  }
+
+  const role = profile?.role || (distributor ? "distributor" : "end_user")
+  if (role === "superadmin") {
+    return null
+  }
+
+  return {
+    userId,
+    fullName: profile?.full_name || distributor?.company_name || null,
+    email: distributor?.contact_email || null,
+    role,
+    distributorId: distributor?.id || null,
+    source,
+  }
+}
+
+async function resolveOwnerFromDistributorId(
+  supabaseAdmin: SupabaseClient,
+  distributorId: string,
+  source: string
+): Promise<ClaimTicketOwner | null> {
+  const { data: distributor } = await supabaseAdmin
+    .from("distributors")
+    .select("id, user_id, company_name, contact_email")
+    .eq("id", distributorId)
+    .maybeSingle()
+
+  if (!distributor?.user_id) {
+    return null
+  }
+
+  const ownerByUser = await resolveOwnerFromUserId(
+    supabaseAdmin,
+    distributor.user_id,
+    `${source}:user_id`
+  )
+
+  if (ownerByUser) {
+    return {
+      ...ownerByUser,
+      distributorId: distributor.id,
+      email: ownerByUser.email || distributor.contact_email || null,
+    }
+  }
+
+  return {
+    userId: distributor.user_id,
+    fullName: distributor.company_name || null,
+    email: distributor.contact_email || null,
+    role: "distributor",
+    distributorId: distributor.id,
+    source,
+  }
+}
+
+function extractRawPayloadCandidates(rawPayload: unknown): string[] {
+  if (!rawPayload || typeof rawPayload !== "object" || Array.isArray(rawPayload)) {
+    return []
+  }
+
+  const candidateKeys = [
+    "distributor_user_id",
+    "distributor_id",
+    "recipient_user_id",
+    "user_id",
+    "customer_id",
+  ]
+
+  const objectsToInspect = [
+    rawPayload as Record<string, unknown>,
+    ((rawPayload as Record<string, unknown>).order || null) as Record<string, unknown> | null,
+    ((rawPayload as Record<string, unknown>).customer || null) as Record<string, unknown> | null,
+    ((rawPayload as Record<string, unknown>).recipient || null) as Record<string, unknown> | null,
+  ].filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === "object")
+
+  const values: string[] = []
+  for (const obj of objectsToInspect) {
+    for (const key of candidateKeys) {
+      const value = obj[key]
+      if (typeof value === "string" && value.trim()) {
+        values.push(value.trim())
+      }
+    }
+  }
+
+  return values
+}
+
+async function resolveDeliveryClaimTicketOwner(
+  supabaseAdmin: SupabaseClient,
+  input: { orderId: string; customerId?: string | null }
+): Promise<ClaimTicketOwner | null> {
+  const seen = new Set<string>()
+
+  const tryCandidate = async (rawCandidate: string | null | undefined, source: string) => {
+    const candidate = (rawCandidate || "").trim()
+    if (!candidate || seen.has(candidate)) {
+      return null
+    }
+    seen.add(candidate)
+
+    const byDistributor = await resolveOwnerFromDistributorId(
+      supabaseAdmin,
+      candidate,
+      `${source}:distributor_id`
+    )
+    if (byDistributor) {
+      return byDistributor
+    }
+
+    if (isUuidLike(candidate)) {
+      const byUser = await resolveOwnerFromUserId(supabaseAdmin, candidate, `${source}:user_id`)
+      if (byUser) {
+        return byUser
+      }
+    }
+
+    return null
+  }
+
+  const fromCustomerId = await tryCandidate(input.customerId, "delivery_qr.customer_id")
+  if (fromCustomerId) {
+    return fromCustomerId
+  }
+
+  if (isUuidLike(input.orderId)) {
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, user_id, distributor_id")
+      .eq("id", input.orderId)
+      .maybeSingle()
+
+    if (order?.distributor_id) {
+      const fromOrderDistributor = await tryCandidate(
+        order.distributor_id,
+        "orders.distributor_id"
+      )
+      if (fromOrderDistributor) {
+        return fromOrderDistributor
+      }
+    }
+
+    if (order?.user_id) {
+      const fromOrderUser = await tryCandidate(order.user_id, "orders.user_id")
+      if (fromOrderUser) {
+        return fromOrderUser
+      }
+    }
+  }
+
+  const { data: snapshot } = await supabaseAdmin
+    .from("delivery_erp_order_snapshots")
+    .select("order_id, customer_id, raw_payload")
+    .eq("order_id", input.orderId)
+    .maybeSingle()
+
+  if (snapshot?.customer_id) {
+    const fromSnapshotCustomer = await tryCandidate(
+      snapshot.customer_id,
+      "delivery_erp_order_snapshots.customer_id"
+    )
+    if (fromSnapshotCustomer) {
+      return fromSnapshotCustomer
+    }
+  }
+
+  const snapshotCandidates = extractRawPayloadCandidates(snapshot?.raw_payload)
+  for (const [index, candidate] of snapshotCandidates.entries()) {
+    const fromRawPayload = await tryCandidate(
+      candidate,
+      `delivery_erp_order_snapshots.raw_payload.${index}`
+    )
+    if (fromRawPayload) {
+      return fromRawPayload
+    }
+  }
+
+  return null
 }
 
 async function resolveSystemCreator(supabaseAdmin: SupabaseClient) {
@@ -168,7 +386,20 @@ export async function createDeliveryClaimTicket(
   supabaseAdmin: SupabaseClient,
   input: CreateDeliveryClaimInput
 ) {
-  const creator = await resolveSystemCreator(supabaseAdmin)
+  const systemCreator = await resolveSystemCreator(supabaseAdmin)
+  const ticketOwner = await resolveDeliveryClaimTicketOwner(supabaseAdmin, {
+    orderId: input.orderId,
+    customerId: input.customerId || null,
+  })
+
+  const ticketOwnerUserId = ticketOwner?.userId || systemCreator.id
+  const ticketOwnerName =
+    ticketOwner?.fullName ||
+    input.claimantName ||
+    systemCreator.full_name ||
+    "Cliente Mesanova"
+  const ticketOwnerEmail = ticketOwner?.email || null
+  const ticketOwnerRole = ticketOwner?.role || systemCreator.role || "system"
 
   const metadata = {
     reclamo: {
@@ -182,6 +413,11 @@ export async function createDeliveryClaimTicket(
       transporter_id: input.transporterId || null,
       claimant_name: input.claimantName || null,
       claimant_contact: input.claimantContact || null,
+      ticket_owner_user_id: ticketOwnerUserId,
+      ticket_owner_role: ticketOwnerRole,
+      ticket_owner_distributor_id: ticketOwner?.distributorId || null,
+      ticket_owner_source: ticketOwner?.source || "system_fallback",
+      system_actor_user_id: systemCreator.id,
     },
   }
 
@@ -203,10 +439,10 @@ export async function createDeliveryClaimTicket(
       asunto: `Reclamación de entrega ${input.orderId}`,
       descripcion: descripcionPartes.join("\n"),
       prioridad: "alta",
-      creado_por: creator.id,
-      creado_por_nombre: creator.full_name || "Sistema Mesanova",
-      creado_por_email: creator.email || "sistema@mesanova.co",
-      creado_por_rol: creator.role || "superadmin",
+      creado_por: ticketOwnerUserId,
+      creado_por_nombre: ticketOwnerName,
+      creado_por_email: ticketOwnerEmail,
+      creado_por_rol: ticketOwnerRole,
       metadata,
     })
     .select()
@@ -225,7 +461,7 @@ export async function createDeliveryClaimTicket(
       const path = await uploadClaimAttachment({
         supabaseAdmin,
         ticketId: ticket.id,
-        userId: creator.id,
+        userId: systemCreator.id,
         file: evidence,
         attachmentType: "evidencia_fotografica",
         index: index++,
@@ -237,7 +473,7 @@ export async function createDeliveryClaimTicket(
     guidePath = await uploadClaimAttachment({
       supabaseAdmin,
       ticketId: ticket.id,
-      userId: creator.id,
+      userId: systemCreator.id,
       file: input.guideFile,
       attachmentType: "foto_guia",
       index: index++,
@@ -253,9 +489,9 @@ export async function createDeliveryClaimTicket(
 
   await supabaseAdmin.from("pqrs_comments").insert({
     ticket_id: ticket.id,
-    usuario_id: creator.id,
-    usuario_nombre: creator.full_name || "Sistema Mesanova",
-    usuario_rol: creator.role || "superadmin",
+    usuario_id: systemCreator.id,
+    usuario_nombre: systemCreator.full_name || "Sistema Mesanova",
+    usuario_rol: systemCreator.role || "superadmin",
     comentario: `Ticket creado automáticamente desde confirmación de entrega QR para pedido ${input.orderId}.`,
     tipo_cambio: "creacion",
   })
