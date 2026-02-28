@@ -32,8 +32,8 @@ export default function ClienteFinalPage() {
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Lunes a Viernes</p>
-                <p className="text-sm text-muted-foreground mb-2">9:00 AM - 6:00 PM</p>
-                <p className="font-semibold">+1 (800) 123-4567</p>
+                <p className="text-sm text-muted-foreground mb-2">8:30 AM - 5:30 PM</p>
+                <p className="font-semibold">+57 315 4049651</p>
               </CardContent>
             </Card>
 
@@ -44,8 +44,7 @@ export default function ClienteFinalPage() {
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Respondemos en 24 horas</p>
-                <p className="font-semibold break-all">contacto@mesanova.com</p>
-                <p className="font-semibold break-all">ventas@mesanova.com</p>
+                <p className="font-semibold break-all">hola@alumaronline.com</p>
               </CardContent>
             </Card>
 
@@ -59,7 +58,7 @@ export default function ClienteFinalPage() {
                 <p className="text-sm text-muted-foreground mb-2">Horario de oficina</p>
                 <Button variant="outline" size="sm" asChild>
                   <a
-                    href="https://wa.me/573001234567?text=Hola%20Mesanova%2C%20necesito%20ayuda%20con%20un%20pedido."
+                    href="https://wa.me/573154049651?text=Hola%2C%20necesito%20ayuda%20con%20un%20pedido."
                     target="_blank"
                     rel="noopener noreferrer"
                   >
