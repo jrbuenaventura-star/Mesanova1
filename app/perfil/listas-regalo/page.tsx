@@ -17,6 +17,8 @@ const eventTypeLabels: Record<string, string> = {
 }
 
 const statusLabels: Record<string, { label: string; color: string }> = {
+  draft: { label: "Borrador", color: "bg-amber-500" },
+  borrador: { label: "Borrador", color: "bg-amber-500" },
   active: { label: "Activa", color: "bg-green-500" },
   completed: { label: "Completada", color: "bg-blue-500" },
   expired: { label: "Expirada", color: "bg-gray-500" },

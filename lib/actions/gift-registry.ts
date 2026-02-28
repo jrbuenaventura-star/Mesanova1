@@ -145,6 +145,23 @@ export async function updateGiftRegistryAction(registryId: string, formData: For
   const isSearchable = formData.get("is_searchable")
   if (isSearchable !== null) updates.is_searchable = isSearchable === "on"
 
+  const status = formData.get("status")
+  if (typeof status === "string" && status.length > 0) {
+    const normalizedStatus = (
+      {
+        borrador: "draft",
+        activa: "active",
+        completada: "completed",
+        expirada: "expired",
+        cancelada: "cancelled",
+      } as const
+    )[status as "borrador" | "activa" | "completada" | "expirada" | "cancelada"] || status
+    const allowedStatuses = new Set(["draft", "active", "completed", "expired", "cancelled"])
+    if (allowedStatuses.has(normalizedStatus)) {
+      updates.status = normalizedStatus
+    }
+  }
+
   const { error } = await supabase
     .from("gift_registries")
     .update(updates)

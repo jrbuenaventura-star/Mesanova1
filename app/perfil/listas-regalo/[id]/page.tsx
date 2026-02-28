@@ -3,10 +3,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { getGiftRegistryById } from "@/lib/db/user-features"
+import { deleteGiftRegistryAction, updateGiftRegistryAction } from "@/lib/actions/gift-registry"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, Eye, Gift, Share2 } from "lucide-react"
+import { ShareButton } from "@/components/ui/share-button"
+import { ArrowLeft, Calendar, Eye, Gift, Trash2 } from "lucide-react"
 
 type GiftRegistryDetailPageProps = {
   params: Promise<{ id: string }>
@@ -21,6 +23,8 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  draft: { label: "Borrador", color: "bg-amber-500" },
+  borrador: { label: "Borrador", color: "bg-amber-500" },
   active: { label: "Activa", color: "bg-green-500" },
   completed: { label: "Completada", color: "bg-blue-500" },
   expired: { label: "Expirada", color: "bg-gray-500" },
@@ -54,7 +58,27 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
   }
 
   const status = STATUS_LABELS[registry.status] || STATUS_LABELS.active
+  const isDraft = registry.status === "draft" || registry.status === "borrador"
   const items = registry.gift_registry_items || []
+  const publicListUrl = registry.share_token ? `/lista/${registry.share_token}` : null
+
+  async function activateRegistryFormAction() {
+    "use server"
+    const formData = new FormData()
+    formData.set("status", "active")
+    const result = await updateGiftRegistryAction(id, formData)
+    if (!result?.error) {
+      redirect(`/perfil/listas-regalo/${id}`)
+    }
+  }
+
+  async function deleteRegistryFormAction() {
+    "use server"
+    const result = await deleteGiftRegistryAction(id)
+    if (!result?.error) {
+      redirect("/perfil/listas-regalo")
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -76,7 +100,22 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
               {EVENT_TYPE_LABELS[registry.event_type] || "Evento"} · {formatDate(registry.event_date)}
             </p>
           </div>
-          <Badge className={`${status.color} text-white`}>{status.label}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className={`${status.color} text-white`}>{status.label}</Badge>
+            {isDraft && (
+              <form action={activateRegistryFormAction}>
+                <Button type="submit" size="sm">
+                  Publicar (Activar)
+                </Button>
+              </form>
+            )}
+            <form action={deleteRegistryFormAction}>
+              <Button type="submit" variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Eliminar
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -116,18 +155,28 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
           ) : null}
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild>
-              <Link href={`/lista/${registry.share_token}`} target="_blank" rel="noopener noreferrer">
+            {publicListUrl ? (
+              <>
+                <Button variant="outline" asChild>
+                  <Link href={publicListUrl} target="_blank" rel="noopener noreferrer">
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver lista
+                  </Link>
+                </Button>
+                <ShareButton
+                  variant="outline"
+                  url={publicListUrl}
+                  title={registry.name}
+                  text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+                  label="Compartir lista"
+                />
+              </>
+            ) : (
+              <Button variant="outline" disabled>
                 <Eye className="h-4 w-4 mr-2" />
                 Ver lista
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/lista/${registry.share_token}`}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Ver lista
-              </Link>
-            </Button>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
