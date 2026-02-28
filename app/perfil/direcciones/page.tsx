@@ -3,8 +3,9 @@ import { createClient } from "@/lib/supabase/server"
 import { getUserAddresses } from "@/lib/db/user-features"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Plus, Star, Trash2 } from "lucide-react"
+import { MapPin, Pencil, Plus, Star, Trash2 } from "lucide-react"
 import { AddAddressDialog } from "@/components/profile/add-address-dialog"
+import { EditAddressDialog } from "@/components/profile/edit-address-dialog"
 import { deleteAddressAction, setDefaultAddressAction } from "@/lib/actions/addresses"
 
 export default async function DireccionesPage() {
@@ -81,6 +82,18 @@ export default async function DireccionesPage() {
                     )}
                   </CardTitle>
                   <div className="flex gap-1">
+                    <EditAddressDialog address={address}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        type="button"
+                        aria-label={`Editar dirección ${address.label}`}
+                        title="Editar dirección"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </EditAddressDialog>
                     <form action={setDefaultAddressFormAction}>
                       <input type="hidden" name="address_id" value={address.id} />
                       <Button
