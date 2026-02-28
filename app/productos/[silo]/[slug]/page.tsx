@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const videos = product.media?.filter((m) => m.media_type === "video") || []
 
   // Calcular disponibilidad total
-  const totalStock = product.warehouse_stock?.reduce((sum, ws) => sum + ws.available_quantity, 0) || 0
+  const totalStock = product.warehouse_stock?.reduce((sum, ws) => sum + ws.available_quantity, 0) || product.upp_existencia || 0
   const hasStock = totalStock > 0
 
   // Obtener productos relacionados automáticamente
