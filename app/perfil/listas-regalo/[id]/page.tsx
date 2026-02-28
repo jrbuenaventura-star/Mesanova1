@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Calendar, Eye, Gift, Share2 } from "lucide-react"
 
 type GiftRegistryDetailPageProps = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -37,6 +37,8 @@ function formatDate(date?: string | null) {
 }
 
 export default async function GiftRegistryDetailPage({ params }: GiftRegistryDetailPageProps) {
+  const { id } = await params
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -46,7 +48,7 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
     redirect("/auth/login?redirect=/perfil/listas-regalo")
   }
 
-  const registry = await getGiftRegistryById(params.id)
+  const registry = await getGiftRegistryById(id)
   if (!registry || registry.user_id !== user.id) {
     redirect("/perfil/listas-regalo")
   }

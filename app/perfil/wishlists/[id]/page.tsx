@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Globe, Lock, Plus } from "lucide-react"
 
 type WishlistDetailPageProps = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function WishlistDetailPage({ params }: WishlistDetailPageProps) {
+  const { id } = await params
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -22,7 +24,7 @@ export default async function WishlistDetailPage({ params }: WishlistDetailPageP
     redirect("/auth/login?redirect=/perfil/wishlists")
   }
 
-  const wishlist = await getWishlistById(params.id)
+  const wishlist = await getWishlistById(id)
   if (!wishlist || wishlist.user_id !== user.id) {
     redirect("/perfil/wishlists")
   }
