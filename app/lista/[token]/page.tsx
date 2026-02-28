@@ -15,8 +15,9 @@ const eventTypeLabels: Record<string, string> = {
   other: "Lista de Regalos",
 }
 
-export default async function GiftRegistryPublicPage({ params }: { params: { token: string } }) {
-  const registry = await getGiftRegistryByToken(params.token)
+export default async function GiftRegistryPublicPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
+  const registry = await getGiftRegistryByToken(token)
 
   if (!registry) {
     notFound()
@@ -81,7 +82,7 @@ export default async function GiftRegistryPublicPage({ params }: { params: { tok
             <ShareButton
               variant="outline"
               size="sm"
-              url={`/lista/${params.token}`}
+              url={`/lista/${token}`}
               title={registry.name}
               text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
               label="Compartir"

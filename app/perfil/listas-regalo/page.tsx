@@ -80,6 +80,7 @@ export default async function ListasRegaloPage() {
           {registries.map((registry: any) => {
             const status = statusLabels[registry.status] || statusLabels.active
             const itemCount = registry.gift_registry_items?.[0]?.count || 0
+            const publicListUrl = registry.share_token ? `/lista/${registry.share_token}` : null
 
             return (
               <Card key={registry.id}>
@@ -113,20 +114,28 @@ export default async function ListasRegaloPage() {
                         Gestionar
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/lista/${registry.share_token}`} target="_blank" rel="noopener noreferrer">
+                    {publicListUrl ? (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={publicListUrl} target="_blank" rel="noopener noreferrer">
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver lista
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled>
                         <Eye className="h-4 w-4 mr-1" />
                         Ver lista
-                      </Link>
-                    </Button>
+                      </Button>
+                    )}
                     <ShareButton
                       variant="ghost"
                       size="sm"
                       iconOnly
                       label="Compartir lista"
-                      url={`/lista/${registry.share_token}`}
+                      url={publicListUrl || undefined}
                       title={registry.name}
                       text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+                      disabled={!publicListUrl}
                     />
                   </div>
                 </CardContent>

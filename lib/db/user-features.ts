@@ -238,7 +238,7 @@ export async function getGiftRegistryByToken(shareToken: string) {
     `)
     .eq("share_token", shareToken)
     .eq("status", "active")
-    .single()
+    .maybeSingle()
 
   if (error) throw error
   return data
