@@ -16,10 +16,6 @@ import {
   DollarSign,
   BarChart3,
   MessageSquare,
-  Image,
-  Sparkles,
-  FileSpreadsheet,
-  Settings,
 } from "lucide-react"
 
 const statusLabels: Record<string, string> = {
@@ -95,51 +91,6 @@ export default async function AdminDashboard() {
   monthOrders?.forEach(o => {
     ordersByStatus[o.status] = (ordersByStatus[o.status] || 0) + 1
   })
-
-  const panelGroups = [
-    {
-      title: "1) Inicio",
-      icon: Image,
-      links: [
-        { href: "/admin/home?tab=banner-home", label: "/banner-inicio" },
-        { href: "/admin/home?tab=productos-destacados", label: "/productos-destacados", icon: Sparkles },
-      ],
-    },
-    {
-      title: "2) Productos",
-      icon: Package,
-      links: [
-        { href: "/admin/productos?tab=productos", label: "/productos" },
-        { href: "/admin/productos?tab=productos-csv", label: "/productos/csv", icon: FileSpreadsheet },
-        { href: "/admin/productos?tab=analisis-precios-ia", label: "/productos/analisis-precios-ia", icon: BarChart3 },
-      ],
-    },
-    {
-      title: "3) Órdenes",
-      icon: ShoppingCart,
-      links: [
-        { href: "/admin/ordenes?tab=ordenes", label: "/ordenes" },
-        { href: "/admin/ordenes?tab=aprobar-ordenes", label: "/ordenes/aprobacion" },
-      ],
-    },
-    {
-      title: "4) Red Comercial",
-      icon: Building2,
-      links: [
-        { href: "/admin/red-comercial?tab=clientes", label: "/clientes" },
-        { href: "/admin/red-comercial?tab=clientes-csv", label: "/clientes/csv", icon: FileSpreadsheet },
-        { href: "/admin/red-comercial?tab=aliados", label: "/aliados", icon: Users },
-      ],
-    },
-    {
-      title: "5) Configuración",
-      icon: Settings,
-      links: [
-        { href: "/admin/settings", label: "/configuracion" },
-        { href: "/admin/settings?tab=usuarios", label: "/configuracion/usuarios", icon: Users },
-      ],
-    },
-  ]
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-6">
@@ -336,38 +287,6 @@ export default async function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Módulos del panel */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Módulos integrados del superadministrador</h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {panelGroups.map((group) => {
-            const GroupIcon = group.icon
-            return (
-              <Card key={group.title}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <GroupIcon className="h-4 w-4 text-primary" />
-                    {group.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {group.links.map((link) => {
-                    const LinkIcon = link.icon || ArrowRight
-                    return (
-                      <Button key={link.href} variant="outline" className="w-full justify-start" asChild>
-                        <Link href={link.href}>
-                          <LinkIcon className="mr-2 h-4 w-4" />
-                          {link.label}
-                        </Link>
-                      </Button>
-                    )
-                  })}
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      </div>
     </div>
   )
 }
