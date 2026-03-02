@@ -16,6 +16,11 @@ type WishlistDetailPageProps = {
   params: Promise<{ id: string }>
 }
 
+function toSingleRecord<T>(value: T | T[] | null | undefined): T | null {
+  if (!value) return null
+  return Array.isArray(value) ? value[0] || null : value
+}
+
 export default async function WishlistDetailPage({ params }: WishlistDetailPageProps) {
   const { id } = await params
 
@@ -37,7 +42,36 @@ export default async function WishlistDetailPage({ params }: WishlistDetailPageP
     .filter((userWishlist: any) => userWishlist.id !== id)
     .map((userWishlist: any) => ({ id: userWishlist.id, name: userWishlist.name }))
 
-  const items = wishlist.wishlist_items || []
+  const items = (wishlist.wishlist_items || []).map((item: any) => {
+    const product = toSingleRecord(item.product)
+
+    if (!product) {
+      return { ...item, product: null }
+    }
+
+    const categories = (product.categories || []).map((category: any) => {
+      const subcategory = toSingleRecord(category?.subcategory)
+      const silo = toSingleRecord(subcategory?.silo)
+
+      return {
+        ...category,
+        subcategory: subcategory
+          ? {
+              ...subcategory,
+              silo: silo ? { ...silo } : null,
+            }
+          : null,
+      }
+    })
+
+    return {
+      ...item,
+      product: {
+        ...product,
+        categories,
+      },
+    }
+  })
   const shareUrl = wishlist.share_token ? `/wishlist/${wishlist.share_token}` : undefined
 
   return (
