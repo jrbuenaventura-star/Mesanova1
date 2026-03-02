@@ -3,7 +3,7 @@ import { getGiftRegistryByToken } from "@/lib/db/user-features"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, Calendar, ShoppingCart, Check } from "lucide-react"
+import { Gift, Calendar, ShoppingCart, Check, AlertCircle } from "lucide-react"
 import Image from "next/image"
 import { ShareButton } from "@/components/ui/share-button"
 
@@ -15,9 +15,17 @@ const eventTypeLabels: Record<string, string> = {
   other: "Lista de Regalos",
 }
 
+const statusLabels: Record<string, string> = {
+  draft: "borrador",
+  archived: "archivada",
+  cancelled: "cancelada",
+  expired: "expirada",
+  completed: "completada",
+}
+
 export default async function GiftRegistryPublicPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
-  const registry = await getGiftRegistryByToken(token)
+  const registry = await getGiftRegistryByToken(token, { includeInactive: true })
 
   if (!registry) {
     notFound()
@@ -34,6 +42,7 @@ export default async function GiftRegistryPublicPage({ params }: { params: Promi
   const items = registry.gift_registry_items || []
   const availableItems = items.filter((item: any) => item.quantity_purchased < item.quantity_desired)
   const completedItems = items.filter((item: any) => item.quantity_purchased >= item.quantity_desired)
+  const isActive = registry.status === "active"
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -78,22 +87,34 @@ export default async function GiftRegistryPublicPage({ params }: { params: Promi
             </p>
           )}
 
-          <div className="flex justify-center gap-4 mt-6">
-            <ShareButton
-              variant="outline"
-              size="sm"
-              url={`/lista/${token}`}
-              title={registry.name}
-              text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
-              label="Compartir"
-            />
-          </div>
+          {isActive && (
+            <div className="flex justify-center gap-4 mt-6">
+              <ShareButton
+                variant="outline"
+                size="sm"
+                url={`/lista/${token}`}
+                title={registry.name}
+                text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+                label="Compartir"
+              />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Products */}
       <div className="container max-w-6xl py-8 px-4">
-        {items.length === 0 ? (
+        {!isActive ? (
+          <Card className="p-8 text-center max-w-2xl mx-auto">
+            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground/70 mb-3" />
+            <h2 className="text-xl font-semibold mb-2">Esta lista ya no está activa</h2>
+            <p className="text-muted-foreground">
+              El anfitrión marcó esta lista como{" "}
+              <span className="font-medium">{statusLabels[registry.status] || "inactiva"}</span>. Ya no se pueden
+              gestionar regalos desde este enlace.
+            </p>
+          </Card>
+        ) : items.length === 0 ? (
           <Card className="p-12 text-center">
             <Gift className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <h2 className="text-xl font-semibold mb-2">La lista está vacía</h2>
@@ -146,7 +167,7 @@ export default async function GiftRegistryPublicPage({ params }: { params: Promi
                           </p>
                           {item.notes && (
                             <p className="text-sm text-muted-foreground mb-3 italic">
-                              "{item.notes}"
+                              &ldquo;{item.notes}&rdquo;
                             </p>
                           )}
                           <div className="flex items-center justify-between mb-3">

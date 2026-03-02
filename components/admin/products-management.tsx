@@ -20,7 +20,7 @@ import { Search, MoreVertical, Pencil, Plus, Trash2, AlertTriangle, Package, Ext
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
-import type { Silo, Subcategory, Collection, ProductType } from "@/lib/db/types"
+import type { Silo, Subcategory, ProductType } from "@/lib/db/types"
 
 interface ProductWithJoins {
   id: string
@@ -47,11 +47,10 @@ interface ProductsManagementProps {
   initialProducts: ProductWithJoins[]
   silos: Silo[]
   subcategories: (Subcategory & { silo?: Silo })[]
-  collections: Collection[]
   productTypes: ProductType[]
 }
 
-export function ProductsManagement({ initialProducts, silos, subcategories, collections, productTypes }: ProductsManagementProps) {
+export function ProductsManagement({ initialProducts, silos, subcategories, productTypes }: ProductsManagementProps) {
   const [products, setProducts] = useState(initialProducts)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterSilo, setFilterSilo] = useState("all")
@@ -81,16 +80,6 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
     if (filterSubcategory === "all") return []
     return productTypes.filter(pt => pt.subcategory_id === filterSubcategory)
   }, [filterSubcategory, productTypes])
-
-  // Build subcategory → silo lookup
-  const subcatToSilo = useMemo(() => {
-    const map = new Map<string, string>()
-    subcategories.forEach(s => {
-      if ((s as any).silo?.id) map.set(s.id, (s as any).silo.id)
-      else if (s.silo_id) map.set(s.id, s.silo_id)
-    })
-    return map
-  }, [subcategories])
 
   // Filtrar productos
   const filteredProducts = products.filter((product) => {
@@ -157,7 +146,6 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
     if (!editingProduct) return
 
     setIsLoading(true)
-    const supabase = createClient()
 
     const precio = Number.parseFloat(editPrice)
     const descuento = Number.parseFloat(editDiscount)
@@ -165,24 +153,42 @@ export function ProductsManagement({ initialProducts, silos, subcategories, coll
     const descDist = Number.parseFloat(editDescDist) || 0
     const isOnSale = descuento > 0
 
-    const { error } = await supabase
-      .from("products")
-      .update({
+    const response = await fetch("/api/admin/products/pricing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: editingProduct.id,
         precio,
         descuento_porcentaje: descuento,
         precio_dist: precioDist,
         desc_dist: descDist,
         is_on_sale: isOnSale,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", editingProduct.id)
+      }),
+    })
 
-    if (error) {
-      console.error("[v0] Error updating price:", error)
-      alert("Error al actualizar el precio")
+    const payload = await response.json().catch(() => null)
+
+    if (!response.ok || !payload?.success) {
+      console.error("[v0] Error updating price:", payload?.error || response.statusText)
+      alert(payload?.error || "Error al actualizar el precio")
     } else {
       // Actualizar el estado local
-      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? { ...p, precio, descuento_porcentaje: descuento, precio_dist: precioDist, desc_dist: descDist, is_on_sale: isOnSale } : p)))
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.id === editingProduct.id
+            ? {
+                ...product,
+                precio,
+                descuento_porcentaje: descuento,
+                precio_dist: precioDist,
+                desc_dist: descDist,
+                is_on_sale: isOnSale,
+              }
+            : product
+        )
+      )
       setPriceDialogOpen(false)
       setEditingProduct(null)
     }

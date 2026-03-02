@@ -20,6 +20,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   draft: { label: "Borrador", color: "bg-amber-500" },
   borrador: { label: "Borrador", color: "bg-amber-500" },
   active: { label: "Activa", color: "bg-green-500" },
+  archived: { label: "Archivada", color: "bg-zinc-600" },
   completed: { label: "Completada", color: "bg-blue-500" },
   expired: { label: "Expirada", color: "bg-gray-500" },
   cancelled: { label: "Cancelada", color: "bg-red-500" },
@@ -83,6 +84,7 @@ export default async function ListasRegaloPage() {
             const status = statusLabels[registry.status] || statusLabels.active
             const itemCount = registry.gift_registry_items?.[0]?.count || 0
             const publicListUrl = registry.share_token ? `/lista/${registry.share_token}` : null
+            const canShare = registry.status === "active" && !!publicListUrl
 
             return (
               <Card key={registry.id}>
@@ -116,7 +118,7 @@ export default async function ListasRegaloPage() {
                         Gestionar
                       </Link>
                     </Button>
-                    {publicListUrl ? (
+                    {canShare ? (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={publicListUrl} target="_blank" rel="noopener noreferrer">
                           <Eye className="h-4 w-4 mr-1" />
@@ -137,7 +139,7 @@ export default async function ListasRegaloPage() {
                       url={publicListUrl || undefined}
                       title={registry.name}
                       text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
-                      disabled={!publicListUrl}
+                      disabled={!canShare}
                     />
                   </div>
                 </CardContent>

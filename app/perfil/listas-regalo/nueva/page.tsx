@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -36,7 +36,7 @@ export default function NuevaListaRegaloPage() {
 
       toast({
         title: "Lista creada",
-        description: "Tu lista de regalo ha sido creada. Ahora puedes agregar productos.",
+        description: "Tu lista se creó como borrador. Completa la información y actívala cuando quieras.",
       })
       router.push(`/perfil/listas-regalo/${result.registryId}`)
     })
@@ -56,7 +56,7 @@ export default function NuevaListaRegaloPage() {
           Nueva Lista de Regalo
         </h1>
         <p className="text-muted-foreground mt-2">
-          Crea una lista para tu evento especial
+          Crea una lista para tu evento especial. Iniciará en estado borrador.
         </p>
       </div>
 
@@ -116,6 +116,30 @@ export default function NuevaListaRegaloPage() {
                   name="partner_name"
                   placeholder="Ej: Juan Pérez (para bodas)"
                 />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="event_address">Dirección del evento</Label>
+                <Input
+                  id="event_address"
+                  name="event_address"
+                  placeholder="Ej: Calle 123 #45-67, Bogotá"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="privacy">Privacidad</Label>
+                <Select name="privacy" defaultValue="public">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona privacidad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="public">Pública (visible en búsquedas)</SelectItem>
+                    <SelectItem value="private">Privada (solo por enlace)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

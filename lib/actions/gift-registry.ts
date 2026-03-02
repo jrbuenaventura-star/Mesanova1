@@ -3,6 +3,40 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+function normalizeGiftRegistryStatus(rawStatus: string) {
+  const normalizedStatus = (
+    {
+      borrador: "draft",
+      activa: "active",
+      archivada: "archived",
+      completada: "completed",
+      expirada: "expired",
+      cancelada: "cancelled",
+    } as const
+  )[rawStatus as "borrador" | "activa" | "archivada" | "completada" | "expirada" | "cancelada"] || rawStatus
+
+  const allowedStatuses = new Set(["draft", "active", "archived", "completed", "expired", "cancelled"])
+  if (!allowedStatuses.has(normalizedStatus)) return null
+  return normalizedStatus
+}
+
+function parseGiftRegistryPrivacy(formData: FormData) {
+  const privacyValue = String(formData.get("privacy") || "").trim().toLowerCase()
+
+  if (privacyValue === "public" || privacyValue === "publica" || privacyValue === "pública") {
+    return true
+  }
+
+  if (privacyValue === "private" || privacyValue === "privada") {
+    return false
+  }
+
+  const isSearchable = formData.get("is_searchable")
+  if (isSearchable !== null) return isSearchable === "on"
+
+  return null
+}
+
 export async function createGiftRegistryAction(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,7 +50,9 @@ export async function createGiftRegistryAction(formData: FormData) {
   const eventDate = formData.get("event_date") as string
   const partnerName = formData.get("partner_name") as string
   const description = formData.get("description") as string
+  const eventAddress = formData.get("event_address") as string
   const notificationEmail = formData.get("notification_email") as string
+  const isSearchable = parseGiftRegistryPrivacy(formData)
 
   const shareToken = crypto.randomUUID().replace(/-/g, "")
   
@@ -37,8 +73,11 @@ export async function createGiftRegistryAction(formData: FormData) {
       event_date: eventDate || null,
       partner_name: partnerName || null,
       description: description || null,
+      event_address: eventAddress || null,
       notification_email: notificationEmail || user.email,
       share_token: shareToken,
+      status: "draft",
+      ...(typeof isSearchable === "boolean" ? { is_searchable: isSearchable } : {}),
       expires_at: expiresAt,
     })
     .select("id")
@@ -120,17 +159,22 @@ export async function updateGiftRegistryAction(registryId: string, formData: For
   const updates: Record<string, any> = {}
 
   const name = formData.get("name")
-  if (name) updates.name = name
+  if (name !== null && String(name).trim().length > 0) updates.name = name
 
   const eventType = formData.get("event_type")
-  if (eventType) updates.event_type = eventType
+  if (eventType !== null && String(eventType).trim().length > 0) updates.event_type = eventType
 
-  const eventDate = formData.get("event_date")
-  if (eventDate) {
-    updates.event_date = eventDate
-    const date = new Date(eventDate as string)
-    date.setMonth(date.getMonth() + 2)
-    updates.expires_at = date.toISOString()
+  if (formData.has("event_date")) {
+    const eventDate = String(formData.get("event_date") || "").trim()
+    updates.event_date = eventDate || null
+
+    if (eventDate) {
+      const date = new Date(eventDate)
+      date.setMonth(date.getMonth() + 2)
+      updates.expires_at = date.toISOString()
+    } else {
+      updates.expires_at = null
+    }
   }
 
   const partnerName = formData.get("partner_name")
@@ -139,25 +183,21 @@ export async function updateGiftRegistryAction(registryId: string, formData: For
   const description = formData.get("description")
   if (description !== null) updates.description = description || null
 
+  const eventAddress = formData.get("event_address")
+  if (eventAddress !== null) updates.event_address = eventAddress || null
+
   const notificationEmail = formData.get("notification_email")
   if (notificationEmail !== null) updates.notification_email = notificationEmail || null
 
-  const isSearchable = formData.get("is_searchable")
-  if (isSearchable !== null) updates.is_searchable = isSearchable === "on"
+  const parsedPrivacy = parseGiftRegistryPrivacy(formData)
+  if (typeof parsedPrivacy === "boolean") {
+    updates.is_searchable = parsedPrivacy
+  }
 
   const status = formData.get("status")
   if (typeof status === "string" && status.length > 0) {
-    const normalizedStatus = (
-      {
-        borrador: "draft",
-        activa: "active",
-        completada: "completed",
-        expirada: "expired",
-        cancelada: "cancelled",
-      } as const
-    )[status as "borrador" | "activa" | "completada" | "expirada" | "cancelada"] || status
-    const allowedStatuses = new Set(["draft", "active", "completed", "expired", "cancelled"])
-    if (allowedStatuses.has(normalizedStatus)) {
+    const normalizedStatus = normalizeGiftRegistryStatus(status)
+    if (normalizedStatus) {
       updates.status = normalizedStatus
     }
   }

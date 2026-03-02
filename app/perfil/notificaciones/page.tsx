@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getUserNotifications, markAllNotificationsAsRead } from "@/lib/db/user-features"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Bell, Package, Tag, ShoppingBag, Gift, Star, Award, Megaphone, CheckCheck } from "lucide-react"
+import { Bell, Package, Tag, ShoppingBag, Gift, Star, Award, Megaphone, CheckCheck, ArrowUpDown } from "lucide-react"
 import { revalidatePath } from "next/cache"
 
 const notificationTypeConfig: Record<string, { icon: React.ElementType; color: string }> = {
   order_status: { icon: Package, color: "text-blue-600 bg-blue-100" },
   price_drop: { icon: Tag, color: "text-green-600 bg-green-100" },
+  price_change: { icon: ArrowUpDown, color: "text-orange-600 bg-orange-100" },
   back_in_stock: { icon: ShoppingBag, color: "text-purple-600 bg-purple-100" },
   gift_purchased: { icon: Gift, color: "text-pink-600 bg-pink-100" },
   review_response: { icon: Star, color: "text-yellow-600 bg-yellow-100" },
@@ -54,6 +56,20 @@ export default async function NotificacionesPage() {
     return notifDate.toLocaleDateString("es-CO", { month: "short", day: "numeric" })
   }
 
+  const formatCurrency = (value: number) =>
+    `$${value.toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+
+  const getProductUrl = (notification: any) => {
+    const product = notification.product
+    if (!product?.slug) return null
+    const primaryCategory =
+      product.categories?.find((category: any) => category.is_primary) ||
+      product.categories?.[0]
+    const siloSlug = primaryCategory?.subcategory?.silo?.slug
+    if (!siloSlug) return null
+    return `/productos/${siloSlug}/${product.slug}`
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -92,6 +108,14 @@ export default async function NotificacionesPage() {
           {notifications.map((notification: any) => {
             const config = notificationTypeConfig[notification.type] || notificationTypeConfig.system
             const NotifIcon = config.icon
+            const metadata =
+              notification.metadata && typeof notification.metadata === "object" && !Array.isArray(notification.metadata)
+                ? notification.metadata
+                : null
+            const oldPrice = Number(metadata?.old_price)
+            const newPrice = Number(metadata?.new_price)
+            const hasPriceDetails = Number.isFinite(oldPrice) && Number.isFinite(newPrice)
+            const productUrl = getProductUrl(notification)
 
             return (
               <Card 
@@ -112,6 +136,25 @@ export default async function NotificacionesPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {notification.message}
                           </p>
+                          {hasPriceDetails && (
+                            <p className="text-sm mt-2">
+                              Antes: <span className="line-through text-muted-foreground">{formatCurrency(oldPrice)}</span>{" "}
+                              <span className="mx-1">→</span>
+                              Ahora: <span className="font-semibold">{formatCurrency(newPrice)}</span>
+                            </p>
+                          )}
+                          <div className="flex flex-wrap items-center gap-2 mt-3">
+                            {productUrl && (
+                              <Button asChild size="sm" variant="outline">
+                                <Link href={productUrl}>Ver producto</Link>
+                              </Button>
+                            )}
+                            {notification.type === "price_change" && notification.whatsapp_sent && (
+                              <Badge variant="outline" className="text-green-700 border-green-200">
+                                WhatsApp enviado
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {formatDate(notification.created_at)}

@@ -94,7 +94,13 @@ export async function getWishlistById(wishlistId: string) {
       wishlist_items (
         id, quantity, priority, notes, added_at,
         product:products (
-          id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+          id, slug, pdt_codigo, nombre_comercial, precio, imagen_principal_url, upp_existencia,
+          categories:product_categories(
+            is_primary,
+            subcategory:subcategories(
+              silo:silos(slug)
+            )
+          )
         )
       )
     `)
@@ -223,12 +229,12 @@ export async function getGiftRegistryById(registryId: string) {
   return data
 }
 
-export async function getGiftRegistryByToken(shareToken: string) {
+export async function getGiftRegistryByToken(shareToken: string, options?: { includeInactive?: boolean }) {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from("gift_registries")
     .select(`
-      id, name, event_type, event_date, description, partner_name, cover_image_url, status,
+      id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
       gift_registry_items (
         id, quantity_desired, quantity_purchased, priority, notes,
         product:products (
@@ -237,8 +243,12 @@ export async function getGiftRegistryByToken(shareToken: string) {
       )
     `)
     .eq("share_token", shareToken)
-    .eq("status", "active")
-    .maybeSingle()
+
+  if (!options?.includeInactive) {
+    query = query.eq("status", "active")
+  }
+
+  const { data, error } = await query.maybeSingle()
 
   if (error) throw error
   return data
@@ -699,7 +709,18 @@ export async function getUserNotifications(userId: string, limit = 20, unreadOnl
   const supabase = await createClient()
   let query = supabase
     .from("user_notifications")
-    .select("*")
+    .select(`
+      *,
+      product:products (
+        id, slug, nombre_comercial,
+        categories:product_categories(
+          is_primary,
+          subcategory:subcategories(
+            silo:silos(slug)
+          )
+        )
+      )
+    `)
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit)
@@ -758,6 +779,7 @@ export async function getNotificationPreferences(userId: string) {
   return data || {
     email_order_updates: true,
     email_price_alerts: true,
+    whatsapp_price_alerts: true,
     email_stock_alerts: true,
     email_gift_purchases: true,
     email_promotions: false,
@@ -769,6 +791,7 @@ export async function getNotificationPreferences(userId: string) {
 export async function updateNotificationPreferences(userId: string, preferences: Partial<{
   email_order_updates: boolean
   email_price_alerts: boolean
+  whatsapp_price_alerts: boolean
   email_stock_alerts: boolean
   email_gift_purchases: boolean
   email_promotions: boolean

@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import { getNotificationPreferences } from "@/lib/db/user-features"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Settings, Bell, Mail, Shield } from "lucide-react"
 import { NotificationPreferencesForm } from "@/components/profile/notification-preferences-form"
 
@@ -16,6 +15,10 @@ export default async function ConfiguracionPage() {
   }
 
   const preferences = await getNotificationPreferences(user.id)
+  const normalizedPreferences = {
+    ...preferences,
+    whatsapp_price_alerts: preferences.whatsapp_price_alerts ?? true,
+  }
 
   return (
     <div className="space-y-6">
@@ -34,14 +37,14 @@ export default async function ConfiguracionPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Notificaciones por Email
+            Notificaciones
           </CardTitle>
           <CardDescription>
-            Elige qué emails quieres recibir
+            Elige qué alertas quieres recibir por email y WhatsApp
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NotificationPreferencesForm preferences={preferences} />
+          <NotificationPreferencesForm preferences={normalizedPreferences} />
         </CardContent>
       </Card>
 

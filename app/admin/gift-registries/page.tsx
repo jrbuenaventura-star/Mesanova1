@@ -3,12 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Gift, Search, Calendar, Users, Eye, Trash2 } from "lucide-react"
+import { Search, Calendar, Users, Eye, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { revalidatePath } from "next/cache"
 
 const statusLabels: Record<string, { label: string; color: string }> = {
+  draft: { label: "Borrador", color: "bg-amber-500" },
   active: { label: "Activa", color: "bg-green-500" },
+  archived: { label: "Archivada", color: "bg-zinc-600" },
   completed: { label: "Completada", color: "bg-blue-500" },
   expired: { label: "Expirada", color: "bg-gray-500" },
   cancelled: { label: "Cancelada", color: "bg-red-500" },
@@ -29,7 +31,7 @@ export default async function AdminGiftRegistriesPage({
 }) {
   const supabase = await createClient()
 
-  async function cancelRegistryAction(formData: FormData) {
+  async function archiveRegistryAction(formData: FormData) {
     "use server"
 
     const registryId = String(formData.get("registry_id") || "")
@@ -52,7 +54,7 @@ export default async function AdminGiftRegistriesPage({
 
     await supabase
       .from("gift_registries")
-      .update({ status: "cancelled" })
+      .update({ status: "archived" })
       .eq("id", registryId)
 
     revalidatePath("/admin/gift-registries")
@@ -149,7 +151,9 @@ export default async function AdminGiftRegistriesPage({
               defaultValue={searchParams.status}
             >
               <option value="">Todos los estados</option>
+              <option value="draft">Borradores</option>
               <option value="active">Activas</option>
+              <option value="archived">Archivadas</option>
               <option value="completed">Completadas</option>
               <option value="expired">Expiradas</option>
               <option value="cancelled">Canceladas</option>
@@ -218,15 +222,15 @@ export default async function AdminGiftRegistriesPage({
                           Ver lista
                         </Link>
                       </Button>
-                      <form action={cancelRegistryAction}>
+                      <form action={archiveRegistryAction}>
                         <input type="hidden" name="registry_id" value={registry.id} />
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-destructive"
                           type="submit"
-                          aria-label={`Cancelar lista ${registry.name}`}
-                          title="Cancelar lista"
+                          aria-label={`Archivar lista ${registry.name}`}
+                          title="Archivar lista"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

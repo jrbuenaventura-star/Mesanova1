@@ -10,6 +10,7 @@ export async function updateNotificationPreferencesAction(preferences: Partial<{
   email_gift_purchases: boolean
   email_promotions: boolean
   email_newsletter: boolean
+  whatsapp_price_alerts: boolean
   push_enabled: boolean
 }>) {
   const supabase = await createClient()

@@ -103,6 +103,7 @@ export default async function WishlistsPage() {
                         url={`/wishlist/${wishlist.share_token}`}
                         title={wishlist.name}
                         text={`Mira esta lista de deseos en Mesanova: ${wishlist.name}`}
+                        disabled={!wishlist.is_public}
                       />
                     )}
                   </div>

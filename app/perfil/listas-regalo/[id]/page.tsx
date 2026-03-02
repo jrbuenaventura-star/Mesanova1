@@ -1,43 +1,35 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+
 import { createClient } from "@/lib/supabase/server"
 import { getGiftRegistryById } from "@/lib/db/user-features"
-import { deleteGiftRegistryAction, updateGiftRegistryAction } from "@/lib/actions/gift-registry"
+import { deleteGiftRegistryAction } from "@/lib/actions/gift-registry"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShareButton } from "@/components/ui/share-button"
-import { ArrowLeft, Calendar, Eye, Gift, Trash2 } from "lucide-react"
+import { GiftRegistrySettingsForm } from "@/components/profile/gift-registry-settings-form"
+
+import { ArrowLeft, Eye, Gift, Trash2 } from "lucide-react"
 
 type GiftRegistryDetailPageProps = {
   params: Promise<{ id: string }>
-}
-
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  wedding: "Boda",
-  baby_shower: "Baby Shower",
-  birthday: "Cumpleaños",
-  housewarming: "Inauguración de Casa",
-  other: "Otro",
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   draft: { label: "Borrador", color: "bg-amber-500" },
   borrador: { label: "Borrador", color: "bg-amber-500" },
   active: { label: "Activa", color: "bg-green-500" },
+  archived: { label: "Archivada", color: "bg-zinc-600" },
   completed: { label: "Completada", color: "bg-blue-500" },
   expired: { label: "Expirada", color: "bg-gray-500" },
   cancelled: { label: "Cancelada", color: "bg-red-500" },
 }
 
-function formatDate(date?: string | null) {
-  if (!date) return "No definida"
-  return new Date(date).toLocaleDateString("es-CO", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+function getPrivacyLabel(isSearchable?: boolean | null) {
+  return isSearchable === false ? "Privada" : "Pública"
 }
 
 export default async function GiftRegistryDetailPage({ params }: GiftRegistryDetailPageProps) {
@@ -58,19 +50,9 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
   }
 
   const status = STATUS_LABELS[registry.status] || STATUS_LABELS.active
-  const isDraft = registry.status === "draft" || registry.status === "borrador"
   const items = registry.gift_registry_items || []
   const publicListUrl = registry.share_token ? `/lista/${registry.share_token}` : null
-
-  async function activateRegistryFormAction() {
-    "use server"
-    const formData = new FormData()
-    formData.set("status", "active")
-    const result = await updateGiftRegistryAction(id, formData)
-    if (!result?.error) {
-      redirect(`/perfil/listas-regalo/${id}`)
-    }
-  }
+  const canSharePublicly = registry.status === "active" && !!publicListUrl
 
   async function deleteRegistryFormAction() {
     "use server"
@@ -96,19 +78,10 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
               <Gift className="h-8 w-8" />
               {registry.name}
             </h1>
-            <p className="text-muted-foreground mt-1">
-              {EVENT_TYPE_LABELS[registry.event_type] || "Evento"} · {formatDate(registry.event_date)}
-            </p>
+            <p className="text-muted-foreground mt-1">Gestiona estado, privacidad y datos del evento</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge className={`${status.color} text-white`}>{status.label}</Badge>
-            {isDraft && (
-              <form action={activateRegistryFormAction}>
-                <Button type="submit" size="sm">
-                  Publicar (Activar)
-                </Button>
-              </form>
-            )}
             <form action={deleteRegistryFormAction}>
               <Button type="submit" variant="destructive" size="sm">
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -122,62 +95,68 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
       <Card>
         <CardHeader>
           <CardTitle>Información del evento</CardTitle>
-          <CardDescription>Datos generales de tu lista</CardDescription>
+          <CardDescription>Edita los datos del evento y el estado de la lista</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-sm text-muted-foreground">Tipo de evento</p>
-              <p className="font-medium">{EVENT_TYPE_LABELS[registry.event_type] || "No definido"}</p>
+        <CardContent className="space-y-6">
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Productos en la lista</p>
+              <p className="font-semibold text-lg">{items.length}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Fecha del evento</p>
-              <p className="font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {formatDate(registry.event_date)}
-              </p>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Privacidad</p>
+              <p className="font-semibold text-lg">{getPrivacyLabel(registry.is_searchable)}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Pareja / anfitrión(a)</p>
-              <p className="font-medium">{registry.partner_name || "No especificado"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Productos en la lista</p>
-              <p className="font-medium">{items.length}</p>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Estado actual</p>
+              <p className="font-semibold text-lg">{status.label}</p>
             </div>
           </div>
 
-          {registry.description ? (
-            <div>
-              <p className="text-sm text-muted-foreground">Descripción</p>
-              <p>{registry.description}</p>
-            </div>
-          ) : null}
+          <GiftRegistrySettingsForm
+            registryId={id}
+            initialData={{
+              name: registry.name,
+              event_type: registry.event_type,
+              event_date: registry.event_date,
+              partner_name: registry.partner_name,
+              description: registry.description,
+              event_address: registry.event_address,
+              notification_email: registry.notification_email,
+              status: registry.status,
+              is_searchable: registry.is_searchable,
+            }}
+          />
 
-          <div className="flex flex-wrap gap-2">
-            {publicListUrl ? (
-              <>
-                <Button variant="outline" asChild>
-                  <Link href={publicListUrl} target="_blank" rel="noopener noreferrer">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver lista
-                  </Link>
-                </Button>
-                <ShareButton
-                  variant="outline"
-                  url={publicListUrl}
-                  title={registry.name}
-                  text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
-                  label="Compartir lista"
-                />
-              </>
+          <div className="flex flex-wrap gap-2 pt-2">
+            {canSharePublicly ? (
+              <Button variant="outline" asChild>
+                <Link href={publicListUrl || "#"} target="_blank" rel="noopener noreferrer">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver lista pública
+                </Link>
+              </Button>
             ) : (
               <Button variant="outline" disabled>
                 <Eye className="h-4 w-4 mr-2" />
-                Ver lista
+                Ver lista pública
               </Button>
             )}
+            <ShareButton
+              variant="outline"
+              url={publicListUrl || undefined}
+              title={registry.name}
+              text={`Mira esta lista de regalos en Mesanova: ${registry.name}`}
+              label="Compartir lista"
+              disabled={!canSharePublicly}
+            />
           </div>
+
+          {!canSharePublicly && (
+            <p className="text-sm text-muted-foreground">
+              Esta lista debe estar en estado <span className="font-medium">Activa</span> para poder compartirse públicamente.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -219,7 +198,7 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
                       <p className="text-sm mt-1">
                         {remaining > 0 ? `${remaining} pendiente${remaining > 1 ? "s" : ""}` : "Completado"}
                       </p>
-                      {item.notes ? <p className="text-xs text-muted-foreground mt-1 italic">"{item.notes}"</p> : null}
+                      {item.notes ? <p className="text-xs text-muted-foreground mt-1 italic">&ldquo;{item.notes}&rdquo;</p> : null}
                     </div>
                   </div>
                 )

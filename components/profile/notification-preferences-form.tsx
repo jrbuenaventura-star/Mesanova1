@@ -10,6 +10,7 @@ interface NotificationPreferencesFormProps {
   preferences: {
     email_order_updates: boolean
     email_price_alerts: boolean
+    whatsapp_price_alerts: boolean
     email_stock_alerts: boolean
     email_gift_purchases: boolean
     email_promotions: boolean
@@ -53,6 +54,12 @@ export function NotificationPreferencesForm({ preferences }: NotificationPrefere
       label: "Alertas de precio",
       description: "Notificaciones cuando baje el precio de productos que sigues",
       value: preferences.email_price_alerts,
+    },
+    {
+      key: "whatsapp_price_alerts",
+      label: "Alertas de precio por WhatsApp",
+      description: "Recibe por WhatsApp cambios de precio de productos en tus listas",
+      value: preferences.whatsapp_price_alerts,
     },
     {
       key: "email_stock_alerts",

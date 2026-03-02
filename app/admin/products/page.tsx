@@ -31,10 +31,9 @@ export default async function ProductsAdminPage() {
     console.error("[v0] Error loading products:", productsError)
   }
 
-  const [{ data: silos }, { data: subcategories }, { data: collections }, { data: productTypes }] = await Promise.all([
+  const [{ data: silos }, { data: subcategories }, { data: productTypes }] = await Promise.all([
     supabase.from("silos").select("*").order("order_index"),
     supabase.from("subcategories").select("*, silo:silos(*)").order("order_index"),
-    supabase.from("collections").select("*").eq("is_active", true).order("name"),
     supabase.from("product_types").select("*").order("order_index"),
   ])
 
@@ -53,7 +52,6 @@ export default async function ProductsAdminPage() {
         initialProducts={products || []}
         silos={silos || []}
         subcategories={subcategories || []}
-        collections={collections || []}
         productTypes={productTypes || []}
       />
     </div>
