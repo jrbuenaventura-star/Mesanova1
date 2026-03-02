@@ -1,6 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { useCart } from "@/contexts/cart-context"
 import { useToast } from "@/hooks/use-toast"
 import { moveWishlistItemAction, removeFromWishlistAction } from "@/lib/actions/wishlists"
@@ -47,6 +48,7 @@ export function WishlistItemActions({ wishlistId, product, quantity, targetWishl
   const [isPending, startTransition] = useTransition()
   const { addItem } = useCart()
   const { toast } = useToast()
+  const router = useRouter()
 
   const stock = Number(product.upp_existencia || 0)
   const desiredQuantity = Math.max(1, Number(quantity || 1))
@@ -69,6 +71,7 @@ export function WishlistItemActions({ wishlistId, product, quantity, targetWishl
         title: "Producto eliminado",
         description: "Se eliminó de tu lista de deseos",
       })
+      router.refresh()
     })
   }
 
@@ -89,6 +92,7 @@ export function WishlistItemActions({ wishlistId, product, quantity, targetWishl
         title: "Producto movido",
         description: `El producto se movió a "${targetWishlistName}"`,
       })
+      router.refresh()
     })
   }
 
@@ -133,6 +137,7 @@ export function WishlistItemActions({ wishlistId, product, quantity, targetWishl
         title: "Producto movido al carrito",
         description: `${quantityToCart} × ${productName}`,
       })
+      router.refresh()
     })
   }
 
