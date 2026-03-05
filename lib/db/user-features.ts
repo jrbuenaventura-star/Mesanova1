@@ -117,7 +117,6 @@ export async function getWishlistByToken(shareToken: string) {
     .from("wishlists")
     .select(`
       id, name, description, is_public, share_token, created_at,
-      user_profiles:user_id (full_name),
       wishlist_items (
         id, quantity, priority, notes,
         product:products (
@@ -126,7 +125,7 @@ export async function getWishlistByToken(shareToken: string) {
       )
     `)
     .eq("share_token", shareToken)
-    .single()
+    .maybeSingle()
 
   if (error) throw error
   return data
@@ -230,7 +229,7 @@ export async function getGiftRegistryById(registryId: string) {
 }
 
 export async function getGiftRegistryByToken(shareToken: string, options?: { includeInactive?: boolean }) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   let query = supabase
     .from("gift_registries")
     .select(`

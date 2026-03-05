@@ -56,11 +56,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
-      <MobileSidebar title="Panel de Control">{navLinks}</MobileSidebar>
+      <MobileSidebar title="Panel Admin">{navLinks}</MobileSidebar>
 
       <aside className="hidden lg:block w-64 border-r bg-muted/40 shrink-0">
         <div className="flex h-16 items-center border-b px-6">
-          <h2 className="text-lg font-semibold">Panel de Control</h2>
+          <h2 className="text-lg font-semibold">Panel Admin</h2>
         </div>
         <nav className="space-y-1 p-4">{navLinks}</nav>
       </aside>

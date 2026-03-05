@@ -82,7 +82,7 @@ export function UserMenu() {
   const getPanelLabel = () => {
     switch (user?.role) {
       case 'superadmin':
-        return 'Panel de Control'
+        return 'Panel Admin'
       case 'distributor':
         return 'Panel Distribuidor'
       case 'aliado':
