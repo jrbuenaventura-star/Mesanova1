@@ -63,11 +63,12 @@ export function ShareButton({
     try {
       if (navigator.share) {
         try {
-          await navigator.share({
-            title,
-            text,
-            url: shareUrl,
-          })
+          const shareData: ShareData = { url: shareUrl }
+          if (title) shareData.title = title
+          // Avoid malformed copied links in some share targets by prioritizing a clean URL payload.
+          if (!url && text) shareData.text = text
+
+          await navigator.share(shareData)
           return
         } catch (error: unknown) {
           if (error instanceof Error && error.name === "AbortError") {

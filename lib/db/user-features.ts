@@ -3,6 +3,13 @@ import "server-only"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
+function normalizeShareToken(rawToken: string) {
+  const decoded = decodeURIComponent(String(rawToken || "")).trim()
+  const directMatch = decoded.match(/[a-f0-9]{32}/i)
+  if (directMatch?.[0]) return directMatch[0].toLowerCase()
+  return decoded.split(/\s+/)[0] || decoded
+}
+
 // =============================================================================
 // FAVORITOS
 // =============================================================================
@@ -112,6 +119,7 @@ export async function getWishlistById(wishlistId: string) {
 }
 
 export async function getWishlistByToken(shareToken: string) {
+  const normalizedToken = normalizeShareToken(shareToken)
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("wishlists")
@@ -124,7 +132,7 @@ export async function getWishlistByToken(shareToken: string) {
         )
       )
     `)
-    .eq("share_token", shareToken)
+    .eq("share_token", normalizedToken)
     .maybeSingle()
 
   if (error) throw error
@@ -229,6 +237,7 @@ export async function getGiftRegistryById(registryId: string) {
 }
 
 export async function getGiftRegistryByToken(shareToken: string, options?: { includeInactive?: boolean }) {
+  const normalizedToken = normalizeShareToken(shareToken)
   const supabase = createAdminClient()
   let query = supabase
     .from("gift_registries")
@@ -241,7 +250,7 @@ export async function getGiftRegistryByToken(shareToken: string, options?: { inc
         )
       )
     `)
-    .eq("share_token", shareToken)
+    .eq("share_token", normalizedToken)
 
   if (!options?.includeInactive) {
     query = query.eq("status", "active")
