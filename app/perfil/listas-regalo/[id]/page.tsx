@@ -131,7 +131,7 @@ export default async function GiftRegistryDetailPage({ params }: GiftRegistryDet
           <div className="flex flex-wrap gap-2 pt-2">
             {canSharePublicly ? (
               <Button variant="outline" asChild>
-                <Link href={publicListUrl || "#"} target="_blank" rel="noopener noreferrer">
+                <Link href={publicListUrl || "#"}>
                   <Eye className="h-4 w-4 mr-2" />
                   Ver lista pública
                 </Link>

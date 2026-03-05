@@ -127,23 +127,35 @@ export async function getWishlistById(wishlistId: string) {
 
 export async function getWishlistByToken(shareToken: string) {
   const normalizedToken = normalizeShareToken(shareToken)
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("wishlists")
-    .select(`
-      id, name, description, is_public, share_token, created_at,
-      wishlist_items (
-        id, quantity, priority, notes,
-        product:products (
-          id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("wishlists")
+      .select(`
+        id, name, description, is_public, share_token, created_at,
+        wishlist_items (
+          id, quantity, priority, notes,
+          product:products (
+            id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+          )
         )
-      )
-    `)
-    .eq("share_token", normalizedToken)
-    .maybeSingle()
+      `)
+      .eq("share_token", normalizedToken)
+      .maybeSingle()
 
-  if (error) throw error
-  return data
+    if (error) {
+      console.error("[wishlist.share] query error", { normalizedToken, message: error.message })
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("[wishlist.share] unexpected error", {
+      normalizedToken,
+      message: error instanceof Error ? error.message : "unknown",
+    })
+    return null
+  }
 }
 
 export async function createWishlist(userId: string, name: string, description?: string, isPublic = false) {
@@ -245,28 +257,67 @@ export async function getGiftRegistryById(registryId: string) {
 
 export async function getGiftRegistryByToken(shareToken: string, options?: { includeInactive?: boolean }) {
   const normalizedToken = normalizeShareToken(shareToken)
-  const supabase = createAdminClient()
-  let query = supabase
-    .from("gift_registries")
-    .select(`
-      id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
-      gift_registry_items (
-        id, quantity_desired, quantity_purchased, priority, notes,
-        product:products (
-          id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+  try {
+    const supabase = createAdminClient()
+    let query = supabase
+      .from("gift_registries")
+      .select(`
+        id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
+        gift_registry_items (
+          id, quantity_desired, quantity_purchased, priority, notes,
+          product:products (
+            id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+          )
         )
-      )
-    `)
-    .eq("share_token", normalizedToken)
+      `)
+      .eq("share_token", normalizedToken)
 
-  if (!options?.includeInactive) {
-    query = query.eq("status", "active")
+    if (!options?.includeInactive) {
+      query = query.eq("status", "active")
+    }
+
+    const { data, error } = await query.maybeSingle()
+    if (error) {
+      console.error("[gift-registry.share] admin query error", { normalizedToken, message: error.message })
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("[gift-registry.share] admin client unavailable, falling back to anon client", {
+      normalizedToken,
+      message: error instanceof Error ? error.message : "unknown",
+    })
+
+    const supabase = await createClient()
+    let query = supabase
+      .from("gift_registries")
+      .select(`
+        id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
+        gift_registry_items (
+          id, quantity_desired, quantity_purchased, priority, notes,
+          product:products (
+            id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
+          )
+        )
+      `)
+      .eq("share_token", normalizedToken)
+
+    if (!options?.includeInactive) {
+      query = query.eq("status", "active")
+    }
+
+    const { data, error: fallbackError } = await query.maybeSingle()
+    if (fallbackError) {
+      console.error("[gift-registry.share] fallback query error", {
+        normalizedToken,
+        message: fallbackError.message,
+      })
+      return null
+    }
+
+    return data
   }
-
-  const { data, error } = await query.maybeSingle()
-
-  if (error) throw error
-  return data
 }
 
 export async function searchGiftRegistries(query: string) {

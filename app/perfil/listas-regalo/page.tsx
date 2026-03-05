@@ -120,7 +120,7 @@ export default async function ListasRegaloPage() {
                     </Button>
                     {canShare ? (
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={publicListUrl} target="_blank" rel="noopener noreferrer">
+                        <Link href={publicListUrl}>
                           <Eye className="h-4 w-4 mr-1" />
                           Ver lista
                         </Link>
