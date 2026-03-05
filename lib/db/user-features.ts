@@ -319,8 +319,7 @@ export async function getGiftRegistryById(registryId: string) {
 export async function getGiftRegistryByToken(shareToken: string, options?: { includeInactive?: boolean }) {
   const tokenCandidates = getShareTokenCandidates(shareToken)
   const prefixToken = normalizeShareToken(shareToken)
-  try {
-    const supabase = createAdminClient()
+  const queryByCandidates = async (supabase: any, source: "admin" | "fallback") => {
     for (const candidate of tokenCandidates) {
       let query = supabase
         .from("gift_registries")
@@ -341,7 +340,7 @@ export async function getGiftRegistryByToken(shareToken: string, options?: { inc
 
       const { data, error } = await query.maybeSingle()
       if (error) {
-        console.error("[gift-registry.share] admin query error", { candidate, message: error.message })
+        console.error(`[gift-registry.share] ${source} query error`, { candidate, message: error.message })
         continue
       }
 
@@ -370,71 +369,7 @@ export async function getGiftRegistryByToken(shareToken: string, options?: { inc
       const { data: fuzzyData, error: fuzzyError } = await fuzzyQuery
       if (!fuzzyError && fuzzyData?.[0]) return fuzzyData[0]
       if (fuzzyError) {
-        console.error("[gift-registry.share] admin fuzzy query error", { prefixToken, message: fuzzyError.message })
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error("[gift-registry.share] admin client unavailable, falling back to anon client", {
-      tokenCandidates,
-      message: error instanceof Error ? error.message : "unknown",
-    })
-
-    const supabase = await createClient()
-    for (const candidate of tokenCandidates) {
-      let query = supabase
-        .from("gift_registries")
-        .select(`
-          id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
-          gift_registry_items (
-            id, quantity_desired, quantity_purchased, priority, notes,
-            product:products (
-              id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
-            )
-          )
-        `)
-        .eq("share_token", candidate)
-
-      if (!options?.includeInactive) {
-        query = query.eq("status", "active")
-      }
-
-      const { data, error: fallbackError } = await query.maybeSingle()
-      if (fallbackError) {
-        console.error("[gift-registry.share] fallback query error", {
-          candidate,
-          message: fallbackError.message,
-        })
-        continue
-      }
-
-      if (data) return data
-    }
-
-    if (prefixToken.length >= 16) {
-      let fuzzyQuery = supabase
-        .from("gift_registries")
-        .select(`
-          id, name, event_type, event_date, description, partner_name, event_address, cover_image_url, status,
-          gift_registry_items (
-            id, quantity_desired, quantity_purchased, priority, notes,
-            product:products (
-              id, slug, nombre_comercial, precio, imagen_principal_url, upp_existencia
-            )
-          )
-        `)
-        .ilike("share_token", `${prefixToken}%`)
-        .limit(1)
-
-      if (!options?.includeInactive) {
-        fuzzyQuery = fuzzyQuery.eq("status", "active")
-      }
-
-      const { data: fuzzyData, error: fuzzyError } = await fuzzyQuery
-      if (!fuzzyError && fuzzyData?.[0]) return fuzzyData[0]
-      if (fuzzyError) {
-        console.error("[gift-registry.share] fallback fuzzy query error", {
+        console.error(`[gift-registry.share] ${source} fuzzy query error`, {
           prefixToken,
           message: fuzzyError.message,
         })
@@ -443,6 +378,20 @@ export async function getGiftRegistryByToken(shareToken: string, options?: { inc
 
     return null
   }
+
+  try {
+    const admin = createAdminClient()
+    const adminData = await queryByCandidates(admin, "admin")
+    if (adminData) return adminData
+  } catch (error) {
+    console.error("[gift-registry.share] admin client unavailable, falling back to anon client", {
+      tokenCandidates,
+      message: error instanceof Error ? error.message : "unknown",
+    })
+  }
+
+  const fallbackClient = await createClient()
+  return queryByCandidates(fallbackClient, "fallback")
 }
 
 export async function searchGiftRegistries(query: string) {
