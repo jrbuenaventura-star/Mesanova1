@@ -4,7 +4,14 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 function normalizeShareToken(rawToken: string) {
-  const decoded = decodeURIComponent(String(rawToken || "")).trim()
+  const raw = String(rawToken || "")
+  let decoded = raw
+  try {
+    decoded = decodeURIComponent(raw)
+  } catch {
+    decoded = raw
+  }
+  decoded = decoded.trim()
   const directMatch = decoded.match(/[a-f0-9]{32}/i)
   if (directMatch?.[0]) return directMatch[0].toLowerCase()
   return decoded.split(/\s+/)[0] || decoded

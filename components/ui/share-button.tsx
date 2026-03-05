@@ -63,9 +63,9 @@ export function ShareButton({
     try {
       if (navigator.share) {
         try {
-          const shareData: ShareData = { url: shareUrl }
-          if (title) shareData.title = title
-          // Avoid malformed copied links in some share targets by prioritizing a clean URL payload.
+          // Some share targets mangle URL+text payloads; send only URL when available.
+          const shareData: ShareData = url ? { url: shareUrl } : {}
+          if (!url && title) shareData.title = title
           if (!url && text) shareData.text = text
 
           await navigator.share(shareData)
