@@ -23,7 +23,7 @@ const PHONE_REGEX = /^[+0-9][0-9\s-]{6,20}$/
 
 export async function POST(request: Request) {
   try {
-    const rateLimitResponse = enforceRateLimit(request, {
+    const rateLimitResponse = await enforceRateLimit(request, {
       bucket: "delivery-otp-request",
       limit: 60,
       windowMs: 60_000,

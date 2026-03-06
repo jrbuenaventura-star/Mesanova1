@@ -34,9 +34,6 @@ END $$;
 ALTER TABLE public.gift_registries
   ADD COLUMN IF NOT EXISTS event_address TEXT;
 
-ALTER TABLE public.gift_registries
-  ALTER COLUMN status SET DEFAULT 'draft';
-
 -- Notification type for any price movement (up/down)
 DO $$
 BEGIN
@@ -64,10 +61,6 @@ ALTER TABLE public.notification_preferences
 UPDATE public.notification_preferences
 SET whatsapp_price_alerts = true
 WHERE whatsapp_price_alerts IS NULL;
-
-CREATE INDEX IF NOT EXISTS idx_user_notifications_price_changes
-  ON public.user_notifications (user_id, product_id, created_at DESC)
-  WHERE type IN ('price_change', 'price_drop');
 
 -- Trigger: notify users when wishlist products change price.
 CREATE OR REPLACE FUNCTION public.notify_wishlist_price_change()

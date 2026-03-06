@@ -164,7 +164,7 @@ async function ensureDeliveryEvidenceBucket(supabaseAdmin: ReturnType<typeof cre
 
 export async function POST(request: Request) {
   try {
-    const rateLimitResponse = enforceRateLimit(request, {
+    const rateLimitResponse = await enforceRateLimit(request, {
       bucket: "delivery-confirm",
       limit: 60,
       windowMs: 60_000,

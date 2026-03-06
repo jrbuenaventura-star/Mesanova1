@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 
 export async function POST(request: Request) {
   try {
-    const rateLimitResponse = enforceRateLimit(request, {
+    const rateLimitResponse = await enforceRateLimit(request, {
       bucket: "erp-delivery-events",
       limit: 300,
       windowMs: 60_000,

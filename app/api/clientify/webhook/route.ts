@@ -13,7 +13,7 @@ import { enforceRateLimit, secureCompare } from "@/lib/security/api"
  */
 export async function POST(request: NextRequest) {
   try {
-    const rateLimitResponse = enforceRateLimit(request, {
+    const rateLimitResponse = await enforceRateLimit(request, {
       bucket: "clientify-webhook",
       limit: 120,
       windowMs: 60_000,

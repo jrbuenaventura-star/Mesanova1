@@ -25,12 +25,12 @@ export async function GET(
         .eq("qr_id", qrId)
         .single()
       const now = Date.now()
-      const isActiveSession =
+      const isEvidenceSession =
         !!session?.otp_verified &&
-        !session?.consumed_at &&
+        !!session?.consumed_at &&
         !!session?.expires_at &&
         new Date(session.expires_at).getTime() > now
-      authorized = isActiveSession
+      authorized = isEvidenceSession
     } else {
       const auth = await requireSuperadminUser()
       authorized = auth.ok

@@ -19,7 +19,7 @@ type OfflineSyncItem = {
 
 export async function POST(request: Request) {
   try {
-    const rateLimitResponse = enforceRateLimit(request, {
+    const rateLimitResponse = await enforceRateLimit(request, {
       bucket: "delivery-offline-sync",
       limit: 120,
       windowMs: 60_000,
