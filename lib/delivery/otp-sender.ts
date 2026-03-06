@@ -15,7 +15,7 @@ export async function sendDeliveryOtp(input: SendDeliveryOtpInput) {
   if (!webhookUrl) {
     // Fallback for local/staging environments.
     console.info(
-      `[delivery.otp] ${input.channel.toUpperCase()} -> ${input.destination} | order=${input.orderId} | otp=${input.otpCode}`
+      `[delivery.otp] ${input.channel.toUpperCase()} -> ${input.destination} | order=${input.orderId} | otp=[redacted]`
     )
     return { ok: true as const, provider: "console" as const }
   }

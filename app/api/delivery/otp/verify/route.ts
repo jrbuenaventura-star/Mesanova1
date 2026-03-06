@@ -12,10 +12,18 @@ import {
   verifyDeliveryToken,
   verifyOtpCode,
 } from "@/lib/delivery/security"
+import { enforceRateLimit } from "@/lib/security/api"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "delivery-otp-verify",
+      limit: 120,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = (await request.json()) as {
       token?: string
       challenge_id?: string

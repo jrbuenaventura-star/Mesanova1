@@ -3,10 +3,18 @@ import { NextResponse } from "next/server"
 import { writeDeliveryAuditLog } from "@/lib/delivery/audit"
 import { getRequestContext } from "@/lib/delivery/request"
 import { buildTokenFingerprint, verifyDeliveryToken } from "@/lib/delivery/security"
+import { enforceRateLimit } from "@/lib/security/api"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "delivery-scan",
+      limit: 180,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = (await request.json()) as { token?: string }
     const token = String(body.token || "").trim()
     if (!token) {

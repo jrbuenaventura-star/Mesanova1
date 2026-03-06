@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { writeDeliveryAuditLog } from "@/lib/delivery/audit"
 import { getRequestContext } from "@/lib/delivery/request"
+import { enforceRateLimit, secureCompare } from "@/lib/security/api"
 import { hashOfflineDeliveryEvent } from "@/lib/delivery/security"
 import { createAdminClient } from "@/lib/supabase/admin"
 
@@ -18,6 +19,23 @@ type OfflineSyncItem = {
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "delivery-offline-sync",
+      limit: 120,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
+    const syncToken = process.env.DELIVERY_OFFLINE_SYNC_TOKEN
+    if (!syncToken) {
+      return NextResponse.json({ error: "Offline sync not configured" }, { status: 503 })
+    }
+
+    const providedToken = request.headers.get("x-delivery-sync-token") || ""
+    if (!secureCompare(providedToken, syncToken)) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    }
+
     const body = (await request.json()) as { items?: OfflineSyncItem[] }
     const items = Array.isArray(body.items) ? body.items : []
 

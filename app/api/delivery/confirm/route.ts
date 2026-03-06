@@ -8,6 +8,7 @@ import { buildLegalClause } from "@/lib/delivery/constants"
 import { createDeliveryEvidencePdf } from "@/lib/delivery/pdf"
 import { getRequestContext } from "@/lib/delivery/request"
 import { hashSessionToken } from "@/lib/delivery/security"
+import { enforceRateLimit } from "@/lib/security/api"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 type ParsedConfirmBody = {
@@ -163,6 +164,13 @@ async function ensureDeliveryEvidenceBucket(supabaseAdmin: ReturnType<typeof cre
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "delivery-confirm",
+      limit: 60,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = await parseRequestBody(request)
     if (!body.sessionToken) {
       return NextResponse.json({ error: "session_token es obligatorio" }, { status: 400 })

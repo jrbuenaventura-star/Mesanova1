@@ -20,11 +20,17 @@ export async function GET(
       const tokenHash = hashSessionToken(sessionToken)
       const { data: session } = await supabaseAdmin
         .from("delivery_validation_sessions")
-        .select("id, qr_id, otp_verified")
+        .select("id, qr_id, otp_verified, expires_at, consumed_at")
         .eq("session_token_hash", tokenHash)
         .eq("qr_id", qrId)
         .single()
-      authorized = !!session?.otp_verified
+      const now = Date.now()
+      const isActiveSession =
+        !!session?.otp_verified &&
+        !session?.consumed_at &&
+        !!session?.expires_at &&
+        new Date(session.expires_at).getTime() > now
+      authorized = isActiveSession
     } else {
       const auth = await requireSuperadminUser()
       authorized = auth.ok

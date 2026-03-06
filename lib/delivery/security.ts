@@ -11,7 +11,7 @@ type DeliveryTokenHeader = {
 }
 
 function getDeliverySecret() {
-  const secret = process.env.DELIVERY_QR_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY
+  const secret = process.env.DELIVERY_QR_SECRET
   if (!secret) {
     throw new Error("Missing DELIVERY_QR_SECRET")
   }

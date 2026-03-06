@@ -15,6 +15,7 @@ import {
   hashOtpCode,
   verifyDeliveryToken,
 } from "@/lib/delivery/security"
+import { enforceRateLimit } from "@/lib/security/api"
 import type { DeliveryOtpChannel } from "@/lib/delivery/types"
 import { createAdminClient } from "@/lib/supabase/admin"
 
@@ -22,6 +23,13 @@ const PHONE_REGEX = /^[+0-9][0-9\s-]{6,20}$/
 
 export async function POST(request: Request) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "delivery-otp-request",
+      limit: 60,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = (await request.json()) as {
       token?: string
       channel?: DeliveryOtpChannel

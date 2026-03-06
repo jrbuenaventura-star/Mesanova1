@@ -3,20 +3,26 @@ import { NextResponse } from "next/server"
 import { writeDeliveryAuditLog } from "@/lib/delivery/audit"
 import { currentErpAdapter } from "@/lib/delivery/erp-adapter"
 import { getRequestContext } from "@/lib/delivery/request"
+import { enforceRateLimit, secureCompare } from "@/lib/security/api"
 import { createAdminClient } from "@/lib/supabase/admin"
-
-function isAuthorized(request: Request) {
-  const expected = process.env.ERP_SYNC_TOKEN
-  if (!expected) {
-    return false
-  }
-  const provided = request.headers.get("x-erp-sync-token")
-  return provided === expected
-}
 
 export async function POST(request: Request) {
   try {
-    if (!isAuthorized(request)) {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "erp-delivery-events",
+      limit: 300,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
+    const expectedToken = process.env.ERP_SYNC_TOKEN
+    if (!expectedToken) {
+      return NextResponse.json({ error: "ERP sync token not configured" }, { status: 503 })
+    }
+
+    const authHeader = request.headers.get("x-erp-sync-token") || request.headers.get("authorization") || ""
+    const providedToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim()
+    if (!secureCompare(providedToken, expectedToken)) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 })
     }
 

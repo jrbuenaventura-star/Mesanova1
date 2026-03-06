@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { enforceRateLimit, secureCompare } from "@/lib/security/api"
 
 /**
  * Clientify Webhook Receiver
@@ -12,13 +13,23 @@ import { createAdminClient } from "@/lib/supabase/admin"
  */
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResponse = enforceRateLimit(request, {
+      bucket: "clientify-webhook",
+      limit: 120,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     // Verify webhook secret
     const webhookSecret = process.env.CLIENTIFY_WEBHOOK_SECRET
-    if (webhookSecret) {
-      const authHeader = request.headers.get("x-webhook-secret") || request.headers.get("authorization")
-      if (authHeader !== webhookSecret && authHeader !== `Bearer ${webhookSecret}`) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
+    if (!webhookSecret) {
+      return NextResponse.json({ error: "Webhook secret not configured" }, { status: 503 })
+    }
+
+    const authHeader = request.headers.get("x-webhook-secret") || request.headers.get("authorization") || ""
+    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim()
+    if (!secureCompare(bearerToken, webhookSecret)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
