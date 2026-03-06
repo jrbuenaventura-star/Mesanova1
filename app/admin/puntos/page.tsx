@@ -23,7 +23,7 @@ export default async function AdminPointsPage() {
       <div>
         <h1 className="text-3xl font-bold">Gestión de Puntos</h1>
         <p className="text-muted-foreground">
-          Administra reglas del programa de lealtad y aplica ajustes manuales por usuario.
+          Administra reglas del programa, aplica ajustes manuales y audita transacciones con filtros/exportación.
         </p>
       </div>
       <LoyaltyManagementDashboard />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image"
 import Link from "next/link"
 import type { Silo, Subcategory, ProductType } from "@/lib/db/types"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProductWithJoins {
   id: string
@@ -48,9 +49,44 @@ interface ProductsManagementProps {
   silos: Silo[]
   subcategories: (Subcategory & { silo?: Silo })[]
   productTypes: ProductType[]
+  currentUserId: string
 }
 
-export function ProductsManagement({ initialProducts, silos, subcategories, productTypes }: ProductsManagementProps) {
+interface PriceAdjustmentRequest {
+  id: string
+  product_id: string
+  product_code: string | null
+  product_name: string | null
+  requested_by: string
+  requested_by_name: string | null
+  status: "pending" | "approved" | "rejected" | "cancelled"
+  request_reason: string | null
+  review_notes: string | null
+  previous_values: {
+    precio?: number | null
+    descuento_porcentaje?: number | null
+    precio_dist?: number | null
+    desc_dist?: number | null
+    is_on_sale?: boolean | null
+  }
+  requested_values: {
+    precio?: number | null
+    descuento_porcentaje?: number | null
+    precio_dist?: number | null
+    desc_dist?: number | null
+    is_on_sale?: boolean | null
+  }
+  created_at: string
+}
+
+export function ProductsManagement({
+  initialProducts,
+  silos,
+  subcategories,
+  productTypes,
+  currentUserId,
+}: ProductsManagementProps) {
+  const { toast } = useToast()
   const [products, setProducts] = useState(initialProducts)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterSilo, setFilterSilo] = useState("all")
@@ -65,6 +101,32 @@ export function ProductsManagement({ initialProducts, silos, subcategories, prod
   const [editPrecioDist, setEditPrecioDist] = useState("")
   const [editDescDist, setEditDescDist] = useState("0")
   const [isLoading, setIsLoading] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState<PriceAdjustmentRequest[]>([])
+  const [requestsLoading, setRequestsLoading] = useState(false)
+
+  const loadPendingRequests = useCallback(async () => {
+    setRequestsLoading(true)
+    try {
+      const response = await fetch("/api/admin/products/pricing?status=pending&limit=200", { cache: "no-store" })
+      const payload = await response.json().catch(() => null)
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || "No se pudo cargar solicitudes pendientes")
+      }
+      setPendingRequests((payload.requests || []) as PriceAdjustmentRequest[])
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo cargar solicitudes pendientes",
+        variant: "destructive",
+      })
+    } finally {
+      setRequestsLoading(false)
+    }
+  }, [toast])
+
+  useEffect(() => {
+    void loadPendingRequests()
+  }, [loadPendingRequests])
 
   // Extraer marcas únicas
   const marcas = Array.from(new Set(products.map(p => p.marca).filter((m): m is string => !!m))).sort()
@@ -153,47 +215,47 @@ export function ProductsManagement({ initialProducts, silos, subcategories, prod
     const descDist = Number.parseFloat(editDescDist) || 0
     const isOnSale = descuento > 0
 
-    const response = await fetch("/api/admin/products/pricing", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId: editingProduct.id,
-        precio,
-        descuento_porcentaje: descuento,
-        precio_dist: precioDist,
-        desc_dist: descDist,
-        is_on_sale: isOnSale,
-      }),
-    })
+    try {
+      const response = await fetch("/api/admin/products/pricing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: editingProduct.id,
+          precio,
+          descuento_porcentaje: descuento,
+          precio_dist: precioDist,
+          desc_dist: descDist,
+          is_on_sale: isOnSale,
+          request_reason: "Ajuste manual desde panel de productos",
+        }),
+      })
 
-    const payload = await response.json().catch(() => null)
+      const payload = await response.json().catch(() => null)
 
-    if (!response.ok || !payload?.success) {
-      console.error("[v0] Error updating price:", payload?.error || response.statusText)
-      alert(payload?.error || "Error al actualizar el precio")
-    } else {
-      // Actualizar el estado local
-      setProducts((prev) =>
-        prev.map((product) =>
-          product.id === editingProduct.id
-            ? {
-                ...product,
-                precio,
-                descuento_porcentaje: descuento,
-                precio_dist: precioDist,
-                desc_dist: descDist,
-                is_on_sale: isOnSale,
-              }
-            : product
-        )
-      )
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || "Error al crear solicitud de ajuste")
+      }
+
+      toast({
+        title: "Solicitud enviada",
+        description: "El cambio de precio quedó pendiente de aprobación por otro superadmin.",
+      })
+
       setPriceDialogOpen(false)
       setEditingProduct(null)
+      await loadPendingRequests()
+    } catch (error) {
+      console.error("[v0] Error creating pricing request:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo crear la solicitud",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   // Eliminar producto
@@ -217,15 +279,197 @@ export function ProductsManagement({ initialProducts, silos, subcategories, prod
     setIsLoading(false)
   }
 
+  const handleReviewRequest = async (
+    request: PriceAdjustmentRequest,
+    action: "approve" | "reject" | "cancel"
+  ) => {
+    let reviewNotes = ""
+    if (action === "reject") {
+      reviewNotes = window.prompt("Motivo del rechazo (obligatorio):", "") || ""
+      if (!reviewNotes.trim()) return
+    }
+    if (action === "approve") {
+      reviewNotes = window.prompt("Notas de aprobación (opcional):", "") || ""
+    }
+    if (action === "cancel") {
+      const confirmed = window.confirm("¿Cancelar esta solicitud pendiente?")
+      if (!confirmed) return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/admin/products/pricing", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestId: request.id,
+          action,
+          review_notes: reviewNotes.trim() || undefined,
+        }),
+      })
+
+      const payload = await response.json().catch(() => null)
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || "No se pudo procesar la solicitud")
+      }
+
+      if (action === "approve" && payload.product) {
+        const approvedProduct = payload.product as {
+          id: string
+          precio: number
+          descuento_porcentaje: number
+          precio_dist: number | null
+          desc_dist: number
+          is_on_sale: boolean
+        }
+        setProducts((prev) =>
+          prev.map((product) =>
+            product.id === approvedProduct.id
+              ? {
+                  ...product,
+                  precio: approvedProduct.precio,
+                  descuento_porcentaje: approvedProduct.descuento_porcentaje,
+                  precio_dist: approvedProduct.precio_dist,
+                  desc_dist: approvedProduct.desc_dist,
+                  is_on_sale: approvedProduct.is_on_sale,
+                }
+              : product
+          )
+        )
+      }
+
+      toast({
+        title:
+          action === "approve"
+            ? "Solicitud aprobada"
+            : action === "reject"
+              ? "Solicitud rechazada"
+              : "Solicitud cancelada",
+        description: "Se actualizó el estado de la solicitud.",
+      })
+
+      await loadPendingRequests()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo procesar la solicitud",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   // Calcular precio con descuento
   const getPriceWithDiscount = (price: number, discount: number) => {
     return price * (1 - discount / 100)
   }
 
   const hasActiveFilters = filterSilo !== "all" || filterSubcategory !== "all" || filterProductType !== "all" || filterMarca !== "all" || filterEstado !== "all"
+  const formatPrice = (value: number | null | undefined) =>
+    value === null || value === undefined ? "N/D" : `$${Number(value).toLocaleString("es-CO")}`
 
   return (
     <div className="space-y-4">
+      <div className="rounded-md border">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <div>
+            <h3 className="font-semibold">Solicitudes pendientes de ajuste de precio</h3>
+            <p className="text-sm text-muted-foreground">
+              Cada cambio manual requiere aprobación de otro superadmin.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => void loadPendingRequests()} disabled={requestsLoading}>
+            {requestsLoading ? "Cargando..." : "Recargar"}
+          </Button>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Producto</TableHead>
+                <TableHead>Solicita</TableHead>
+                <TableHead>Anterior</TableHead>
+                <TableHead>Solicitado</TableHead>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingRequests.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-16 text-center text-muted-foreground">
+                    No hay solicitudes pendientes.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                pendingRequests.map((request) => {
+                  const isOwnRequest = request.requested_by === currentUserId
+                  return (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <div className="font-medium">{request.product_name || "Producto"}</div>
+                        <div className="text-xs text-muted-foreground">{request.product_code || request.product_id}</div>
+                        {request.request_reason && (
+                          <div className="mt-1 text-xs text-muted-foreground">{request.request_reason}</div>
+                        )}
+                      </TableCell>
+                      <TableCell>{request.requested_by_name || request.requested_by}</TableCell>
+                      <TableCell className="text-xs">
+                        <div>Precio: {formatPrice(request.previous_values?.precio)}</div>
+                        <div>Desc: {Number(request.previous_values?.descuento_porcentaje || 0)}%</div>
+                        <div>Dist: {formatPrice(request.previous_values?.precio_dist)}</div>
+                        <div>Desc dist: {Number(request.previous_values?.desc_dist || 0)}%</div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div>Precio: {formatPrice(request.requested_values?.precio)}</div>
+                        <div>Desc: {Number(request.requested_values?.descuento_porcentaje || 0)}%</div>
+                        <div>Dist: {formatPrice(request.requested_values?.precio_dist)}</div>
+                        <div>Desc dist: {Number(request.requested_values?.desc_dist || 0)}%</div>
+                      </TableCell>
+                      <TableCell>{new Date(request.created_at).toLocaleString("es-CO")}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          {isOwnRequest ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => void handleReviewRequest(request, "cancel")}
+                              disabled={isLoading}
+                            >
+                              Cancelar
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => void handleReviewRequest(request, "approve")}
+                                disabled={isLoading}
+                              >
+                                Aprobar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => void handleReviewRequest(request, "reject")}
+                                disabled={isLoading}
+                              >
+                                Rechazar
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       {/* Barra de búsqueda y acciones */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">

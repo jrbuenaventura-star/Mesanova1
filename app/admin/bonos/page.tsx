@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Gift, DollarSign, TrendingUp, CreditCard, Download } from "lucide-react"
+import { GiftCardProductsManagement } from "@/components/admin/gift-card-products-management"
 
 export default async function BonosAdminPage() {
   const supabase = await createClient()
@@ -138,6 +139,10 @@ export default async function BonosAdminPage() {
           </div>
         </CardContent>
       </Card>
+
+      <div className="pt-2">
+        <GiftCardProductsManagement />
+      </div>
     </div>
   )
 }

@@ -53,6 +53,7 @@ export default async function ProductsAdminPage() {
         silos={silos || []}
         subcategories={subcategories || []}
         productTypes={productTypes || []}
+        currentUserId={user.id}
       />
     </div>
   )

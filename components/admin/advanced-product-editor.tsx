@@ -33,6 +33,14 @@ type HorecaChannels = {
   horeca: boolean
 }
 
+type ProductPricingSnapshot = {
+  precio: number
+  descuento_porcentaje: number
+  precio_dist: number | null
+  desc_dist: number
+  is_on_sale: boolean
+}
+
 function normalizeHorecaValue(value: string | null | undefined): HorecaValue {
   const normalized = (value || "NO").toUpperCase().trim()
   if (normalized === "SI" || normalized === "EXCLUSIVO" || normalized === "NO") {
@@ -58,6 +66,16 @@ function getHorecaFromChannels(channels: HorecaChannels): HorecaValue {
   return "NO"
 }
 
+function normalizePricingSnapshot(product: Partial<ProductWithCategories>): ProductPricingSnapshot {
+  return {
+    precio: Number(product.precio || 0),
+    descuento_porcentaje: Number(product.descuento_porcentaje || 0),
+    precio_dist: product.precio_dist === null || product.precio_dist === undefined ? null : Number(product.precio_dist),
+    desc_dist: Number(product.desc_dist || 0),
+    is_on_sale: Boolean(product.is_on_sale),
+  }
+}
+
 interface Props {
   product: EditorProduct
   silos: Silo[]
@@ -78,6 +96,7 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
   const [newVideoUrl, setNewVideoUrl] = useState("")
 
   const supabase = createClient()
+  const initialPricing = normalizePricingSnapshot(initialProduct)
   const horecaChannels = getChannelsFromHoreca(product.horeca)
   const horecaLabels: Record<HorecaValue, string> = {
     NO: "Solo Retail",
@@ -281,14 +300,18 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
     setIsLoading(true)
     try {
       const isNewProduct = product.id === "new"
+      const currentPricing = normalizePricingSnapshot(product)
+      const pricingChanged =
+        currentPricing.precio !== initialPricing.precio ||
+        currentPricing.descuento_porcentaje !== initialPricing.descuento_porcentaje ||
+        currentPricing.precio_dist !== initialPricing.precio_dist ||
+        currentPricing.desc_dist !== initialPricing.desc_dist ||
+        currentPricing.is_on_sale !== initialPricing.is_on_sale
       
       const productData = {
         pdt_codigo: product.pdt_codigo,
         pdt_descripcion: product.pdt_descripcion,
         nombre_comercial: product.nombre_comercial,
-        precio: product.precio,
-        precio_dist: product.precio_dist || null,
-        desc_dist: product.desc_dist || 0,
         descripcion_larga: product.descripcion_larga,
         material: product.material,
         color: product.color,
@@ -309,7 +332,6 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
         is_active: product.is_active,
         is_featured: product.is_featured,
         is_new: product.is_new,
-        is_on_sale: product.is_on_sale,
         horeca: normalizeHorecaValue(product.horeca),
         imagen_principal_url: product.imagen_principal_url,
         upp_existencia: product.upp_existencia || 0,
@@ -317,7 +339,10 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
 
       if (isNewProduct) {
         // Crear nuevo producto
-        const { error } = await supabase.from("products").insert(productData)
+        const { error } = await supabase.from("products").insert({
+          ...productData,
+          ...currentPricing,
+        })
         if (error) throw error
         
         toast({
@@ -332,6 +357,34 @@ export function AdvancedProductEditor({ product: initialProduct, silos, collecti
           .eq("id", product.id)
         
         if (error) throw error
+
+        if (pricingChanged) {
+          const pricingResponse = await fetch("/api/admin/products/pricing", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId: product.id,
+              ...currentPricing,
+              request_reason: "Ajuste solicitado desde edición avanzada",
+            }),
+          })
+
+          const pricingPayload = await pricingResponse.json().catch(() => null)
+          if (!pricingResponse.ok || !pricingPayload?.success) {
+            toast({
+              title: "Ajuste de precio no enviado",
+              description:
+                pricingPayload?.error ||
+                "Los cambios generales se guardaron, pero el ajuste de precio no pudo solicitarse.",
+              variant: "destructive",
+            })
+          } else {
+            toast({
+              title: "Ajuste de precio pendiente",
+              description: "El ajuste de precio quedó pendiente de aprobación por otro superadmin.",
+            })
+          }
+        }
         
         toast({
           title: "Producto actualizado",

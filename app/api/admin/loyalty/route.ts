@@ -44,13 +44,16 @@ function parseInteger(name: string, value: unknown) {
 
 async function ensureSuperadmin() {
   const auth = await requireApiUser({ roles: ["superadmin"] })
-  if (!auth.ok) return auth.response
-  return null
+  if (!auth.ok) return { ok: false as const, response: auth.response }
+  return {
+    ok: true as const,
+    userId: auth.userId,
+  }
 }
 
 export async function GET(request: Request) {
-  const denied = await ensureSuperadmin()
-  if (denied) return denied
+  const guard = await ensureSuperadmin()
+  if (!guard.ok) return guard.response
 
   const admin = createAdminClient()
   const { searchParams } = new URL(request.url)
@@ -156,8 +159,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const denied = await ensureSuperadmin()
-  if (denied) return denied
+  const auth = await ensureSuperadmin()
+  if (!auth.ok) return auth.response
 
   try {
     const body = (await request.json()) as LoyaltyAdjustmentPayload
@@ -212,6 +215,11 @@ export async function POST(request: Request) {
       transaction_type: "adjustment",
       points,
       description: description || "Ajuste manual por superadmin",
+      admin_user_id: auth.userId,
+      metadata: {
+        source: "admin-points-dashboard",
+        created_by: auth.userId,
+      },
     })
 
     if (insertError) {
@@ -238,8 +246,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const denied = await ensureSuperadmin()
-  if (denied) return denied
+  const guard = await ensureSuperadmin()
+  if (!guard.ok) return guard.response
 
   try {
     const body = (await request.json()) as LoyaltyConfigPatch

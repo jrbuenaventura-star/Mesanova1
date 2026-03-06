@@ -1,13 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Award, RefreshCw, Save } from "lucide-react"
+import { Award, Download, RefreshCw, Save } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
@@ -34,6 +35,18 @@ type LoyaltyUser = {
   redeemed_points: number
   tier: string
   updated_at: string | null
+}
+
+type LoyaltyTransaction = {
+  id: string
+  user_id: string
+  admin_user_id: string | null
+  transaction_type: string
+  points: number
+  description: string | null
+  created_at: string
+  user_name: string | null
+  admin_name: string | null
 }
 
 const DEFAULT_CONFIG: LoyaltyConfig = {
@@ -63,8 +76,14 @@ export function LoyaltyManagementDashboard() {
   const [savingConfig, setSavingConfig] = useState(false)
   const [savingAdjustment, setSavingAdjustment] = useState(false)
   const [search, setSearch] = useState("")
+  const [transactionsSearch, setTransactionsSearch] = useState("")
+  const [transactionsType, setTransactionsType] = useState("adjustment")
+  const [transactionsFrom, setTransactionsFrom] = useState("")
+  const [transactionsTo, setTransactionsTo] = useState("")
   const [config, setConfig] = useState<LoyaltyConfig>(DEFAULT_CONFIG)
   const [users, setUsers] = useState<LoyaltyUser[]>([])
+  const [transactions, setTransactions] = useState<LoyaltyTransaction[]>([])
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState<string>("")
   const [adjustmentPoints, setAdjustmentPoints] = useState("")
   const [adjustmentReason, setAdjustmentReason] = useState("")
@@ -73,6 +92,50 @@ export function LoyaltyManagementDashboard() {
     () => users.find((user) => user.user_id === selectedUserId) || null,
     [selectedUserId, users]
   )
+
+  const buildTransactionsUrl = useCallback(
+    (format: "json" | "csv" = "json") => {
+      const url = new URL("/api/admin/loyalty/transactions", window.location.origin)
+      url.searchParams.set("type", transactionsType || "all")
+      url.searchParams.set("limit", "300")
+
+      if (transactionsSearch.trim()) {
+        url.searchParams.set("search", transactionsSearch.trim())
+      }
+      if (transactionsFrom) {
+        url.searchParams.set("from", transactionsFrom)
+      }
+      if (transactionsTo) {
+        url.searchParams.set("to", transactionsTo)
+      }
+      if (format === "csv") {
+        url.searchParams.set("format", "csv")
+      }
+
+      return url.toString()
+    },
+    [transactionsFrom, transactionsSearch, transactionsTo, transactionsType]
+  )
+
+  const loadTransactions = useCallback(async () => {
+    setLoadingTransactions(true)
+    try {
+      const response = await fetch(buildTransactionsUrl("json"), { cache: "no-store" })
+      const payload = await response.json()
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || "No se pudo cargar historial")
+      }
+      setTransactions((payload.transactions || []) as LoyaltyTransaction[])
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudo cargar historial",
+        variant: "destructive",
+      })
+    } finally {
+      setLoadingTransactions(false)
+    }
+  }, [buildTransactionsUrl, toast])
 
   const loadData = useCallback(
     async (searchValue?: string) => {
@@ -114,6 +177,10 @@ export function LoyaltyManagementDashboard() {
   useEffect(() => {
     void loadData()
   }, [loadData])
+
+  useEffect(() => {
+    void loadTransactions()
+  }, [loadTransactions])
 
   const saveConfig = async () => {
     setSavingConfig(true)
@@ -183,6 +250,7 @@ export function LoyaltyManagementDashboard() {
       setAdjustmentPoints("")
       setAdjustmentReason("")
       await loadData(search)
+      await loadTransactions()
     } catch (error) {
       toast({
         title: "Error",
@@ -435,6 +503,101 @@ export function LoyaltyManagementDashboard() {
                 {savingAdjustment ? "Aplicando..." : "Aplicar ajuste"}
               </Button>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <CardTitle>Historial auditable de transacciones</CardTitle>
+              <CardDescription>
+                {loadingTransactions ? "Cargando..." : `${transactions.length} transacción(es)`}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => void loadTransactions()} disabled={loadingTransactions}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Filtrar
+              </Button>
+              <Button variant="outline" onClick={() => (window.location.href = buildTransactionsUrl("csv"))}>
+                <Download className="mr-2 h-4 w-4" />
+                Exportar CSV
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 md:grid-cols-4">
+            <Input
+              value={transactionsSearch}
+              onChange={(event) => setTransactionsSearch(event.target.value)}
+              placeholder="Usuario (nombre o ID)"
+            />
+            <Select value={transactionsType} onValueChange={setTransactionsType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="adjustment">Ajustes</SelectItem>
+                <SelectItem value="purchase">Compras</SelectItem>
+                <SelectItem value="review">Reseñas</SelectItem>
+                <SelectItem value="referral">Referidos</SelectItem>
+                <SelectItem value="bonus">Bonos</SelectItem>
+                <SelectItem value="redemption">Canjes</SelectItem>
+                <SelectItem value="expiration">Vencimientos</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input type="date" value={transactionsFrom} onChange={(event) => setTransactionsFrom(event.target.value)} />
+            <Input type="date" value={transactionsTo} onChange={(event) => setTransactionsTo(event.target.value)} />
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Usuario</TableHead>
+                  <TableHead>Pts</TableHead>
+                  <TableHead>Admin</TableHead>
+                  <TableHead>Detalle</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-20 text-center text-muted-foreground">
+                      No hay transacciones para el filtro actual.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  transactions.map((tx) => (
+                    <TableRow key={tx.id}>
+                      <TableCell>{formatDate(tx.created_at)}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{tx.transaction_type}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>{tx.user_name || "Sin nombre"}</div>
+                        <div className="text-xs text-muted-foreground">{tx.user_id}</div>
+                      </TableCell>
+                      <TableCell className={tx.points >= 0 ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+                        {tx.points >= 0 ? "+" : ""}
+                        {formatNumber(tx.points)}
+                      </TableCell>
+                      <TableCell>
+                        {tx.admin_name || "N/D"}
+                        {tx.admin_user_id && <div className="text-xs text-muted-foreground">{tx.admin_user_id}</div>}
+                      </TableCell>
+                      <TableCell>{tx.description || "Sin descripción"}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>

@@ -7,7 +7,7 @@ import { AdminSectionTabs, type AdminSectionTab } from "@/components/admin/admin
 const PRODUCTOS_TABS: AdminSectionTab[] = [
   { value: "productos", label: "Productos" },
   { value: "productos-csv", label: "Productos CSV" },
-  { value: "bonos-regalo", label: "Bonos de Regalo" },
+  { value: "bonos-regalo", label: "Bonos de Regalo (solo lectura)" },
   { value: "analisis-precios-ia", label: "Análisis Precios IA" },
 ]
 
