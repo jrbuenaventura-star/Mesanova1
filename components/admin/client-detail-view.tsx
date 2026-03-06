@@ -633,14 +633,23 @@ export function ClientDetailView({
                               </div>
                             </TableCell>
                             <TableCell>
-                              {item?.file_url ? (
+                              {item?.document_id ? (
+                                <a
+                                  href={`/api/distributor/documents/${item.document_id}/download`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline text-sm"
+                                >
+                                  Ver archivo
+                                </a>
+                              ) : item?.file_url ? (
                                 <a
                                   href={item.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-primary hover:underline text-sm"
                                 >
-                                  Ver archivo
+                                  Ver archivo (legado)
                                 </a>
                               ) : (
                                 <span className="text-sm text-muted-foreground">No cargado</span>

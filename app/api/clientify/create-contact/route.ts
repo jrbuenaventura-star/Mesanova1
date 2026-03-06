@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import { enforceRateLimit, enforceSameOrigin } from "@/lib/security/api"
+import { redactErrorMessage } from "@/lib/security/redact"
 
 const CLIENTIFY_API_URL = "https://api.clientify.net/v1"
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 interface ClientifyContact {
   email: string
@@ -18,6 +21,16 @@ interface ClientifyContact {
 
 export async function POST(request: NextRequest) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "clientify-create-contact",
+      limit: 40,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const apiKey = process.env.CLIENTIFY_API_KEY
 
     if (!apiKey) {
@@ -45,6 +58,13 @@ export async function POST(request: NextRequest) {
     if (!email) {
       return NextResponse.json(
         { error: "Email is required" },
+        { status: 400 }
+      )
+    }
+
+    if (!EMAIL_REGEX.test(String(email))) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
         { status: 400 }
       )
     }
@@ -132,8 +152,7 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      const errorText = await response.text()
-      console.error("Clientify API error:", errorText)
+      console.error("Clientify API error")
       return NextResponse.json(
         { error: "Failed to create contact in Clientify" },
         { status: response.status }
@@ -147,7 +166,7 @@ export async function POST(request: NextRequest) {
       contact: data,
     })
   } catch (error) {
-    console.error("Error creating Clientify contact:", error)
+    console.error("Error creating Clientify contact:", redactErrorMessage(error))
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

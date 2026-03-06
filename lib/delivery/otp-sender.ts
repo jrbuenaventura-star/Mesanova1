@@ -1,6 +1,7 @@
 import "server-only"
 
 import type { DeliveryOtpChannel } from "@/lib/delivery/types"
+import { maskIdentifier, maskPhone } from "@/lib/security/redact"
 
 type SendDeliveryOtpInput = {
   channel: DeliveryOtpChannel
@@ -15,7 +16,7 @@ export async function sendDeliveryOtp(input: SendDeliveryOtpInput) {
   if (!webhookUrl) {
     // Fallback for local/staging environments.
     console.info(
-      `[delivery.otp] ${input.channel.toUpperCase()} -> ${input.destination} | order=${input.orderId} | otp=[redacted]`
+      `[delivery.otp] ${input.channel.toUpperCase()} -> ${maskPhone(input.destination)} | order=${maskIdentifier(input.orderId, 6, 3)} | otp=[redacted]`
     )
     return { ok: true as const, provider: "console" as const }
   }

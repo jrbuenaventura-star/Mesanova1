@@ -76,15 +76,6 @@ export async function uploadToGoogleDrive(
       throw new Error('Failed to get file ID from Google Drive response')
     }
 
-    // Hacer el archivo accesible por link (solo lectura)
-    await drive.permissions.create({
-      fileId: response.data.id,
-      requestBody: {
-        role: 'reader',
-        type: 'anyone',
-      },
-    })
-
     return {
       success: true,
       fileId: response.data.id,

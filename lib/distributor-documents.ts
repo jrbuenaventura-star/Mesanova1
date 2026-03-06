@@ -28,6 +28,7 @@ export interface DistributorDocumentDefinition {
 }
 
 export interface DistributorDocumentReminderItem {
+  document_id: string | null
   type: DocumentType
   label: string
   required: boolean
@@ -218,6 +219,7 @@ export function buildDistributorDocumentReminder(
 
     return {
       type: definition.type,
+      document_id: document?.id || null,
       label: definition.label,
       required: definition.required,
       has_document: Boolean(document),

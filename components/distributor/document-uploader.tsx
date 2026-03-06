@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { Upload, Loader2, FileText } from 'lucide-react'
@@ -16,7 +15,6 @@ interface DocumentUploaderProps {
 export function DocumentUploader({ distributorId, documentType, onUploadComplete }: DocumentUploaderProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
   
   const [isUploading, setIsUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -62,70 +60,19 @@ export function DocumentUploader({ distributorId, documentType, onUploadComplete
     setIsUploading(true)
 
     try {
-      // Subir a Supabase Storage primero (fallback si Google Drive no está configurado)
-      const fileExt = selectedFile.name.split('.').pop()
-      const fileName = `${distributorId}/${documentType}_${Date.now()}.${fileExt}`
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('distributor-documents')
-        .upload(fileName, selectedFile, {
-          cacheControl: '3600',
-          upsert: false,
-        })
+      const payload = new FormData()
+      payload.append('file', selectedFile)
+      payload.append('document_type', documentType)
+      payload.append('distributor_id', distributorId)
 
-      if (uploadError) {
-        // Si el bucket no existe, intentar crear el registro sin archivo
-        console.error('Storage error:', uploadError)
-      }
+      const response = await fetch('/api/distributor/documents/upload', {
+        method: 'POST',
+        body: payload,
+      })
 
-      // Obtener URL pública si se subió
-      let fileUrl = null
-      if (uploadData) {
-        const { data: urlData } = supabase.storage
-          .from('distributor-documents')
-          .getPublicUrl(fileName)
-        fileUrl = urlData.publicUrl
-      }
-
-      // Calcular fecha de expiración para estados financieros (abril del próximo año)
-      let expiresAt = null
-      let fiscalYear = null
-      if (documentType === 'estados_financieros') {
-        const now = new Date()
-        fiscalYear = now.getFullYear()
-        // Vence en abril del próximo año
-        expiresAt = new Date(now.getFullYear() + 1, 3, 30).toISOString()
-      }
-
-      // Guardar registro en la base de datos
-      const { error: dbError } = await supabase
-        .from('distributor_documents')
-        .upsert({
-          distributor_id: distributorId,
-          document_type: documentType,
-          file_name: selectedFile.name,
-          file_url: fileUrl,
-          file_size: selectedFile.size,
-          mime_type: selectedFile.type,
-          fiscal_year: fiscalYear,
-          expires_at: expiresAt,
-          status: 'pending',
-        }, {
-          onConflict: 'distributor_id,document_type,fiscal_year',
-        })
-
-      if (dbError) {
-        console.error('DB error:', dbError)
-        // Si la tabla no existe aún, mostrar mensaje informativo
-        if (dbError.code === '42P01') {
-          toast({
-            title: 'Configuración pendiente',
-            description: 'El sistema de documentos está siendo configurado. Intenta más tarde.',
-            variant: 'destructive',
-          })
-          return
-        }
-        throw dbError
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'No se pudo subir el documento')
       }
 
       toast({
@@ -137,7 +84,6 @@ export function DocumentUploader({ distributorId, documentType, onUploadComplete
       onUploadComplete?.()
       router.refresh()
     } catch (error: any) {
-      console.error('Upload error:', error)
       toast({
         title: 'Error al subir',
         description: error.message || 'No se pudo subir el documento',

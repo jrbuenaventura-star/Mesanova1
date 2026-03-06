@@ -1,19 +1,38 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { enforceRateLimit, enforceSameOrigin } from '@/lib/security/api'
+import { redactErrorMessage } from '@/lib/security/redact'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "gift-cards-validate",
+      limit: 30,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const supabase = createAdminClient()
     const { code } = await request.json()
+    const normalizedCode = String(code || "")
+      .trim()
+      .toUpperCase()
 
-    if (!code) {
+    if (!normalizedCode) {
       return NextResponse.json({ error: 'Código de bono requerido' }, { status: 400 })
+    }
+
+    if (!/^GC-[A-Z0-9-]{8,32}$/.test(normalizedCode)) {
+      return NextResponse.json({ error: 'Formato de bono inválido' }, { status: 400 })
     }
 
     const { data: giftCard, error: giftCardError } = await supabase
       .from('gift_cards')
       .select('*')
-      .eq('code', code.toUpperCase())
+      .eq('code', normalizedCode)
       .single()
 
     if (giftCardError || !giftCard) {
@@ -45,11 +64,10 @@ export async function POST(request: Request) {
         id: giftCard.id,
         code: giftCard.code,
         current_balance: giftCard.current_balance,
-        initial_amount: giftCard.initial_amount,
       },
     })
   } catch (error) {
-    console.error('Error validating gift card:', error)
+    console.error('Error validating gift card:', redactErrorMessage(error))
     return NextResponse.json({ error: 'Error al validar bono' }, { status: 500 })
   }
 }

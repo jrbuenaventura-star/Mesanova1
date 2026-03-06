@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import type { UserRole } from "@/lib/db/types"
+import { maskIdentifier, redactErrorMessage } from "@/lib/security/redact"
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin
   const next = requestUrl.searchParams.get("next") || "/"
 
-  console.log("[v0] Auth callback - code:", code ? "present" : "missing")
+  console.log("[auth.callback] code:", code ? "present" : "missing")
 
   if (code) {
     const supabase = await createClient()
@@ -16,12 +17,12 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error("[v0] Auth callback - exchange error:", error)
+      console.error("[auth.callback] exchange error:", redactErrorMessage(error))
       return NextResponse.redirect(`${origin}/auth/login?error=auth_failed`)
     }
 
     if (data?.session) {
-      console.log("[v0] Auth callback - session created for user:", data.user?.email)
+      console.log("[auth.callback] session created for user:", maskIdentifier(data.user?.id, 8, 4))
 
       const roleFromMeta = (data.user?.user_metadata as { role?: unknown } | null | undefined)?.role
       const isValidRole = (v: unknown): v is UserRole =>
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
           .eq("id", data.user.id)
 
         if (roleUpdateError) {
-          console.error("[v0] Auth callback - failed to sync role:", roleUpdateError)
+          console.error("[auth.callback] failed to sync role:", redactErrorMessage(roleUpdateError))
         }
       }
 
@@ -49,11 +50,11 @@ export async function GET(request: Request) {
       await new Promise((resolve) => setTimeout(resolve, 200))
 
       const redirectUrl = `${origin}${next}`
-      console.log("[v0] Auth callback - redirecting to:", redirectUrl)
+      console.log("[auth.callback] redirecting")
       return NextResponse.redirect(redirectUrl)
     }
   }
 
-  console.log("[v0] Auth callback - no code, redirecting to login")
+  console.log("[auth.callback] no code, redirecting to login")
   return NextResponse.redirect(`${origin}/auth/login?error=no_code`)
 }

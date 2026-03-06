@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
+import { enforceRateLimit, enforceSameOrigin } from "@/lib/security/api"
+import { redactErrorMessage } from "@/lib/security/redact"
 
 const CLIENTIFY_API_URL = "https://api.clientify.net/v1"
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: NextRequest) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "clientify-track-event",
+      limit: 80,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const apiKey = process.env.CLIENTIFY_API_KEY
 
     if (!apiKey) {
@@ -20,6 +33,13 @@ export async function POST(request: NextRequest) {
     if (!email || !event_name) {
       return NextResponse.json(
         { error: "Email and event_name are required" },
+        { status: 400 }
+      )
+    }
+
+    if (!EMAIL_REGEX.test(String(email))) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
         { status: 400 }
       )
     }
@@ -101,7 +121,7 @@ export async function POST(request: NextRequest) {
       message: "Event received",
     })
   } catch (error) {
-    console.error("Error tracking Clientify event:", error)
+    console.error("Error tracking Clientify event:", redactErrorMessage(error))
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

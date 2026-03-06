@@ -1,10 +1,22 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { enforceRateLimit, enforceSameOrigin } from '@/lib/security/api'
+import { redactErrorMessage } from '@/lib/security/redact'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "gift-cards-send-email",
+      limit: 20,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const { giftCard, type } = await request.json()
 
     if (!giftCard) {
@@ -160,7 +172,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error('Error sending gift card email:', error)
+    console.error('Error sending gift card email:', redactErrorMessage(error))
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
   }
 }

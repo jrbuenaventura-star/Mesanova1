@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { enforceRateLimit, enforceSameOrigin } from "@/lib/security/api"
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: Request) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "contact-form",
+      limit: 20,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = await request.json()
     const { nombre, empresa, email, telefono, ciudad, volumen, mensaje, tipo } = body
 
@@ -13,7 +26,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = await createClient()
+    if (!EMAIL_REGEX.test(String(email))) {
+      return NextResponse.json(
+        { error: "Email inválido" },
+        { status: 400 }
+      )
+    }
+
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from("contact_leads")

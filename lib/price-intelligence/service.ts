@@ -194,6 +194,23 @@ export async function runPriceIntelligenceAnalysis(options: RunPriceIntelligence
             })
           }
 
+          const rawPayload: Record<string, unknown> = {
+            analysis_summary: research.analysis_summary || null,
+            observation: {
+              competitor_name: competitorName,
+              competitor_product_name: normalizeText(observation.competitor_product_name) || null,
+              competitor_price_cop: Math.round(competitorPrice),
+              source_url: observation.source_url || null,
+              source_name: observation.source_name || null,
+              confidence: observation.confidence ?? null,
+            },
+            raw_model_output_stored: Boolean(research.raw_text),
+          }
+
+          if (research.raw_text) {
+            rawPayload.model_output_excerpt = research.raw_text
+          }
+
           return {
             run_id: runId,
             product_id: product.id,
@@ -214,11 +231,7 @@ export async function runPriceIntelligenceAnalysis(options: RunPriceIntelligence
             source_name: observation.source_name || null,
             recommendation: observation.recommendation || null,
             analysis_notes: observation.notes || research.analysis_summary || null,
-            raw_json: {
-              observation,
-              analysis_summary: research.analysis_summary || null,
-              raw_text: research.raw_text,
-            },
+            raw_json: rawPayload,
           }
         })
         .filter(Boolean) as Record<string, unknown>[]

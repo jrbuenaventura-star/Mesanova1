@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { enforceRateLimit, enforceSameOrigin } from "@/lib/security/api"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 type CheckoutItem = {
@@ -42,6 +43,16 @@ type PlaceOrderBody = {
 
 export async function POST(request: Request) {
   try {
+    const sameOriginResponse = enforceSameOrigin(request)
+    if (sameOriginResponse) return sameOriginResponse
+
+    const rateLimitResponse = await enforceRateLimit(request, {
+      bucket: "checkout-place-order",
+      limit: 25,
+      windowMs: 60_000,
+    })
+    if (rateLimitResponse) return rateLimitResponse
+
     const body = (await request.json()) as PlaceOrderBody
 
     if (!body?.order) {

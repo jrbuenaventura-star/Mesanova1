@@ -1,5 +1,7 @@
 import "server-only"
 
+import { maskPhone } from "@/lib/security/redact"
+
 export type SendWhatsAppMessageInput = {
   destination: string
   message: string
@@ -22,7 +24,7 @@ export async function sendWhatsAppMessage(input: SendWhatsAppMessageInput) {
   }
 
   if (!webhookUrl) {
-    console.info(`[whatsapp.notifications] webhook_not_configured destination=${destination}`)
+    console.info(`[whatsapp.notifications] webhook_not_configured destination=${maskPhone(destination)}`)
     return { ok: false as const, reason: "missing_webhook" as const }
   }
 
@@ -42,11 +44,10 @@ export async function sendWhatsAppMessage(input: SendWhatsAppMessageInput) {
     })
 
     if (!response.ok) {
-      const body = await response.text()
       return {
         ok: false as const,
         reason: "provider_error" as const,
-        error: `Request failed (${response.status}): ${body}`,
+        error: `Request failed (${response.status})`,
       }
     }
 
@@ -55,7 +56,7 @@ export async function sendWhatsAppMessage(input: SendWhatsAppMessageInput) {
     return {
       ok: false as const,
       reason: "network_error" as const,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message.slice(0, 200) : "Unknown error",
     }
   }
 }

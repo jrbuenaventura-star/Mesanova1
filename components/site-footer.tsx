@@ -197,6 +197,14 @@ export function SiteFooter() {
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Mesanova. Todos los derechos reservados.</p>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-xs">
+            <Link href="/privacidad" className="underline-offset-2 hover:underline">
+              Politica de tratamiento
+            </Link>
+            <Link href="/cookies" className="underline-offset-2 hover:underline">
+              Politica de cookies
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

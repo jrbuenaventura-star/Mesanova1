@@ -3,6 +3,12 @@ import "server-only"
 import type { GeminiPriceObservation, GeminiResearchResult, PriceIntelligenceProduct } from "@/lib/price-intelligence/types"
 
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_PRICE_INTEL_MODEL || "gemini-2.0-flash"
+const STORE_RAW_MODEL_OUTPUT = /^(1|true|yes)$/i.test(process.env.PRICE_INTEL_STORE_RAW_MODEL_OUTPUT || "")
+const RAW_MODEL_OUTPUT_MAX_CHARS = (() => {
+  const raw = Number(process.env.PRICE_INTEL_RAW_OUTPUT_MAX_CHARS || 1200)
+  if (!Number.isFinite(raw)) return 1200
+  return Math.max(200, Math.min(8000, Math.trunc(raw)))
+})()
 const GEMINI_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 interface GeminiCandidatePart {
@@ -76,6 +82,15 @@ function normalizeObservation(raw: any): GeminiPriceObservation | null {
     recommendation: typeof raw?.recommendation === "string" ? raw.recommendation.trim() || undefined : undefined,
     notes: typeof raw?.notes === "string" ? raw.notes.trim() || undefined : undefined,
   }
+}
+
+function sanitizeModelOutputForStorage(raw: string) {
+  return raw
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, RAW_MODEL_OUTPUT_MAX_CHARS)
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted_email]")
+    .replace(/(?:\+?\d[\d\s().-]{7,}\d)/g, "[redacted_phone]")
 }
 
 function buildPrompt(product: PriceIntelligenceProduct) {
@@ -172,6 +187,6 @@ export async function researchProductWithGemini(
   return {
     analysis_summary: typeof parsed?.analysis_summary === "string" ? parsed.analysis_summary.trim() : undefined,
     observations: observations as GeminiPriceObservation[],
-    raw_text: rawText,
+    raw_text: STORE_RAW_MODEL_OUTPUT ? sanitizeModelOutputForStorage(rawText) : "",
   }
 }

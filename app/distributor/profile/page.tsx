@@ -401,14 +401,24 @@ export default async function DistributorProfilePage() {
                           {existingDoc.review_notes && (
                             <p className="text-xs text-red-600">Observación: {existingDoc.review_notes}</p>
                           )}
-                          {existingDoc.file_url && (
+                          {existingDoc.id && (
+                            <a
+                              href={`/api/distributor/documents/${existingDoc.id}/download`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline"
+                            >
+                              Ver documento actual
+                            </a>
+                          )}
+                          {!existingDoc.id && existingDoc.file_url && (
                             <a
                               href={existingDoc.file_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-xs text-primary hover:underline"
                             >
-                              Ver documento actual
+                              Ver documento actual (legado)
                             </a>
                           )}
                         </div>
