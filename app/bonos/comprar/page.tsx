@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,12 +11,76 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Gift, Loader2, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 
-const PRESET_AMOUNTS = [50000, 100000, 200000, 500000]
+type GiftCardCatalogProduct = {
+  id: string
+  name: string
+  description: string | null
+  amount: number
+  allow_custom_amount: boolean
+  min_custom_amount: number
+  max_custom_amount: number | null
+  isCatalog: boolean
+}
+
+const FALLBACK_PRODUCTS: GiftCardCatalogProduct[] = [
+  {
+    id: "fallback-50000",
+    name: "Bono Regalo $50.000",
+    description: "Ideal para un detalle rápido.",
+    amount: 50000,
+    allow_custom_amount: false,
+    min_custom_amount: 10000,
+    max_custom_amount: null,
+    isCatalog: false,
+  },
+  {
+    id: "fallback-100000",
+    name: "Bono Regalo $100.000",
+    description: "Perfecto para ocasiones especiales.",
+    amount: 100000,
+    allow_custom_amount: false,
+    min_custom_amount: 10000,
+    max_custom_amount: null,
+    isCatalog: false,
+  },
+  {
+    id: "fallback-200000",
+    name: "Bono Regalo $200.000",
+    description: "Un regalo premium para celebrar.",
+    amount: 200000,
+    allow_custom_amount: false,
+    min_custom_amount: 10000,
+    max_custom_amount: null,
+    isCatalog: false,
+  },
+  {
+    id: "fallback-500000",
+    name: "Bono Regalo $500.000",
+    description: "Para compras de alto valor.",
+    amount: 500000,
+    allow_custom_amount: false,
+    min_custom_amount: 10000,
+    max_custom_amount: null,
+    isCatalog: false,
+  },
+  {
+    id: "fallback-custom",
+    name: "Bono Monto Libre",
+    description: "Define un monto personalizado.",
+    amount: 10000,
+    allow_custom_amount: true,
+    min_custom_amount: 10000,
+    max_custom_amount: null,
+    isCatalog: false,
+  },
+]
 
 export default function ComprarBonoPage() {
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
+  const [catalogLoading, setCatalogLoading] = useState(true)
+  const [catalogProducts, setCatalogProducts] = useState<GiftCardCatalogProduct[]>(FALLBACK_PRODUCTS)
+  const [selectedProductId, setSelectedProductId] = useState(FALLBACK_PRODUCTS[0].id)
   const [customAmount, setCustomAmount] = useState("")
   const [isGift, setIsGift] = useState(false)
   const [formData, setFormData] = useState({
@@ -27,15 +91,101 @@ export default function ComprarBonoPage() {
     personalMessage: "",
   })
 
-  const finalAmount = selectedAmount === 0 
-    ? parseInt(customAmount) || 0 
-    : selectedAmount || 0
+  useEffect(() => {
+    let mounted = true
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch("/api/gift-cards/catalog", { cache: "no-store" })
+        const payload = await response.json()
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || "No se pudo cargar el catálogo")
+        }
+
+        const records = Array.isArray(payload.products)
+          ? (payload.products as Array<Record<string, unknown>>)
+          : []
+
+        if (!records.length) {
+          throw new Error("No hay bonos activos en el catálogo")
+        }
+
+        const normalized: GiftCardCatalogProduct[] = records.map((product) => ({
+          id: String(product.id),
+          name: String(product.name || "Bono"),
+          description: typeof product.description === "string" ? product.description : null,
+          amount: Number(product.amount || 0),
+          allow_custom_amount: Boolean(product.allow_custom_amount),
+          min_custom_amount: Number(product.min_custom_amount || 10000),
+          max_custom_amount:
+            product.max_custom_amount === null || product.max_custom_amount === undefined
+              ? null
+              : Number(product.max_custom_amount),
+          isCatalog: true,
+        }))
+
+        if (!mounted) return
+        setCatalogProducts(normalized)
+        setSelectedProductId(normalized[0].id)
+        setCustomAmount(String(normalized[0].min_custom_amount || 10000))
+      } catch {
+        if (!mounted) return
+        setCatalogProducts(FALLBACK_PRODUCTS)
+        setSelectedProductId(FALLBACK_PRODUCTS[0].id)
+      } finally {
+        if (mounted) {
+          setCatalogLoading(false)
+        }
+      }
+    }
+
+    void loadCatalog()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const selectedProduct = useMemo(
+    () => catalogProducts.find((product) => product.id === selectedProductId) || null,
+    [catalogProducts, selectedProductId]
+  )
+
+  const finalAmount = selectedProduct?.allow_custom_amount
+    ? Number.parseInt(customAmount, 10) || 0
+    : Number(selectedProduct?.amount || 0)
+
+  const validateAmount = () => {
+    if (!selectedProduct) {
+      return "Debes seleccionar un bono"
+    }
+
+    if (selectedProduct.allow_custom_amount) {
+      const min = Number(selectedProduct.min_custom_amount || 10000)
+      const max =
+        selectedProduct.max_custom_amount === null ? null : Number(selectedProduct.max_custom_amount)
+
+      if (finalAmount < min) {
+        return `El monto mínimo es $${min.toLocaleString("es-CO")}`
+      }
+      if (max !== null && finalAmount > max) {
+        return `El monto máximo es $${max.toLocaleString("es-CO")}`
+      }
+      return null
+    }
+
+    if (finalAmount <= 0) {
+      return "El monto seleccionado no es válido"
+    }
+
+    return null
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (finalAmount < 10000) {
-      toast.error("El monto mínimo es $10,000")
+    const amountError = validateAmount()
+    if (amountError) {
+      toast.error(amountError)
       return
     }
 
@@ -57,6 +207,7 @@ export default function ComprarBonoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: finalAmount,
+          giftCardProductId: selectedProduct?.isCatalog ? selectedProduct.id : undefined,
           purchaserName: formData.purchaserName,
           purchaserEmail: formData.purchaserEmail,
           isGift,
@@ -71,19 +222,17 @@ export default function ComprarBonoPage() {
         throw new Error(json?.error || "Error creating gift card")
       }
 
-      const code = json.code as string
+      const code = String(json.code || "")
 
       toast.success("¡Bono creado exitosamente!", {
-        description: `Código: ${code}`
+        description: `Código: ${code}`,
       })
 
-      // Aquí iría la integración con pasarela de pago
-      // Por ahora redirigimos a confirmación
       router.push(`/bonos/confirmacion?code=${code}`)
     } catch (error) {
-      console.error('Error creating gift card:', error)
+      console.error("Error creating gift card:", error)
       toast.error("Error al crear el bono", {
-        description: "Por favor intenta nuevamente"
+        description: "Por favor intenta nuevamente",
       })
     } finally {
       setIsProcessing(false)
@@ -95,86 +244,75 @@ export default function ComprarBonoPage() {
       <div className="mb-8 text-center">
         <Gift className="h-16 w-16 mx-auto mb-4 text-primary" />
         <h1 className="text-3xl font-bold mb-2">Comprar Bono de Regalo</h1>
-        <p className="text-muted-foreground">
-          Regala calidad. Los bonos son válidos por 12 meses
-        </p>
+        <p className="text-muted-foreground">Regala calidad. Los bonos son válidos por 12 meses</p>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            {/* Monto */}
             <Card>
               <CardHeader>
-                <CardTitle>1. Selecciona el Monto</CardTitle>
+                <CardTitle>1. Selecciona el Bono</CardTitle>
+                <CardDescription>
+                  {catalogLoading
+                    ? "Cargando catálogo..."
+                    : "Elige una opción preconfigurada o un monto libre."}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <RadioGroup
-                  value={selectedAmount?.toString() || ""}
-                  onValueChange={(value) => {
-                    setSelectedAmount(parseInt(value))
-                    if (value !== "0") setCustomAmount("")
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-4">
-                    {PRESET_AMOUNTS.map((amount) => (
-                      <div key={amount} className="relative">
-                        <RadioGroupItem
-                          value={amount.toString()}
-                          id={`amount-${amount}`}
-                          className="peer sr-only"
-                        />
+                <RadioGroup value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {catalogProducts.map((product) => (
+                      <div key={product.id} className="relative">
+                        <RadioGroupItem value={product.id} id={`amount-${product.id}`} className="peer sr-only" />
                         <Label
-                          htmlFor={`amount-${amount}`}
-                          className="flex flex-col items-center justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                          htmlFor={`amount-${product.id}`}
+                          className="flex min-h-[94px] flex-col justify-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary cursor-pointer"
                         >
-                          <span className="text-2xl font-bold">
-                            ${amount.toLocaleString('es-CO')}
-                          </span>
+                          <span className="text-base font-semibold">{product.name}</span>
+                          <span className="text-sm text-muted-foreground">{product.description || ""}</span>
+                          {!product.allow_custom_amount ? (
+                            <span className="mt-2 text-lg font-bold">${product.amount.toLocaleString("es-CO")}</span>
+                          ) : (
+                            <span className="mt-2 text-sm font-medium">Monto personalizado</span>
+                          )}
                         </Label>
                       </div>
                     ))}
                   </div>
-
-                  <div className="relative mt-4">
-                    <RadioGroupItem
-                      value="0"
-                      id="amount-custom"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="amount-custom"
-                      className="flex items-center rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary cursor-pointer"
-                    >
-                      <span className="mr-4">Monto personalizado:</span>
-                      <Input
-                        type="number"
-                        placeholder="Ej: 75000"
-                        value={customAmount}
-                        onChange={(e) => {
-                          setCustomAmount(e.target.value)
-                          setSelectedAmount(0)
-                        }}
-                        min="10000"
-                        step="1000"
-                        className="max-w-xs"
-                      />
-                    </Label>
-                  </div>
                 </RadioGroup>
+
+                {selectedProduct?.allow_custom_amount && (
+                  <div className="space-y-2">
+                    <Label htmlFor="customAmount">Monto personalizado</Label>
+                    <Input
+                      id="customAmount"
+                      type="number"
+                      placeholder={`Ej: ${selectedProduct.min_custom_amount}`}
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      min={selectedProduct.min_custom_amount}
+                      max={selectedProduct.max_custom_amount || undefined}
+                      step={1000}
+                      className="max-w-xs"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Mínimo: ${selectedProduct.min_custom_amount.toLocaleString("es-CO")}
+                      {selectedProduct.max_custom_amount
+                        ? ` | Máximo: $${selectedProduct.max_custom_amount.toLocaleString("es-CO")}`
+                        : ""}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Tipo de Bono */}
             <Card>
               <CardHeader>
                 <CardTitle>2. ¿Es un Regalo?</CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup
-                  value={isGift ? "gift" : "self"}
-                  onValueChange={(value) => setIsGift(value === "gift")}
-                >
+                <RadioGroup value={isGift ? "gift" : "self"} onValueChange={(value) => setIsGift(value === "gift")}>
                   <div className="flex items-center space-x-3 border rounded-lg p-4">
                     <RadioGroupItem value="self" id="self" />
                     <Label htmlFor="self" className="flex-1 cursor-pointer">
@@ -191,7 +329,6 @@ export default function ComprarBonoPage() {
               </CardContent>
             </Card>
 
-            {/* Información del Comprador */}
             <Card>
               <CardHeader>
                 <CardTitle>3. Tu Información</CardTitle>
@@ -219,7 +356,6 @@ export default function ComprarBonoPage() {
               </CardContent>
             </Card>
 
-            {/* Información del Destinatario */}
             {isGift && (
               <Card>
                 <CardHeader>
@@ -260,18 +396,19 @@ export default function ComprarBonoPage() {
             )}
           </div>
 
-          {/* Resumen */}
           <div className="lg:col-span-1">
             <Card className="sticky top-4">
               <CardHeader>
                 <CardTitle>Resumen</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex justify-between text-sm gap-2">
+                  <span className="text-muted-foreground">Bono seleccionado</span>
+                  <span className="font-medium text-right">{selectedProduct?.name || "N/D"}</span>
+                </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Monto del bono</span>
-                  <span className="font-medium">
-                    ${finalAmount.toLocaleString('es-CO')}
-                  </span>
+                  <span className="font-medium">${finalAmount.toLocaleString("es-CO")}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Validez</span>
@@ -279,15 +416,13 @@ export default function ComprarBonoPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tipo</span>
-                  <span className="font-medium">
-                    {isGift ? "Regalo" : "Personal"}
-                  </span>
+                  <span className="font-medium">{isGift ? "Regalo" : "Personal"}</span>
                 </div>
 
                 <div className="pt-4 border-t">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total a Pagar</span>
-                    <span>${finalAmount.toLocaleString('es-CO')}</span>
+                    <span>${finalAmount.toLocaleString("es-CO")}</span>
                   </div>
                 </div>
 
@@ -295,8 +430,9 @@ export default function ComprarBonoPage() {
                   type="submit"
                   size="lg"
                   className="w-full"
-                  disabled={isProcessing || finalAmount < 10000}
-                 aria-label="Confirmar">
+                  disabled={isProcessing || !!validateAmount()}
+                  aria-label="Confirmar"
+                >
                   {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

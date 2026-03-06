@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, run: result })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error desconocido"
-    return NextResponse.json({ success: false, error: message }, { status: 500 })
+    const status = /faltan tablas de inteligencia de precios/i.test(message) ? 503 : 500
+    return NextResponse.json({ success: false, error: message }, { status })
   }
 }

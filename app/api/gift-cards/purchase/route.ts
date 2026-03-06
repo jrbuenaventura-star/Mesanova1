@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 
 type PurchaseGiftCardBody = {
   amount: number
+  giftCardProductId?: string
   purchaserName: string
   purchaserEmail: string
   isGift?: boolean
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as PurchaseGiftCardBody
 
     const amount = Number(body.amount)
-    if (!Number.isFinite(amount) || amount < 10000) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 })
     }
 
@@ -36,6 +37,46 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     const admin = createAdminClient()
+
+    const giftCardProductId = String(body.giftCardProductId || "").trim()
+    if (giftCardProductId) {
+      const { data: giftCardProduct, error: giftCardProductError } = await admin
+        .from("gift_card_products")
+        .select("id, amount, is_active, allow_custom_amount, min_custom_amount, max_custom_amount")
+        .eq("id", giftCardProductId)
+        .single()
+
+      if (giftCardProductError || !giftCardProduct) {
+        return NextResponse.json({ error: "Gift card product not found" }, { status: 400 })
+      }
+
+      if (!giftCardProduct.is_active) {
+        return NextResponse.json({ error: "Gift card product is not active" }, { status: 400 })
+      }
+
+      if (giftCardProduct.allow_custom_amount) {
+        const minCustom = Number(giftCardProduct.min_custom_amount || 10000)
+        const maxCustom =
+          giftCardProduct.max_custom_amount === null ? null : Number(giftCardProduct.max_custom_amount)
+        if (amount < minCustom) {
+          return NextResponse.json(
+            { error: `Custom amount must be at least ${minCustom}` },
+            { status: 400 }
+          )
+        }
+        if (maxCustom !== null && amount > maxCustom) {
+          return NextResponse.json(
+            { error: `Custom amount cannot exceed ${maxCustom}` },
+            { status: 400 }
+          )
+        }
+      } else if (amount !== Number(giftCardProduct.amount)) {
+        return NextResponse.json({ error: "Amount does not match gift card product" }, { status: 400 })
+      }
+    } else if (amount < 10000) {
+      // Legacy flow without catalog id keeps historical minimum.
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 })
+    }
 
     const { data: codeData, error: codeError } = await admin.rpc("generate_gift_card_code")
     if (codeError) {

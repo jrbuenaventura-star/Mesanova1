@@ -9,6 +9,7 @@ import {
   Users,
   Settings,
   BarChart3,
+  Award,
   Gift,
   MessageSquare,
   Tag,
@@ -46,6 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <NavLink href="/admin/gift-registries" icon={<Gift className="h-4 w-4" />} label="Listas de Regalo" />
       <NavLink href="/admin/blog" icon={<FileText className="h-4 w-4" />} label="A Mesa Puesta" />
       <NavLink href="/admin/analytics" icon={<BarChart3 className="h-4 w-4" />} label="Analíticas" />
+      <NavLink href="/admin/puntos" icon={<Award className="h-4 w-4" />} label="Puntos" />
       <NavLink href="/admin/pqrs" icon={<MessageSquare className="h-4 w-4" />} label="Gestión de PQRs" />
       <NavLink href="/admin/cupones" icon={<Tag className="h-4 w-4" />} label="Cupones" />
       <NavLink href="/admin/bonos" icon={<CreditCard className="h-4 w-4" />} label="Bonos de Regalo" />

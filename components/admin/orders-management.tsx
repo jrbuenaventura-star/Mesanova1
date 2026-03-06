@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,7 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Search, Plus, Eye, Check, X, Package, Truck } from "lucide-react"
 import Link from "next/link"
-import type { OrderWithDetails, Company } from "@/lib/db/types"
+import type { OrderWithDetails } from "@/lib/db/types"
 
 interface OrdersManagementProps {
   userRole: "superadmin" | "distributor"
@@ -51,9 +50,7 @@ const statusColors: Record<string, "secondary" | "default" | "destructive" | "ou
 }
 
 export default function OrdersManagement({ userRole, userId, distributorId }: OrdersManagementProps) {
-  const router = useRouter()
   const [orders, setOrders] = useState<OrderWithDetails[]>([])
-  const [companies, setCompanies] = useState<Company[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null)
@@ -62,61 +59,113 @@ export default function OrdersManagement({ userRole, userId, distributorId }: Or
   const [rejectReason, setRejectReason] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const loadOrders = useCallback(async () => {
+    const supabase = createClient()
+    let ordersQuery = supabase.from("orders").select("*").order("created_at", { ascending: false })
+
+    if (userRole === "distributor" && distributorId) {
+      ordersQuery = ordersQuery.eq("distributor_id", distributorId)
+    }
+
+    const { data: baseOrders, error: ordersError } = await ordersQuery
+    if (ordersError) {
+      console.error("[v0] Error loading orders:", ordersError)
+      setOrders([])
+      return
+    }
+
+    const orderRows = (baseOrders || []) as Array<Record<string, any>>
+    if (orderRows.length === 0) {
+      setOrders([])
+      return
+    }
+
+    const orderIds = orderRows.map((order) => order.id).filter(Boolean)
+    const companyIds = Array.from(
+      new Set(orderRows.map((order) => order.company_id).filter((value): value is string => !!value))
+    )
+    const profileIds = Array.from(
+      new Set(
+        orderRows
+          .flatMap((order) => [order.user_id, order.approved_by])
+          .filter((value): value is string => !!value)
+      )
+    )
+
+    const { data: itemRows, error: itemRowsError } = await supabase
+      .from("order_items")
+      .select("*")
+      .in("order_id", orderIds)
+
+    if (itemRowsError) {
+      console.error("[v0] Error loading order items:", itemRowsError)
+      return
+    }
+
+    const productIds = Array.from(
+      new Set(
+        (itemRows || [])
+          .map((item: any) => item.product_id)
+          .filter((value: unknown): value is string => typeof value === "string" && value.length > 0)
+      )
+    )
+
+    const [companiesResponse, profilesResponse, productsResponse] = await Promise.all([
+      companyIds.length
+        ? supabase
+            .from("companies")
+            .select("id, razon_social, nombre_comercial, nit, ciudad")
+            .in("id", companyIds)
+        : Promise.resolve({ data: [], error: null }),
+      profileIds.length
+        ? supabase.from("user_profiles").select("id, full_name").in("id", profileIds)
+        : Promise.resolve({ data: [], error: null }),
+      productIds.length
+        ? supabase
+            .from("products")
+            .select("id, pdt_codigo, pdt_descripcion, nombre_comercial, imagen_principal_url, precio")
+            .in("id", productIds)
+        : Promise.resolve({ data: [], error: null }),
+    ])
+
+    if (companiesResponse.error || profilesResponse.error || productsResponse.error) {
+      console.error("[v0] Error hydrating order relations:", {
+        companies: companiesResponse.error,
+        profiles: profilesResponse.error,
+        products: productsResponse.error,
+      })
+      return
+    }
+
+    const companyMap = new Map((companiesResponse.data || []).map((company: any) => [company.id, company]))
+    const profileMap = new Map((profilesResponse.data || []).map((profile: any) => [profile.id, profile]))
+    const productMap = new Map((productsResponse.data || []).map((product: any) => [product.id, product]))
+
+    const itemsByOrder = new Map<string, any[]>()
+    for (const item of itemRows || []) {
+      const current = itemsByOrder.get(item.order_id) || []
+      current.push({
+        ...item,
+        product: item.product_id ? productMap.get(item.product_id) || null : null,
+      })
+      itemsByOrder.set(item.order_id, current)
+    }
+
+    const hydratedOrders = orderRows.map((order) => ({
+      ...order,
+      items: itemsByOrder.get(order.id) || [],
+      company: order.company_id ? companyMap.get(order.company_id) || null : null,
+      user: order.user_id ? profileMap.get(order.user_id) || null : null,
+      approved_by_user: order.approved_by ? profileMap.get(order.approved_by) || null : null,
+    }))
+
+    setOrders(hydratedOrders as unknown as OrderWithDetails[])
+  }, [distributorId, userRole])
+
   // Cargar órdenes
   useEffect(() => {
-    loadOrders()
-    if (userRole === "distributor" && distributorId) {
-      loadCompanies()
-    }
-  }, [userRole, userId, distributorId])
-
-  const loadOrders = async () => {
-    const supabase = createClient()
-    let query = supabase
-      .from("orders")
-      .select(`
-        *,
-        items:order_items (
-          *,
-          product:products (id, pdt_codigo, pdt_descripcion, nombre_comercial, imagen_principal_url, precio)
-        ),
-        company:companies (id, razon_social, nombre_comercial, nit, ciudad),
-        user:user_profiles (id, full_name),
-        approved_by_user:user_profiles!orders_approved_by_fkey (id, full_name)
-      `)
-      .order("created_at", { ascending: false })
-
-    // Filtrar por distribuidor si es necesario
-    if (userRole === "distributor" && distributorId) {
-      query = query.eq("distributor_id", distributorId)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      console.error("[v0] Error loading orders:", error)
-    } else {
-      setOrders(data as OrderWithDetails[])
-    }
-  }
-
-  const loadCompanies = async () => {
-    if (!distributorId) return
-
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from("companies")
-      .select("*")
-      .eq("distribuidor_asignado_id", distributorId)
-      .eq("is_active", true)
-      .order("razon_social")
-
-    if (error) {
-      console.error("[v0] Error loading companies:", error)
-    } else {
-      setCompanies(data || [])
-    }
-  }
+    void loadOrders()
+  }, [loadOrders])
 
   // Filtrar órdenes
   const filteredOrders = orders.filter((order) => {

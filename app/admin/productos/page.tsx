@@ -1,11 +1,13 @@
 import ProductsAdminPage from "@/app/admin/products/page"
 import CSVProductsPage from "@/app/admin/productos/csv/page"
 import PriceIntelligenceAdminPage from "@/app/admin/productos/analisis-precios/page"
+import GiftCardProductsAdminPage from "@/app/admin/productos/bonos-regalo/page"
 import { AdminSectionTabs, type AdminSectionTab } from "@/components/admin/admin-section-tabs"
 
 const PRODUCTOS_TABS: AdminSectionTab[] = [
   { value: "productos", label: "Productos" },
   { value: "productos-csv", label: "Productos CSV" },
+  { value: "bonos-regalo", label: "Bonos de Regalo" },
   { value: "analisis-precios-ia", label: "Análisis Precios IA" },
 ]
 
@@ -28,6 +30,7 @@ export default async function AdminProductosTabsPage({
 
       {currentTab === "productos" && <ProductsAdminPage />}
       {currentTab === "productos-csv" && <CSVProductsPage />}
+      {currentTab === "bonos-regalo" && <GiftCardProductsAdminPage />}
       {currentTab === "analisis-precios-ia" && <PriceIntelligenceAdminPage />}
     </div>
   )

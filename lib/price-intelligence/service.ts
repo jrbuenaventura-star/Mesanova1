@@ -56,7 +56,16 @@ function computeDifferenceDirection(gapAmount: number): PriceDifferenceDirection
 }
 
 function isTableMissingError(error: any) {
-  return error?.code === "42P01" || /does not exist|relation .* does not exist/i.test(String(error?.message || ""))
+  const code = String(error?.code || "").toUpperCase()
+  const message = String(error?.message || "")
+  const details = String(error?.details || "")
+  return (
+    code === "42P01" ||
+    code === "PGRST205" ||
+    /does not exist|relation .* does not exist|could not find the table .* in the schema cache/i.test(
+      `${message} ${details}`
+    )
+  )
 }
 
 export interface RunPriceIntelligenceOptions {
