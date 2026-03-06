@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   History,
-  ChevronDown,
-  ChevronUp,
   FileSpreadsheet,
   Database,
   User,
@@ -65,13 +63,13 @@ export function ProductChangelog({ productId }: ProductChangelogProps) {
   const [logs, setLogs] = useState<ChangeLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [changeTypeFilter, setChangeTypeFilter] = useState<string>('all');
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const sourceFilter = 'all';
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  const fetchLogs = async (reset = false) => {
+  const fetchLogs = useCallback(async (reset = false) => {
     setLoading(true);
     const newOffset = reset ? 0 : offset;
     
@@ -99,11 +97,11 @@ export function ProductChangelog({ productId }: ProductChangelogProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [changeTypeFilter, endDate, offset, productId, startDate]);
 
   useEffect(() => {
     fetchLogs(true);
-  }, [productId, changeTypeFilter, sourceFilter, startDate, endDate]);
+  }, [fetchLogs, sourceFilter]);
 
   const getChangeTypeLabel = (type: string) => {
     const labels: Record<string, string> = {

@@ -1,12 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { ChefHat, UtensilsCrossed, Coffee, Briefcase, Plus, Trash2, Search, ArrowUp, ArrowDown } from "lucide-react"
 import { toast } from "sonner"
@@ -26,11 +24,7 @@ export default function ProductosDestacadosPage() {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    loadFeaturedProducts()
-  }, [selectedSilo])
-
-  const loadFeaturedProducts = async () => {
+  const loadFeaturedProducts = useCallback(async () => {
     const supabase = createClient()
     
     const { data: silo } = await supabase
@@ -60,7 +54,11 @@ export default function ProductosDestacadosPage() {
       .order('order_index', { ascending: true })
 
     setFeaturedProducts(data || [])
-  }
+  }, [selectedSilo])
+
+  useEffect(() => {
+    loadFeaturedProducts()
+  }, [loadFeaturedProducts])
 
   const searchProducts = async () => {
     if (!searchQuery.trim()) {

@@ -47,7 +47,7 @@ export default async function AliadoStatsPage() {
       .select("id, stage, next_follow_up_date")
       .eq("aliado_id", aliado.id)
     leads = data || []
-  } catch (e) {
+  } catch {
     leads = []
   }
 

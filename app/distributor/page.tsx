@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -346,9 +347,11 @@ export default async function DistributorDashboardPage() {
                   >
                     <div className="h-12 w-12 rounded bg-muted flex items-center justify-center overflow-hidden">
                       {product.imagen_principal_url ? (
-                        <img 
+                        <Image
                           src={product.imagen_principal_url} 
                           alt={product.nombre_comercial || ""} 
+                          width={48}
+                          height={48}
                           className="h-full w-full object-cover"
                         />
                       ) : (

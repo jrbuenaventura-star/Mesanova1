@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/contexts/cart-context"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { ShoppingBag, CreditCard, Truck, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { ShoppingBag, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import { identifyUser, trackBeginCheckout, trackPurchase } from "@/components/clientify/clientify-tracking"
@@ -26,7 +26,6 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [userProfile, setUserProfile] = useState<any>(null)
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
   const [couponDiscount, setCouponDiscount] = useState(0)
   const [appliedGiftCard, setAppliedGiftCard] = useState<any>(null)
@@ -44,19 +43,7 @@ export default function CheckoutPage() {
     shippingMethod: "standard",
   })
 
-  useEffect(() => {
-    checkAuth()
-    // Rastrear inicio de checkout en Clientify
-    if (cart.items.length > 0) {
-      trackBeginCheckout({
-        value: cart.total,
-        items_count: cart.itemCount,
-        currency: "COP",
-      })
-    }
-  }, [])
-
-  async function checkAuth() {
+  const checkAuth = useCallback(async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
@@ -68,7 +55,6 @@ export default function CheckoutPage() {
         .single()
       
       if (profile) {
-        setUserProfile(profile)
         setFormData(prev => ({
           ...prev,
           fullName: profile.full_name || "",
@@ -79,7 +65,19 @@ export default function CheckoutPage() {
         }))
       }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+    // Rastrear inicio de checkout en Clientify
+    if (cart.items.length > 0) {
+      trackBeginCheckout({
+        value: cart.total,
+        items_count: cart.itemCount,
+        currency: "COP",
+      })
+    }
+  }, [cart.itemCount, cart.items.length, cart.total, checkAuth])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -101,8 +99,6 @@ export default function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
-    const supabase = createClient()
     
     if (cart.items.length === 0) {
       toast.error("Carrito vacío", {
@@ -216,8 +212,8 @@ export default function CheckoutPage() {
             source: "checkout_web",
           }),
         })
-      } catch (e) {
-        console.error("Error sending to Clientify:", e)
+      } catch {
+        console.error("Error sending to Clientify")
       }
 
       clearCart()
@@ -227,7 +223,7 @@ export default function CheckoutPage() {
       })
 
       router.push(`/checkout/confirmacion?order=${order.id}`)
-    } catch (error) {
+    } catch {
       toast.error("Error al procesar el pedido", {
         description: "Por favor intenta nuevamente o contáctanos"
       })

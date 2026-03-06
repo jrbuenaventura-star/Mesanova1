@@ -19,7 +19,7 @@ export function CrossDomainLinker() {
         const isDomainMatch = domains.some((domain) => href.includes(domain))
 
         if (isDomainMatch && !(window as any)._decoratedLinks?.has(link)) {
-          link.addEventListener("click", (e) => {
+          link.addEventListener("click", () => {
             if ((window as any).gtag) {
               ;(window as any).gtag("event", "click", {
                 event_category: "outbound",

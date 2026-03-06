@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -108,7 +107,6 @@ function formatCOP(value: number): string {
 }
 
 export function ClientsDashboard() {
-  const router = useRouter()
   const [data, setData] = useState<StatsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [filters, setFilters] = useState<Filters>(emptyFilters)

@@ -73,7 +73,8 @@ export default function ResetPasswordPage() {
           <CardContent className="space-y-4">
             {hasSession === false ? (
               <p className="text-sm text-muted-foreground">
-                El enlace de recuperación no es válido o expiró. Solicita uno nuevo desde "¿Olvidaste tu contraseña?".
+                El enlace de recuperación no es válido o expiró. Solicita uno nuevo desde
+                {" "}&quot;¿Olvidaste tu contraseña?&quot;.
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

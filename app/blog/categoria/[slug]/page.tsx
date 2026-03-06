@@ -1,6 +1,7 @@
 import { getBlogPostsByCategory, getBlogCategories } from "@/lib/db/queries"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 import { CalendarDays, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { notFound } from "next/navigation"
@@ -57,10 +58,12 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ s
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                 {post.featured_image_url && (
                   <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-                    <img
+                    <Image
                       src={post.featured_image_url || "/placeholder.svg"}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      width={800}
+                      height={450}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                 )}

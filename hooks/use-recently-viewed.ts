@@ -24,7 +24,7 @@ export function useRecentlyViewed() {
       if (stored) {
         setItems(JSON.parse(stored))
       }
-    } catch (e) {}
+    } catch {}
   }, [])
 
   const addItem = useCallback((item: Omit<RecentlyViewedItem, "viewedAt">) => {
@@ -33,7 +33,7 @@ export function useRecentlyViewed() {
       const updated = [{ ...item, viewedAt: Date.now() }, ...filtered].slice(0, MAX_ITEMS)
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      } catch (e) {}
+      } catch {}
       return updated
     })
   }, [])

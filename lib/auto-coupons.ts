@@ -5,16 +5,6 @@ import { createClient } from "@/lib/supabase/client"
  * Genera cupones personalizados basados en eventos del usuario
  */
 
-interface AutoCouponConfig {
-  code: string
-  name: string
-  description: string
-  discountType: "percentage" | "fixed_amount" | "free_shipping"
-  discountValue: number
-  validDays: number
-  maxUsesPerUser?: number
-}
-
 const AUTO_COUPON_CONFIGS = {
   firstPurchase: {
     code: "PRIMERACOMPRA10",
@@ -46,7 +36,7 @@ const AUTO_COUPON_CONFIGS = {
 /**
  * Genera un cupón de primera compra para un usuario
  */
-export async function generateFirstPurchaseCoupon(userId: string, userEmail: string) {
+export async function generateFirstPurchaseCoupon(userId: string) {
   const supabase = createClient()
 
   // Verificar si el usuario ya tiene órdenes
@@ -124,7 +114,7 @@ export async function generateBirthdayCoupon(userId: string, userName: string) {
 /**
  * Genera un cupón para carrito abandonado
  */
-export async function generateAbandonedCartCoupon(userEmail: string, cartTotal: number) {
+export async function generateAbandonedCartCoupon(cartTotal: number) {
   const supabase = createClient()
 
   const code = `CARRITO${Date.now().toString(36).toUpperCase()}`
@@ -166,11 +156,11 @@ export async function generateAbandonedCartCoupon(userEmail: string, cartTotal: 
 /**
  * Verifica y genera cupones automáticos para un usuario
  */
-export async function checkAndGenerateAutoCoupons(userId: string, userEmail: string, userName?: string) {
+export async function checkAndGenerateAutoCoupons(userId: string) {
   const coupons: string[] = []
 
   // Cupón de primera compra
-  const firstPurchaseCoupon = await generateFirstPurchaseCoupon(userId, userEmail)
+  const firstPurchaseCoupon = await generateFirstPurchaseCoupon(userId)
   if (firstPurchaseCoupon) {
     coupons.push(firstPurchaseCoupon)
   }

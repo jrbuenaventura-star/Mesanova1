@@ -58,7 +58,7 @@ export default async function BuscarListasPage({
         <div className="container mx-auto">
         {query && (
           <p className="text-muted-foreground mb-6 text-center">
-            {registries.length} resultado{registries.length !== 1 ? "s" : ""} para "{query}"
+            {registries.length} resultado{registries.length !== 1 ? "s" : ""} para &quot;{query}&quot;
           </p>
         )}
 

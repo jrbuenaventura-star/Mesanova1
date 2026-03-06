@@ -83,7 +83,6 @@ export async function POST(request: Request) {
     }
 
     // Get orders for stats
-    const distIds = distributors.map((d) => d.id)
     const { data: orders } = await admin
       .from("orders")
       .select("distributor_id, user_id, total, created_at, status")

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { X, Gift, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -62,6 +62,12 @@ export function LeadCapturePopup({
     checkUserRole()
   }, [pathname])
 
+  const showPopup = useCallback((trigger: string) => {
+    setHasTriggered(true)
+    setIsVisible(true)
+    trackClientifyEvent("popup_shown", { trigger, offer })
+  }, [offer])
+
   useEffect(() => {
     if (disabled || isSuppressed) return
 
@@ -107,13 +113,7 @@ export function LeadCapturePopup({
       window.removeEventListener("scroll", handleScroll)
       document.removeEventListener("mouseleave", handleMouseLeave)
     }
-  }, [delaySeconds, scrollPercentage, showOnExitIntent, hasTriggered, disabled, isSuppressed])
-
-  const showPopup = (trigger: string) => {
-    setHasTriggered(true)
-    setIsVisible(true)
-    trackClientifyEvent("popup_shown", { trigger, offer })
-  }
+  }, [delaySeconds, scrollPercentage, showOnExitIntent, hasTriggered, disabled, isSuppressed, showPopup])
 
   const handleClose = () => {
     setIsVisible(false)
@@ -165,7 +165,7 @@ export function LeadCapturePopup({
 
       setIsVisible(false)
       localStorage.setItem(STORAGE_KEY, new Date().toISOString())
-    } catch (error) {
+    } catch {
       toast.error("Error al suscribirse", {
         description: "Por favor intenta nuevamente",
       })

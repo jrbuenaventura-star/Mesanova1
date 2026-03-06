@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,7 +13,7 @@ import { toast } from "sonner"
 
 export default function AdminBlogPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [posts, setPosts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; postId: string | null; postTitle: string }>({
@@ -22,12 +22,7 @@ export default function AdminBlogPage() {
     postTitle: "",
   })
 
-  useEffect(() => {
-    checkAuth()
-    loadPosts()
-  }, [])
-
-  async function checkAuth() {
+  const checkAuth = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       router.push("/auth/login")
@@ -38,9 +33,9 @@ export default function AdminBlogPage() {
     if (userProfile?.role !== "superadmin") {
       router.push("/")
     }
-  }
+  }, [router, supabase])
 
-  async function loadPosts() {
+  const loadPosts = useCallback(async () => {
     setIsLoading(true)
     const { data } = await supabase
       .from("blog_posts")
@@ -55,7 +50,12 @@ export default function AdminBlogPage() {
     
     if (data) setPosts(data)
     setIsLoading(false)
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    checkAuth()
+    loadPosts()
+  }, [checkAuth, loadPosts])
 
   async function handleDelete() {
     if (!deleteDialog.postId) return
@@ -88,7 +88,7 @@ export default function AdminBlogPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Gestión de A Mesa Puesta</h1>
-          <p className="text-muted-foreground">Administra las publicaciones de "A Mesa Puesta"</p>
+          <p className="text-muted-foreground">Administra las publicaciones de &quot;A Mesa Puesta&quot;</p>
         </div>
         <Button asChild>
           <Link href="/admin/blog/nuevo">

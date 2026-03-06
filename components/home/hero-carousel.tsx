@@ -56,8 +56,6 @@ export function HeroCarousel({ slides, hideContent = false }: HeroCarouselProps)
     return null
   }
 
-  const slide = slides[currentSlide]
-
   return (
     <section 
       className="relative h-[500px] md:h-[700px] overflow-hidden"

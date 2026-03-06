@@ -1,7 +1,5 @@
 "use client"
 
-import { MessageCircle } from "lucide-react"
-
 export function WhatsAppWidget() {
   const phoneNumber = "573001234567" // Reemplazar con número real de Mesanova
   const message = "Hola Mesanova, tengo una pregunta sobre"

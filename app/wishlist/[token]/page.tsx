@@ -86,7 +86,7 @@ export default async function PublicWishlistPage({ params }: PublicWishlistPageP
                     <h3 className="font-medium line-clamp-2">{product.nombre_comercial || "Producto"}</h3>
                     <p className="text-lg font-bold">${Number(product.precio || 0).toLocaleString("es-CO")}</p>
                     <p className="text-sm text-muted-foreground">Cantidad deseada: {item.quantity || 1}</p>
-                    {item.notes ? <p className="text-sm text-muted-foreground italic">"{item.notes}"</p> : null}
+                    {item.notes ? <p className="text-sm text-muted-foreground italic">&quot;{item.notes}&quot;</p> : null}
                     <Button asChild className="w-full" disabled={product.upp_existencia <= 0}>
                       <Link href={`/buscar?q=${encodeURIComponent(product.nombre_comercial || product.slug || "")}`}>
                         <ShoppingCart className="h-4 w-4 mr-2" />

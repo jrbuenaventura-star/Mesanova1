@@ -36,6 +36,7 @@ interface ProductReviewsProps {
 }
 
 export function ProductReviews({ productId, reviews, stats, currentUserId }: ProductReviewsProps) {
+  void productId
   const [showAll, setShowAll] = useState(false)
   const { toast } = useToast()
 

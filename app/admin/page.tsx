@@ -71,7 +71,6 @@ export default async function AdminDashboard() {
   // Consultas secundarias
   let pqrsOpenCount = 0
   let leadsCount = 0
-  let lowStockCount = 0
   try {
     const [pqrsResult, leadsResult] = await Promise.all([
       supabase.from("pqrs_tickets").select("*", { count: "exact", head: true }).in("estado", ["abierto", "en_proceso"]),
@@ -79,7 +78,7 @@ export default async function AdminDashboard() {
     ])
     pqrsOpenCount = pqrsResult.count || 0
     leadsCount = leadsResult.count || 0
-  } catch (e) {}
+  } catch {}
 
   // Calcular métricas
   const monthlySales = monthOrders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0

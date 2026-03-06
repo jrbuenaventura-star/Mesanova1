@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrendingUp, TrendingDown, DollarSign, Users, Tag, Calendar } from "lucide-react"
+import { TrendingUp, DollarSign, Users, Tag } from "lucide-react"
 
 export default async function EstadisticasCuponesPage() {
   const supabase = await createClient()

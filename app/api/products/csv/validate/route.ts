@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     
     // Obtener referencia del archivo
     const body = await request.json();
-    const { bucket, path, filename } = body as { bucket?: string; path?: string; filename?: string };
+    const { bucket, path } = body as { bucket?: string; path?: string };
 
     if (!bucket || !path) {
       return NextResponse.json({ error: 'No se proporcionó archivo' }, { status: 400 });

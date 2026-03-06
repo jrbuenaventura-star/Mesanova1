@@ -147,7 +147,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         title: "Éxito",
         description: `${type === "image" ? "Imagen" : "Video"} cargado y optimizado`,
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "No se pudo subir el archivo",

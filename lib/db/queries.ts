@@ -1012,7 +1012,7 @@ export async function getRelatedBlogPosts(postId: string, limit = 3) {
 
   if (!currentCategories || currentCategories.length === 0) {
     // If no categories, return recent posts
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("blog_posts")
       .select("id, slug, title, excerpt, featured_image_url, published_at")
       .eq("status", "published")
@@ -1038,7 +1038,7 @@ export async function getRelatedBlogPosts(postId: string, limit = 3) {
 
   const postIds = [...new Set(relatedPostIds.map((p) => p.post_id))]
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("blog_posts")
     .select("id, slug, title, excerpt, featured_image_url, published_at")
     .eq("status", "published")
@@ -1103,7 +1103,7 @@ export async function getRelatedProducts(productId: string, limit = 8): Promise<
   const subcategoryIds = currentProduct.categories?.map((c: any) => c.subcategory_id) || []
 
   // Build query to find related products
-  let query = supabase
+  const query = supabase
     .from("products")
     .select(`
       *,

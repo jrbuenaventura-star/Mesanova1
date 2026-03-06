@@ -79,7 +79,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
       })
 
       setQuantity(1)
-    } catch (error) {
+    } catch {
       toast.error("Error al agregar al carrito", {
         description: "Por favor intenta nuevamente"
       })

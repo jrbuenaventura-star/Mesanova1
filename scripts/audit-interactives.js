@@ -213,7 +213,7 @@ function routeFromAppFile(file) {
   const isRoute = rel.endsWith("/route.ts") || rel === "route.ts";
   if (!isPage && !isRoute) return null;
 
-  let p = rel
+  const p = rel
     .replace(/\/page\.tsx$/, "")
     .replace(/\/route\.ts$/, "")
     .replace(/^page\.tsx$/, "")
@@ -241,14 +241,10 @@ function routePattern(route) {
   return new RegExp("^/" + parts.join("/") + "$");
 }
 
-function isIconOnly(label, opening) {
+function isIconOnly(label) {
   if (label && label.trim()) return false;
   // heuristic: no text label
   return true;
-}
-
-function loadFileLines(file) {
-  return fs.readFileSync(path.join(ROOT, file), "utf8").split(/\r?\n/);
 }
 
 const idCache = new Map();
@@ -567,7 +563,7 @@ for (const rec of records) {
   groups.get(key).push(rec);
 }
 
-for (const [key, recs] of groups.entries()) {
+for (const [, recs] of groups.entries()) {
   if (recs.length < 2) continue;
   const labels = [...new Set(recs.map((r) => (r.ariaLabel || r.label || "").trim()).filter(Boolean))];
   if (labels.length >= 2) {

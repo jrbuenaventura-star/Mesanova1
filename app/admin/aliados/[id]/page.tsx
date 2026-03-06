@@ -46,7 +46,7 @@ export default async function EditAliadoPage({ params }: { params: Promise<{ id:
       .select("*", { count: "exact", head: true })
       .eq("aliado_id", aliado.id)
     distributorCount = count || 0
-  } catch (e) {
+  } catch {
     // Columna aún no existe
   }
 

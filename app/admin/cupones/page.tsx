@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Tag, TrendingUp, Users, DollarSign, BarChart3, Download } from "lucide-react"
+import { Plus, Tag, Users, DollarSign, BarChart3, Download } from "lucide-react"
 import Link from "next/link"
 
 export default async function CuponesAdminPage() {

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,14 +16,8 @@ function ConfirmacionContent() {
   const [copied, setCopied] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
 
-  useEffect(() => {
-    if (code) {
-      fetchGiftCard()
-      sendEmail()
-    }
-  }, [code])
-
-  const fetchGiftCard = async () => {
+  const fetchGiftCard = useCallback(async () => {
+    if (!code) return
     const supabase = createClient()
     const { data } = await supabase
       .from("gift_cards")
@@ -34,9 +28,10 @@ function ConfirmacionContent() {
     if (data) {
       setGiftCard(data)
     }
-  }
+  }, [code])
 
-  const sendEmail = async () => {
+  const sendEmail = useCallback(async () => {
+    if (!code) return
     try {
       const response = await fetch("/api/gift-cards/send-email", {
         method: "POST",
@@ -53,7 +48,12 @@ function ConfirmacionContent() {
     } catch (error) {
       console.error("Error sending email:", error)
     }
-  }
+  }, [code])
+
+  useEffect(() => {
+    fetchGiftCard()
+    sendEmail()
+  }, [fetchGiftCard, sendEmail])
 
   const copyCode = () => {
     if (code) {
@@ -145,7 +145,7 @@ function ConfirmacionContent() {
                   <p className="text-sm text-muted-foreground">{giftCard.recipient_email}</p>
                   {giftCard.personal_message && (
                     <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                      <p className="text-sm italic">"{giftCard.personal_message}"</p>
+                      <p className="text-sm italic">&quot;{giftCard.personal_message}&quot;</p>
                     </div>
                   )}
                 </div>
@@ -182,13 +182,13 @@ function ConfirmacionContent() {
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm font-bold">
                 2
               </span>
-              <span>Ve al checkout y busca el campo "¿Tienes un bono de regalo?"</span>
+              <span>Ve al checkout y busca el campo &quot;¿Tienes un bono de regalo?&quot;</span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm font-bold">
                 3
               </span>
-              <span>Ingresa el código del bono y haz clic en "Aplicar"</span>
+              <span>Ingresa el código del bono y haz clic en &quot;Aplicar&quot;</span>
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm font-bold">

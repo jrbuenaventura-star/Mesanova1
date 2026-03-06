@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,8 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Loader2, Eye, AlertCircle, Clock, CheckCircle2, XCircle, TrendingUp, Users, Ticket } from 'lucide-react'
+import { Loader2, Eye, AlertCircle, Clock, CheckCircle2, XCircle, TrendingUp, Ticket } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -64,7 +63,7 @@ export function AdminTicketsDashboard() {
   const [filtroPrioridad, setFiltroPrioridad] = useState<string>('todos')
   const [incluirOcultos, setIncluirOcultos] = useState(false)
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -83,11 +82,11 @@ export function AdminTicketsDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filtroEstado, filtroPrioridad, incluirOcultos])
 
   useEffect(() => {
     fetchTickets()
-  }, [filtroEstado, filtroPrioridad, incluirOcultos])
+  }, [fetchTickets])
 
   const stats = {
     total: tickets.length,

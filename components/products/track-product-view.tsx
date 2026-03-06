@@ -66,7 +66,7 @@ export function TrackProductView({
     }
 
     trackView()
-  }, [productId, productName, price, category, userId])
+  }, [addItem, category, imageUrl, productId, productName, price, siloSlug, slug, userId])
 
   return null
 }

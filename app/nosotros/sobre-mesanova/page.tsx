@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MesanovaLogo, MesanovaLogoFull } from "@/components/mesanova-logo"
+import { MesanovaLogoFull } from "@/components/mesanova-logo"
 import Image from "next/image"
 import { Award, Heart, Leaf, Users, Shield, Building2, TrendingUp, Globe, ArrowRight } from "lucide-react"
 

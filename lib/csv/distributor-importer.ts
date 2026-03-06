@@ -38,7 +38,7 @@ export async function importDistributors(
   let invited = 0;
   
   // Crear registro de importación
-  const { data: importRecord, error: importError } = await admin
+  const { data: importRecord } = await admin
     .from('distributor_csv_imports')
     .insert({
       filename,

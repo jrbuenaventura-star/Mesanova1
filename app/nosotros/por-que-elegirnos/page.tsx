@@ -112,7 +112,7 @@ export default function PorQueElegirnosPage() {
                       <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                     ))}
                   </div>
-                  <CardDescription className="leading-relaxed text-base mb-4">"{testimonio.comment}"</CardDescription>
+                  <CardDescription className="leading-relaxed text-base mb-4">&quot;{testimonio.comment}&quot;</CardDescription>
                   <div>
                     <CardTitle className="text-base">{testimonio.name}</CardTitle>
                     <p className="text-sm text-muted-foreground">{testimonio.role}</p>

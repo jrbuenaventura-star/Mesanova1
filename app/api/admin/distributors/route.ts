@@ -138,10 +138,9 @@ export async function POST(request: Request) {
     }
     
     const body = await request.json();
-    const { formData, newAddresses, addressesToDelete } = body as {
+    const { formData, newAddresses } = body as {
       formData?: Record<string, unknown>;
       newAddresses?: any[];
-      addressesToDelete?: string[];
     };
 
     if (!formData || typeof formData !== 'object') {

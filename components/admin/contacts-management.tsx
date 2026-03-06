@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,7 +30,6 @@ export default function ContactsManagement({ companyId, companyName }: ContactsM
   const [contacts, setContacts] = useState<CompanyContact[]>([])
   const [showContactDialog, setShowContactDialog] = useState(false)
   const [selectedContact, setSelectedContact] = useState<CompanyContact | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState<Partial<CompanyContact>>({
     company_id: companyId,
     nombre_completo: "",
@@ -40,11 +39,7 @@ export default function ContactsManagement({ companyId, companyName }: ContactsM
     is_active: true,
   })
 
-  useEffect(() => {
-    loadContacts()
-  }, [companyId])
-
-  async function loadContacts() {
+  const loadContacts = useCallback(async () => {
     const supabase = createClient()
     const { data, error } = await supabase
       .from("company_contacts")
@@ -56,8 +51,11 @@ export default function ContactsManagement({ companyId, companyName }: ContactsM
     if (!error && data) {
       setContacts(data)
     }
-    setIsLoading(false)
-  }
+  }, [companyId])
+
+  useEffect(() => {
+    loadContacts()
+  }, [loadContacts])
 
   async function handleSaveContact() {
     if (!formData.nombre_completo?.trim()) {

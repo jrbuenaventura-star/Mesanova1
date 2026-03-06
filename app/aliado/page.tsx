@@ -58,13 +58,13 @@ export default async function AliadoDashboardPage() {
       .eq("aliado_id", aliado.id)
       .order("total_purchases", { ascending: false })
     distributors = data || []
-  } catch (e) {
+  } catch {
     // Columna aliado_id aún no existe
   }
 
   // Obtener leads del aliado
   let leads: any[] = []
-  let leadsByStage: Record<string, number> = {}
+  const leadsByStage: Record<string, number> = {}
   try {
     const { data } = await supabase
       .from("leads")
@@ -78,7 +78,7 @@ export default async function AliadoDashboardPage() {
     leads.forEach(lead => {
       leadsByStage[lead.stage] = (leadsByStage[lead.stage] || 0) + 1
     })
-  } catch (e) {
+  } catch {
     // Tabla aún no existe
   }
 

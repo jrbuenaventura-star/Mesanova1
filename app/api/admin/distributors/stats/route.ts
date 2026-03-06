@@ -78,7 +78,6 @@ export async function GET() {
     // Calculate stats for each distributor
     const clientStats = (distributors || []).map((dist) => {
       const distOrders = ordersByDistributor.get(dist.id) || ordersByDistributor.get(dist.user_id) || []
-      const completedOrders = distOrders.filter((o) => o.status === 'entregada')
       const allValidOrders = distOrders
 
       const totalSpent = allValidOrders.reduce((sum: number, o: any) => sum + (parseFloat(o.total) || 0), 0)

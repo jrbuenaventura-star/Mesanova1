@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -11,13 +11,10 @@ import {
   RefreshCw,
   Bell,
   BellOff,
-  User,
   Building,
-  Calendar,
-  DollarSign,
   MessageSquare,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,8 +26,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DistributorAlert {
   id: string;
@@ -79,11 +75,7 @@ export function DistributorAlerts({ showGenerateButton = false }: DistributorAle
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [resolving, setResolving] = useState(false);
 
-  useEffect(() => {
-    fetchAlerts();
-  }, [filter]);
-
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -101,7 +93,11 @@ export function DistributorAlerts({ showGenerateButton = false }: DistributorAle
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [fetchAlerts]);
 
   const generateAlerts = async () => {
     setGenerating(true);

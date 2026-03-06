@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,7 +65,7 @@ export function TicketsList() {
   const [filtroPrioridad, setFiltroPrioridad] = useState<string>('todos')
   const [filtroTipo, setFiltroTipo] = useState<string>('todos')
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -84,11 +84,11 @@ export function TicketsList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filtroEstado, filtroPrioridad, filtroTipo])
 
   useEffect(() => {
     fetchTickets()
-  }, [filtroEstado, filtroPrioridad, filtroTipo])
+  }, [fetchTickets])
 
   const getEstadoIcon = (estado: string) => {
     const config = estadoConfig[estado as keyof typeof estadoConfig]

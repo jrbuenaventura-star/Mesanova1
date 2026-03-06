@@ -10,8 +10,6 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  ChevronDown,
-  ChevronUp,
   RefreshCw,
   FileText,
   Info,
@@ -117,7 +115,7 @@ export function CSVProductManager() {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importMode, setImportMode] = useState<ImportMode>('update');
   const [isValidating, setIsValidating] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
+  const [, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const parseApiResponse = async (response: Response) => {

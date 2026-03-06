@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Star, Diamond, CheckCircle } from "lucide-react"
+import { Star, Diamond } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface ProductSegmentBadgeProps {

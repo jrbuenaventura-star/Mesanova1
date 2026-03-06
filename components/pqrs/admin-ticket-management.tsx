@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, MessageSquare, Plus, CheckCircle, UserPlus, Eye, EyeOff, Paperclip, Download } from 'lucide-react'
+import { Loader2, MessageSquare, Plus, Eye, EyeOff, Paperclip, Download } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -112,7 +112,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
     prioridad: 'media',
   })
 
-  const fetchTicket = async () => {
+  const fetchTicket = useCallback(async () => {
     try {
       const response = await fetch(`/api/pqrs/tickets/${ticketId}`)
       const data = await response.json()
@@ -125,9 +125,9 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
     } finally {
       setLoading(false)
     }
-  }
+  }, [ticketId])
 
-  const fetchSuperadmins = async () => {
+  const fetchSuperadmins = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/users?role=superadmin')
       const data = await response.json()
@@ -137,12 +137,12 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
     } catch (error) {
       console.error('Error fetching superadmins:', error)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchTicket()
     fetchSuperadmins()
-  }, [ticketId])
+  }, [fetchSuperadmins, fetchTicket])
 
   const handleDescargarArchivo = async (archivoId: string, nombreArchivo: string) => {
     setDescargando(archivoId)
@@ -192,7 +192,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
           description: 'El estado del ticket ha sido actualizado',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al actualizar el ticket',
@@ -218,7 +218,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
           description: asignado_a ? 'Ticket asignado exitosamente' : 'Ticket desasignado',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al asignar el ticket',
@@ -244,7 +244,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
             : 'El ticket ha sido ocultado de la lista principal',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al cambiar visibilidad del ticket',
@@ -281,7 +281,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
           description: 'La tarea ha sido asignada exitosamente',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al crear la tarea',
@@ -305,7 +305,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
           description: 'El estado de la tarea ha sido actualizado',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al actualizar la tarea',
@@ -338,7 +338,7 @@ export function AdminTicketManagement({ ticketId }: AdminTicketManagementProps) 
           description: esInterno ? 'Comentario interno agregado' : 'Comentario enviado al usuario',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al enviar comentario',

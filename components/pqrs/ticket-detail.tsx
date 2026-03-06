@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -76,7 +76,7 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
   const [enviandoComentario, setEnviandoComentario] = useState(false)
   const [descargando, setDescargando] = useState<string | null>(null)
 
-  const fetchTicket = async () => {
+  const fetchTicket = useCallback(async () => {
     try {
       const response = await fetch(`/api/pqrs/tickets/${ticketId}`)
       const data = await response.json()
@@ -90,7 +90,7 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
           variant: 'destructive',
         })
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Error al cargar el ticket',
@@ -99,11 +99,11 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [ticketId, toast])
 
   useEffect(() => {
     fetchTicket()
-  }, [ticketId])
+  }, [fetchTicket])
 
   const handleDescargarArchivo = async (archivoId: string, nombreArchivo: string) => {
     setDescargando(archivoId)

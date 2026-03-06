@@ -45,7 +45,7 @@ export function GiftCardInput({
       onGiftCardApplied(data.giftCard.current_balance, data.giftCard)
       toast.success(`Bono aplicado: $${data.giftCard.current_balance.toLocaleString('es-CO')} disponibles`)
       setGiftCardCode("")
-    } catch (error) {
+    } catch {
       toast.error("Error al validar bono")
     } finally {
       setIsValidating(false)

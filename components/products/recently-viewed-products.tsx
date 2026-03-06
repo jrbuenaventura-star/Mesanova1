@@ -3,6 +3,7 @@
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 import { Clock } from "lucide-react"
 
 interface RecentlyViewedProductsProps {
@@ -34,10 +35,12 @@ export function RecentlyViewedProducts({
               <CardContent className="p-3">
                 <div className="aspect-square rounded-md overflow-hidden bg-muted mb-2">
                   {item.imageUrl ? (
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      width={300}
+                      height={300}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,17 +26,12 @@ export default function ConfirmacionPage() {
 function ConfirmacionContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get("order")
-  const supabase = createClient()
   const [order, setOrder] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (orderId) {
-      loadOrder()
-    }
-  }, [orderId])
-
-  async function loadOrder() {
+  const loadOrder = useCallback(async () => {
+    if (!orderId) return
+    const supabase = createClient()
     try {
       const { data, error } = await supabase
         .from("orders")
@@ -51,7 +46,11 @@ function ConfirmacionContent() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [orderId])
+
+  useEffect(() => {
+    loadOrder()
+  }, [loadOrder])
 
   if (isLoading) {
     return (

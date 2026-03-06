@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ShoppingBag, Package, Truck, CheckCircle, Clock, ExternalLink, RotateCcw, FileEdit, XCircle, ArrowLeftRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const statusConfig: Record<string, { label: string; color: string; badgeVariant: "default" | "secondary" | "destructive" | "outline"; icon: React.ElementType }> = {
   borrador: { label: "Borrador", color: "bg-gray-500", badgeVariant: "secondary", icon: FileEdit },
@@ -125,7 +126,7 @@ export default async function OrdenesPage() {
                           {items.slice(0, 4).map((item: any, i: number) => (
                             <div key={i} className="flex-shrink-0 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 text-sm">
                               {item.image_url && (
-                                <img src={item.image_url} alt="" className="h-8 w-8 rounded object-cover" />
+                                <Image src={item.image_url} alt="" width={32} height={32} className="h-8 w-8 rounded object-cover" />
                               )}
                               <span className="truncate max-w-[120px]">{item.name || item.product_name || 'Producto'}</span>
                               <span className="text-muted-foreground">x{item.quantity || 1}</span>

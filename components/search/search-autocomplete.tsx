@@ -4,9 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Search, Loader2 } from "lucide-react"
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
+import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import Image from "next/image"
 import { trackSearch } from "@/components/clientify/clientify-tracking"
 import { getImageKitUrl } from "@/lib/imagekit"
@@ -100,7 +99,7 @@ export function SearchAutocomplete() {
         setProductResults(products || [])
         setBlogResults(blogs || [])
         setGiftListResults(giftLists || [])
-      } catch (error) {
+      } catch {
         setProductResults([])
         setBlogResults([])
         setGiftListResults([])

@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Upload, X, Search } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -75,7 +76,7 @@ export default function NuevoPostPage() {
       const data = await response.json()
       setFeaturedImageUrl(data.url)
       toast({ title: "Éxito", description: "Imagen destacada cargada y optimizada" })
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "No se pudo subir la imagen", variant: "destructive" })
     } finally {
       setUploadingImage(false)
@@ -228,7 +229,7 @@ export default function NuevoPostPage() {
                 <Label>Imagen destacada</Label>
                 {featuredImageUrl ? (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-                    <img src={featuredImageUrl} alt="Imagen destacada" className="w-full h-full object-cover" />
+                    <Image src={featuredImageUrl} alt="Imagen destacada" fill className="object-cover" />
                     <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => setFeaturedImageUrl("")} aria-label="Cerrar">
                       <X className="h-4 w-4" />
                     </Button>

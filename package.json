@@ -11,6 +11,7 @@
     "start": "next start",
     "test": "NODE_OPTIONS='--require ./scripts/suppress-baseline-warning.js' BROWSERSLIST_IGNORE_OLD_DATA=1 BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 jest",
     "test:watch": "jest --watch",
+    "checklist:ci": "bash scripts/checklist-ci.sh",
     "test:e2e:delivery:ci": "node scripts/e2e-delivery-flow.mjs",
     "test:e2e:gift-cards:ci": "node scripts/e2e-gift-cards-flow.mjs"
   },

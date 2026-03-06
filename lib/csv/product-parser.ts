@@ -223,7 +223,7 @@ function splitCSVRows(csvContent: string): string[] {
   return rows;
 }
 
-function validateRow(row: ProductCSVRow, rowNumber: number): { errors: ValidationError[]; warnings: ValidationWarning[] } {
+function validateRow(row: ProductCSVRow): { errors: ValidationError[]; warnings: ValidationWarning[] } {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
   const normalizedHoReCa = normalizeHoReCa(row.HoReCa);
@@ -606,7 +606,7 @@ export function parseCSV(csvContent: string): CSVParseResult {
     }
     
     // Validar
-    const { errors, warnings } = validateRow(rowData, i + 1);
+    const { errors, warnings } = validateRow(rowData);
     
     products.push({
       row: i + 1,

@@ -69,7 +69,7 @@ export function WriteReviewForm({ productId, userId, onReviewSubmitted }: WriteR
       if (onReviewSubmitted) {
         onReviewSubmitted()
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al enviar reseña", {
         description: "Por favor intenta nuevamente"
       })

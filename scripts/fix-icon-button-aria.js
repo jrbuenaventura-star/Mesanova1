@@ -69,11 +69,6 @@ const ICON_LABEL_MAP = [
   [/zoomout/i, "Alejar"],
 ];
 
-function toPos(sf, node) {
-  const lc = sf.getLineAndCharacterOfPosition(node.getStart(sf));
-  return { line: lc.line + 1, col: lc.character + 1 };
-}
-
 function extractJsxText(node, sf) {
   if (!node || !node.children) return "";
   const parts = [];

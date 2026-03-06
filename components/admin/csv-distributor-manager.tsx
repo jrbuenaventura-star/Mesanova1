@@ -103,7 +103,7 @@ export function CSVDistributorManager() {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importMode, setImportMode] = useState<ImportMode>('update');
   const [isValidating, setIsValidating] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
+  const [, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const parseApiResponse = async (response: Response) => {

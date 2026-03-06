@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,6 @@ import {
   UserPlus, 
   Search,
   Phone,
-  Mail,
   Building2,
   Calendar,
   ChevronRight
@@ -56,7 +55,7 @@ export default async function LeadsPage() {
       .eq("aliado_id", aliado.id)
       .order("updated_at", { ascending: false })
     leads = data || []
-  } catch (e) {
+  } catch {
     // Tabla aún no existe
   }
 

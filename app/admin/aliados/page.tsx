@@ -17,8 +17,6 @@ import {
   Users, 
   UserPlus, 
   Search,
-  Mail,
-  Phone,
   Building2,
   MoreVertical,
   Edit,
@@ -64,7 +62,7 @@ export default async function AliadosManagementPage() {
       `)
       .order("created_at", { ascending: false })
     aliados = data || []
-  } catch (e) {
+  } catch {
     // Tabla aún no existe
   }
 
@@ -75,7 +73,7 @@ export default async function AliadosManagementPage() {
     .eq("role", "aliado")
 
   // Contar distribuidores por aliado
-  let distributorCounts: Record<string, number> = {}
+  const distributorCounts: Record<string, number> = {}
   try {
     const { data } = await supabase
       .from("distributors")
@@ -89,7 +87,7 @@ export default async function AliadosManagementPage() {
         }
       })
     }
-  } catch (e) {
+  } catch {
     // Columna aún no existe
   }
 
