@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation"
-import { getGiftRegistryByToken } from "@/lib/db/user-features"
+import { notFound, redirect } from "next/navigation"
+import { getGiftRegistryByToken, getWishlistByToken } from "@/lib/db/user-features"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -28,6 +28,10 @@ export default async function GiftRegistryPublicPage({ params }: { params: Promi
   const registry = await getGiftRegistryByToken(token, { includeInactive: true })
 
   if (!registry) {
+    const maybeWishlist = await getWishlistByToken(token)
+    if (maybeWishlist?.is_public && maybeWishlist.share_token) {
+      redirect(`/wishlist/${maybeWishlist.share_token}`)
+    }
     notFound()
   }
 
