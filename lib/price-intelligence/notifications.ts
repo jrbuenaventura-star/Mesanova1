@@ -3,6 +3,7 @@ import "server-only"
 import { Resend } from "resend"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { PriceIntelligenceTriggerSource } from "@/lib/price-intelligence/types"
+import { escapeHtml } from "@/lib/security/sanitize"
 
 interface PriceIntelNotificationPayload {
   runId: string
@@ -38,6 +39,18 @@ function normalizeEmail(value: string | null | undefined): string | null {
 function formatPercent(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(Number(value))) return "N/D"
   return `${Number(value).toLocaleString("es-CO", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
+}
+
+function safeText(value: string | null | undefined, maxLength = 240) {
+  return escapeHtml(String(value || "").trim().slice(0, maxLength)) || "N/D"
+}
+
+function safeSlackText(value: string | null | undefined, maxLength = 160) {
+  return String(value || "")
+    .replace(/[\r\n\t]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength)
 }
 
 async function getSuperadminEmails(): Promise<string[]> {
@@ -100,12 +113,12 @@ function buildReportSubject(payload: PriceIntelNotificationPayload) {
 function buildReportHtml(payload: PriceIntelNotificationPayload, reportUrl: string) {
   const domains = payload.sourceDomains
     .slice(0, 20)
-    .map((domain) => `<li>${domain.name} (${domain.count})</li>`)
+    .map((domain) => `<li>${safeText(domain.name, 120)} (${Number(domain.count || 0)})</li>`)
     .join("")
 
   const competitors = payload.competitors
     .slice(0, 20)
-    .map((item) => `<li>${item.name} (${item.count})</li>`)
+    .map((item) => `<li>${safeText(item.name, 120)} (${Number(item.count || 0)})</li>`)
     .join("")
 
   const critical = payload.topCriticalFindings
@@ -113,19 +126,19 @@ function buildReportHtml(payload: PriceIntelNotificationPayload, reportUrl: stri
     .map(
       (finding) =>
         `<tr>
-          <td style="padding:8px;border:1px solid #ddd;">${finding.productCode}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${finding.productName}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${finding.competitorName}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${safeText(finding.productCode, 80)}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${safeText(finding.productName, 220)}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${safeText(finding.competitorName, 180)}</td>
           <td style="padding:8px;border:1px solid #ddd;">${formatPercent(finding.gapPercent)}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${finding.sourceDomain || "N/D"}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${finding.recommendation || "N/D"}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${safeText(finding.sourceDomain, 120)}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${safeText(finding.recommendation, 260)}</td>
         </tr>`
     )
     .join("")
 
   return `
     <h2>Reporte de Inteligencia de Precios</h2>
-    <p><strong>Ejecución:</strong> ${payload.runId}</p>
+    <p><strong>Ejecución:</strong> ${safeText(payload.runId, 80)}</p>
     <p><strong>Origen:</strong> ${payload.triggerSource}</p>
     <p><strong>Estado:</strong> ${payload.status}</p>
     <p><strong>Productos analizados:</strong> ${payload.processedProducts}</p>
@@ -150,28 +163,43 @@ function buildReportHtml(payload: PriceIntelNotificationPayload, reportUrl: stri
       </thead>
       <tbody>${critical || `<tr><td colspan="6" style="padding:8px;border:1px solid #ddd;">Sin hallazgos críticos</td></tr>`}</tbody>
     </table>
-    <p style="margin-top:16px;"><a href="${reportUrl}" target="_blank" rel="noreferrer">Abrir tablero de inteligencia de precios</a></p>
+    <p style="margin-top:16px;"><a href="${safeText(reportUrl, 500)}" target="_blank" rel="noreferrer">Abrir tablero de inteligencia de precios</a></p>
   `
 }
 
 function buildSlackText(payload: PriceIntelNotificationPayload, reportUrl: string) {
-  const topDomains = payload.sourceDomains.slice(0, 8).map((item) => `${item.name} (${item.count})`).join(", ")
-  const topCompetitors = payload.competitors.slice(0, 8).map((item) => `${item.name} (${item.count})`).join(", ")
+  const topDomains = payload.sourceDomains
+    .slice(0, 8)
+    .map((item) => `${safeSlackText(item.name, 80)} (${Number(item.count || 0)})`)
+    .join(", ")
+  const topCompetitors = payload.competitors
+    .slice(0, 8)
+    .map((item) => `${safeSlackText(item.name, 80)} (${Number(item.count || 0)})`)
+    .join(", ")
   return [
     `*Reporte IA Precios* (${payload.triggerSource})`,
-    `Run: ${payload.runId}`,
-    `Estado: ${payload.status}`,
+    `Run: ${safeSlackText(payload.runId, 80)}`,
+    `Estado: ${safeSlackText(payload.status, 80)}`,
     `Analizados: ${payload.processedProducts}`,
     `Hallazgos: ${payload.findingsCount} | Relevantes: ${payload.significantFindingsCount} | Críticos: ${payload.criticalFindingsCount}`,
     `Umbral relevante: ${payload.thresholdPercent}% | Umbral crítico: ${payload.criticalThresholdPercent}%`,
     `Competidores IA: ${topCompetitors || "sin datos"}`,
     `Dominios fuente: ${topDomains || "sin datos"}`,
-    `Reporte: ${reportUrl}`,
+    `Reporte: ${safeSlackText(reportUrl, 300)}`,
   ].join("\n")
 }
 
+function resolveReportUrl() {
+  try {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    return new URL("/admin/productos?tab=analisis-precios-ia", base).toString()
+  } catch {
+    return "http://localhost:3000/admin/productos?tab=analisis-precios-ia"
+  }
+}
+
 export async function sendPriceIntelligenceNotifications(payload: PriceIntelNotificationPayload) {
-  const reportUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/admin/productos?tab=analisis-precios-ia`
+  const reportUrl = resolveReportUrl()
   const result = {
     email: { sent: false, recipients: 0, error: null as string | null },
     slack: { sent: false, error: null as string | null },
@@ -226,4 +254,3 @@ export async function sendPriceIntelligenceNotifications(payload: PriceIntelNoti
 
   return result
 }
-

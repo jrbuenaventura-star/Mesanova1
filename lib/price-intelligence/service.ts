@@ -15,6 +15,7 @@ const DEFAULT_MODEL = process.env.GEMINI_PRICE_INTEL_MODEL || "gemini-2.0-flash"
 const DEFAULT_THRESHOLD_PERCENT = 10
 const DEFAULT_CRITICAL_THRESHOLD_PERCENT = 20
 const DEFAULT_MAX_PRODUCTS_PER_RUN = 400
+const MAX_PRODUCTS_PER_RUN_HARD_LIMIT = 500
 const DEFAULT_FINDINGS_LIMIT = 300
 
 function envNumber(name: string, fallback: number) {
@@ -88,18 +89,41 @@ export interface PriceIntelligenceSnapshot {
 
 export async function runPriceIntelligenceAnalysis(options: RunPriceIntelligenceOptions): Promise<PriceIntelligenceRunSummary> {
   const admin = createAdminClient()
+  const maxProductsRequested =
+    options.maxProducts && Number.isFinite(options.maxProducts) && options.maxProducts > 0
+      ? Math.trunc(options.maxProducts)
+      : envNumber("PRICE_INTEL_MAX_PRODUCTS_PER_RUN", DEFAULT_MAX_PRODUCTS_PER_RUN)
+  const maxProducts = Math.max(1, Math.min(MAX_PRODUCTS_PER_RUN_HARD_LIMIT, maxProductsRequested))
+
   const thresholdPercent =
     options.thresholdPercent && Number.isFinite(options.thresholdPercent) && options.thresholdPercent > 0
-      ? options.thresholdPercent
+      ? Math.min(100, options.thresholdPercent)
       : envNumber("PRICE_INTEL_SIGNIFICANT_DIFF_PERCENT", DEFAULT_THRESHOLD_PERCENT)
   const criticalThresholdPercent =
     options.criticalThresholdPercent &&
     Number.isFinite(options.criticalThresholdPercent) &&
     options.criticalThresholdPercent > 0
-      ? options.criticalThresholdPercent
+      ? Math.min(150, options.criticalThresholdPercent)
       : envNumber("PRICE_INTEL_CRITICAL_DIFF_PERCENT", DEFAULT_CRITICAL_THRESHOLD_PERCENT)
-  const maxProducts = options.maxProducts || envNumber("PRICE_INTEL_MAX_PRODUCTS_PER_RUN", DEFAULT_MAX_PRODUCTS_PER_RUN)
   const model = DEFAULT_MODEL
+
+  const { data: activeRun, error: activeRunError } = await admin
+    .from("price_intelligence_runs")
+    .select("id, started_at")
+    .eq("status", "processing")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (activeRunError && !isTableMissingError(activeRunError)) {
+    throw new Error(`No se pudo validar ejecución activa: ${activeRunError.message}`)
+  }
+
+  if (activeRun?.id) {
+    throw new Error(
+      `Ya existe una ejecución en curso (${activeRun.id}). Espera a que termine antes de iniciar otra.`
+    )
+  }
 
   const { data: products, error: productsError } = await admin
     .from("products")
@@ -137,6 +161,9 @@ export async function runPriceIntelligenceAnalysis(options: RunPriceIntelligence
     .single()
 
   if (runInsertError) {
+    if (String(runInsertError?.code || "") === "23505") {
+      throw new Error("Ya existe una ejecución en curso. Intenta nuevamente en unos minutos.")
+    }
     if (isTableMissingError(runInsertError)) {
       throw new Error("Faltan tablas de inteligencia de precios. Ejecuta scripts/024_create_price_intelligence_tables.sql")
     }
@@ -251,7 +278,9 @@ export async function runPriceIntelligenceAnalysis(options: RunPriceIntelligence
       processedProducts += 1
       errorsCount += 1
       if (errors.length < 25) {
-        errors.push(`${product.pdt_codigo}: ${error instanceof Error ? error.message : "Error desconocido"}`)
+        const shortMessage =
+          error instanceof Error ? error.message.replace(/\s+/g, " ").slice(0, 260) : "Error desconocido"
+        errors.push(`${product.pdt_codigo}: ${shortMessage}`)
       }
     }
   }
@@ -374,8 +403,8 @@ export async function getPriceIntelligenceSnapshot(args?: {
   findingsLimit?: number
 }): Promise<PriceIntelligenceSnapshot> {
   const admin = createAdminClient()
-  const runsLimit = args?.runsLimit || 20
-  const findingsLimit = args?.findingsLimit || DEFAULT_FINDINGS_LIMIT
+  const runsLimit = Math.max(1, Math.min(120, args?.runsLimit || 20))
+  const findingsLimit = Math.max(1, Math.min(1000, args?.findingsLimit || DEFAULT_FINDINGS_LIMIT))
 
   const { data: runs, error: runsError } = await admin
     .from("price_intelligence_runs")

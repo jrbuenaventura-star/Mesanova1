@@ -121,6 +121,18 @@ function directionLabel(direction: PriceIntelligenceFinding["difference_directio
   return "Precio similar"
 }
 
+function toSafeExternalUrl(raw: string | null | undefined) {
+  if (!raw) return null
+  try {
+    const parsed = new URL(raw)
+    if (parsed.protocol !== "https:") return null
+    parsed.hash = ""
+    return parsed.toString()
+  } catch {
+    return null
+  }
+}
+
 export function PriceIntelligenceDashboard() {
   const [snapshot, setSnapshot] = useState<SnapshotResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -480,8 +492,10 @@ export function PriceIntelligenceDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {snapshot?.findings.map((finding) => (
-                      <TableRow key={finding.id}>
+                    {snapshot?.findings.map((finding) => {
+                      const safeSourceUrl = toSafeExternalUrl(finding.source_url)
+                      return (
+                        <TableRow key={finding.id}>
                         <TableCell>
                           <p className="font-medium">{finding.product_name}</p>
                           <p className="text-xs text-muted-foreground">SKU: {finding.product_code}</p>
@@ -506,9 +520,9 @@ export function PriceIntelligenceDashboard() {
                           </p>
                         </TableCell>
                         <TableCell>
-                          {finding.source_url ? (
+                          {safeSourceUrl ? (
                             <a
-                              href={finding.source_url}
+                              href={safeSourceUrl}
                               target="_blank"
                               rel="noreferrer"
                               className="text-sm text-primary underline-offset-2 hover:underline"
@@ -516,7 +530,7 @@ export function PriceIntelligenceDashboard() {
                               {finding.source_domain || "Ver fuente"}
                             </a>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Sin URL</span>
+                            <span className="text-xs text-muted-foreground">URL no confiable</span>
                           )}
                         </TableCell>
                         <TableCell className="max-w-xs text-sm text-muted-foreground">
@@ -556,8 +570,9 @@ export function PriceIntelligenceDashboard() {
                             </Button>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    ))}
+                        </TableRow>
+                      )
+                    })}
                   </TableBody>
                 </Table>
               )}
